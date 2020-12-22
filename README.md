@@ -1,4 +1,4 @@
-# puzzbot, a Discord bot for Mystery Hunt
+# puzzcord, a Discord bot for Mystery Hunt
 
 Bot prefix: `pb!`
 

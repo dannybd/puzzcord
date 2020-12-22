@@ -31,7 +31,7 @@ async def on_message(message):
             return
 
     if command == 'hello':
-        await src_channel.send('Hi, {0.mention}! I\'m puzzbot.'.format(message.author))
+        await src_channel.send('Hi, {0.mention}! I\'m puzzcord.'.format(message.author))
         return
 
 async def gen_create_channel(src_channel, args):
