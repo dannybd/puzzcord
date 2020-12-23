@@ -28,8 +28,8 @@ async def on_ready():
     await client.close()
 
 @client.event
-async def on_error(*args, **kwargs):
-    log('ERROR:', args, kwargs)
+async def on_error(e, *args, **kwargs):
+    log('ERROR:', e, args, kwargs)
     await client.close()
 
 async def gen_create_channel(name, topic, *args):
@@ -68,6 +68,7 @@ async def gen_channelx(channel_id):
     channel = await client.fetch_channel(channel_id)
     if channel == None:
         error_msg = 'Channel ID {0} missing!'.format(channel_id)
+        log('ERROR:', error_msg)
         raise Error(error_msg)
     return channel
 
