@@ -14,22 +14,30 @@ SOLVED_PUZZLE_CATEGORY = 790348578018820096
 async def on_ready():
     log('LOG: Connected as {0.user} and ready!'.format(client))
     log('LOG: Command: {0}, Args: {1}'.format(command, args))
+    try:
+        await gen_run()
+    except Exception as e:
+        log('ERROR:', e)
+    finally:
+        await client.close()
+
+async def gen_run():
     if command == 'create':
         new_channel = await gen_create_channel(*args)
         print(new_channel.id)
+        return
 
     if command == 'message':
         message = await gen_message_channel(*args)
         print(message.jump_url)
+        return
 
     if command == 'archive':
         await gen_archive_channel(*args)
-
-    await client.close()
+        return
 
 @client.event
-async def on_error(e, *args, **kwargs):
-    log('ERROR:', e, args, kwargs)
+async def on_error(*args, **kwargs):
     await client.close()
 
 async def gen_create_channel(name, topic, *args):
@@ -65,7 +73,10 @@ async def gen_message_channel(channel_id, message, *args):
     return message
 
 async def gen_channelx(channel_id):
-    channel = await client.fetch_channel(channel_id)
+    if isinstance(channel_id, int):
+        channel = await client.fetch_channel(channel_id)
+    else:
+        channel = discord.utils.get(client.get_all_channels(), name=channel_id)
     if channel == None:
         error_msg = 'Channel ID {0} missing!'.format(channel_id)
         log('ERROR:', error_msg)
