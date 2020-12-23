@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 
 import discord
+import json
 import sys
 
 client = discord.Client()
@@ -27,6 +28,16 @@ async def gen_run():
         print(new_channel.id)
         return
 
+    if command == 'create_json':
+        new_channel = await gen_create_channel(*args)
+        invite = await new_channel.create_invite()
+        print(json.dumps({
+            'id': new_channel.id,
+            'name': new_channel.name,
+            'url': invite.url,
+        }))
+        return
+
     if command == 'message':
         message = await gen_message_channel(*args)
         print(message.jump_url)
@@ -35,6 +46,8 @@ async def gen_run():
     if command == 'archive':
         await gen_archive_channel(*args)
         return
+
+    raise Exception('command {0} not supported!'.format(command))
 
 @client.event
 async def on_error(*args, **kwargs):
@@ -92,8 +105,5 @@ if __name__ == "__main__":
         print('Usage: create | message | archive')
         sys.exit()
     command, *args = args
-    if command not in ['create', 'message', 'archive']:
-        print('Usage: create | message | archive')
-        sys.exit()
     with open('.botsecret', 'r') as f:
         client.run(f.read())
