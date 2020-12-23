@@ -24,16 +24,17 @@ async def on_ready():
 
 async def gen_run():
     if command == 'create':
-        new_channel = await gen_create_channel(*args)
-        print(new_channel.id)
+        channel = await gen_create_channel(*args)
+        print(channel.id)
         return
 
     if command == 'create_json':
-        new_channel = await gen_create_channel(*args)
+        channel = await gen_create_channel(*args)
         invite = await new_channel.create_invite()
         print(json.dumps({
-            'id': new_channel.id,
-            'name': new_channel.name,
+            'id': channel.id,
+            'name': channel.name,
+            'mention': channel.mention,
             'url': invite.url,
         }))
         return
@@ -47,19 +48,24 @@ async def gen_run():
         await gen_archive_channel(*args)
         return
 
+    if command == 'stats':
+        guild = client.get_guild(GUILD_ID)
+        print(len(guild.members))
+        return
+
     raise Exception('command {0} not supported!'.format(command))
 
 @client.event
 async def on_error(*args, **kwargs):
     await client.close()
 
-async def gen_create_channel(name, topic, *args):
+async def gen_create_channel(name, *topic):
     category = await gen_channelx(PUZZLE_CATEGORY)
     channel = await category.create_text_channel(
         name=name,
         position=1,
         reason='New puzzle: "{0}"'.format(name),
-        topic=topic,
+        topic=' '.join(topic),
     )
     log('LOG: Created #{0.name} puzzle channel'.format(channel))
     return channel
@@ -79,9 +85,9 @@ async def gen_archive_channel(channel_id, *args):
     )
     log('LOG: Archived #{0.name} puzzle channel'.format(channel))
 
-async def gen_message_channel(channel_id, message, *args):
+async def gen_message_channel(channel_id, *message):
     channel = await gen_channelx(channel_id)
-    message = await channel.send(content=message)
+    message = await channel.send(content=' '.join(message))
     log('LOG: Message sent to {0.name}'.format(channel))
     return message
 
