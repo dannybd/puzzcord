@@ -24,12 +24,16 @@ async def on_ready():
 
 async def gen_run():
     if command == 'create':
-        channel = await gen_create_channel(*args)
+        name, *topic = args
+        topic = ' '.join(topic)
+        channel = await gen_create_channel(name, topic)
         print(channel.id)
         return
 
     if command == 'create_json':
-        channel = await gen_create_channel(*args)
+        name, *topic = args
+        topic = ' '.join(topic)
+        channel = await gen_create_channel(name, topic)
         invite = await channel.create_invite()
         print(json.dumps({
             'id': channel.id,
@@ -40,12 +44,16 @@ async def gen_run():
         return
 
     if command == 'message':
-        message = await gen_message_channel(*args)
+        channel_id, *content = args
+        content = ' '.join(content)
+        message = await gen_message_channel(channel_id, content)
         print(message.jump_url)
         return
 
     if command == 'archive':
-        await gen_archive_channel(*args)
+        channel_id, *solution = args
+        solution = ' '.join(solution)
+        await gen_archive_channel(channel_id, solution)
         return
 
     if command == 'stats':
@@ -59,27 +67,25 @@ async def gen_run():
 async def on_error(*args, **kwargs):
     await client.close()
 
-async def gen_create_channel(name, *topic):
+async def gen_create_channel(name, topic):
     category = await gen_channelx(PUZZLE_CATEGORY)
     channel = await category.create_text_channel(
         name=name,
         position=1,
         reason='New puzzle: "{0}"'.format(name),
-        topic=' '.join(topic),
+        topic=topic,
     )
     log('LOG: Created #{0.name} puzzle channel'.format(channel))
     return channel
 
-async def gen_message_channel(channel_id, *content):
+async def gen_message_channel(channel_id, content):
     channel = await gen_channelx(channel_id)
-    content = ' '.join(content)
     message = await channel.send(content=content)
     log('LOG: Message sent to {0.name}'.format(channel))
     return message
 
-async def gen_archive_channel(channel_id, *solution):
+async def gen_archive_channel(channel_id, solution):
     channel = await gen_channelx(channel_id)
-    solution = ' '.join(solution)
     if solution:
         await channel.send(
             '**Puzzle solved!** Answer: ||`{0}`||'.format(solution) +
