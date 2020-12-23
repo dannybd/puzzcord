@@ -30,7 +30,7 @@ async def gen_run():
 
     if command == 'create_json':
         channel = await gen_create_channel(*args)
-        invite = await new_channel.create_invite()
+        invite = await channel.create_invite()
         print(json.dumps({
             'id': channel.id,
             'name': channel.name,
@@ -50,7 +50,7 @@ async def gen_run():
 
     if command == 'stats':
         guild = client.get_guild(GUILD_ID)
-        print(len(guild.members))
+        print(json.dumps({str(c.id): c.name for c in guild.channels}))
         return
 
     raise Exception('command {0} not supported!'.format(command))
@@ -70,8 +70,21 @@ async def gen_create_channel(name, *topic):
     log('LOG: Created #{0.name} puzzle channel'.format(channel))
     return channel
 
-async def gen_archive_channel(channel_id, *args):
+async def gen_message_channel(channel_id, *content):
     channel = await gen_channelx(channel_id)
+    content = ' '.join(content)
+    message = await channel.send(content=content)
+    log('LOG: Message sent to {0.name}'.format(channel))
+    return message
+
+async def gen_archive_channel(channel_id, *solution):
+    channel = await gen_channelx(channel_id)
+    solution = ' '.join(solution)
+    if solution:
+        await channel.send(
+            '**Puzzle solved!** Answer: ||`{0}`||'.format(solution) +
+            '\nChannel will now be archived.'
+        )
 
     if channel.category_id == SOLVED_PUZZLE_CATEGORY:
         log('LOG: {0.name} ({0.id}) already solved'.format(channel))
@@ -85,21 +98,16 @@ async def gen_archive_channel(channel_id, *args):
     )
     log('LOG: Archived #{0.name} puzzle channel'.format(channel))
 
-async def gen_message_channel(channel_id, *message):
-    channel = await gen_channelx(channel_id)
-    message = await channel.send(content=' '.join(message))
-    log('LOG: Message sent to {0.name}'.format(channel))
-    return message
-
 async def gen_channelx(channel_id):
-    if isinstance(channel_id, int):
-        channel = await client.fetch_channel(channel_id)
-    else:
+    channel = None
+    if isinstance(channel_id, int) or channel_id.isnumeric():
+        guild = client.get_guild(GUILD_ID)
+        channel = await client.fetch_channel(int(channel_id))
+    if channel == None:
         channel = discord.utils.get(client.get_all_channels(), name=channel_id)
     if channel == None:
         error_msg = 'Channel ID {0} missing!'.format(channel_id)
-        log('ERROR:', error_msg)
-        raise Error(error_msg)
+        raise Exception(error_msg)
     return channel
 
 def log(*a):
