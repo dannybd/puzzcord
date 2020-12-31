@@ -114,13 +114,13 @@ async def gen_announce_attention(puzzle_name):
     puzzle = get_puzzlex(puzzle_name)
     status = puzzle['status']
     if status == 'Needs eyes':
-        content = "**❗️ Puzzle `{name}` NEEDS EYES! 👀**".format(**puzzle)
+        content = "**❗️ Puzzle _`{name}`_ NEEDS EYES! 👀**".format(**puzzle)
         embed = build_embed(puzzle)
     elif status == 'Critical':
-        content = "**🚨 Puzzle `{name}` IS CRITICAL! ⚠️**".format(**puzzle)
+        content = "**🚨 Puzzle _`{name}`_ IS CRITICAL! ⚠️**".format(**puzzle)
         embed = build_embed(puzzle)
     elif status == 'Unnecessary':
-        content = "**🤷 Puzzle `{name}` is now UNNECESSARY! 🤷**".format(**puzzle)
+        content = "**🤷 Puzzle _`{name}`_ is now UNNECESSARY! 🤷**".format(**puzzle)
         embed = None
     else:
         return
