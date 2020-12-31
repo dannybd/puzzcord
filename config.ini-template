@@ -1,2 +1,9 @@
+[puzzledb]
+host = localhost
+port = 80
+user = admin
+passwd = secureihope
+db = puzzledb
+
 [discord]
 botsecret = <<BOTSECRET>>

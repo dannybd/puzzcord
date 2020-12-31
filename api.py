@@ -3,12 +3,15 @@
 import configparser
 import discord
 import json
+import pymysql
 import sys
 
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-client = discord.Client()
+intents = discord.Intents.default()
+intents.members = True
+client = discord.Client(intents=intents)
 
 GUILD_ID = 790341470171168800
 PUZZTECH_CHANNEL = 790387626531225611
@@ -24,6 +27,7 @@ async def on_ready():
     except Exception as e:
         log('ERROR:', e)
     finally:
+        connection.close()
         await client.close()
 
 async def gen_run():
@@ -62,13 +66,14 @@ async def gen_run():
 
     if command == 'stats':
         guild = client.get_guild(GUILD_ID)
-        print(json.dumps({str(c.id): c.name for c in guild.channels}))
+        print('Server has', len(guild.members), 'members, including bots')
         return
 
     raise Exception('command {0} not supported!'.format(command))
 
 @client.event
 async def on_error(*args, **kwargs):
+    connection.close()
     await client.close()
 
 async def gen_create_channel(name, topic):
@@ -120,6 +125,35 @@ async def gen_channelx(channel_id):
         raise Exception(error_msg)
     return channel
 
+def get_puzzle_from_db(puzzle_name):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+               name,
+               round,
+               puzzle_uri,
+               drive_uri,
+               slack_channel_id AS channel_id
+            FROM puzzle_view
+            WHERE name = %s
+            LIMIT 1
+            """,
+            (puzzle_name,)
+        )
+        return cursor.fetchone()
+
+def get_db_connection():
+    creds = config['puzzledb']
+    return pymysql.connect(
+        host=creds['host'],
+        port=creds.getint('port'),
+        user=creds['user'].lower(),
+        password=creds['passwd'],
+        db=creds['db'],
+        cursorclass=pymysql.cursors.DictCursor,
+    )
+
 def log(*a):
     print(*a, file=sys.stderr)
 
@@ -129,4 +163,5 @@ if __name__ == "__main__":
         print('Usage: create | message | archive')
         sys.exit()
     command, *args = args
+    connection = get_db_connection()
     client.run(config['discord']['botsecret'])
