@@ -77,6 +77,10 @@ async def gen_run():
         await gen_announce_new(puzzle_name)
         return
 
+    if command == '_solve':
+        await gen_announce_solve(puzzle_name)
+        return
+
     raise Exception('command {0} not supported!'.format(command))
 
 @client.event
@@ -93,6 +97,14 @@ async def gen_announce_new(puzzle_name):
     await message.pin()
     status_channel = await gen_channelx(STATUS_CHANNEL)
     await status_channel.send(content=content, embed=embed)
+
+async def gen_announce_solve(puzzle_name):
+    puzzle = get_puzzlex(puzzle_name)
+    await gen_archive_channel(channel_id=puzzle['channel_id'], solution=puzzle['answer'])
+    content = "**🎉 Puzzle _`{name}`_ has been solved! 🥳**\n(Answer: `{answer}`)\n".format(**puzzle) \
+      + "Way to go team! <:doge:794152196429316117>"
+    status_channel = await gen_channelx(STATUS_CHANNEL)
+    await status_channel.send(content=content)
 
 def build_embed(puzzle):
     hue = (int(puzzle['round'].lower(), 36)+2.0**31)/2**32
