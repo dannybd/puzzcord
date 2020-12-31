@@ -15,6 +15,7 @@ client = discord.Client(intents=intents)
 
 GUILD_ID = 790341470171168800
 PUZZTECH_CHANNEL = 790387626531225611
+STATUS_CHANNEL = 790348440890507285
 PUZZLE_CATEGORY = 790343785804201984
 SOLVED_PUZZLE_CATEGORY = 790348578018820096
 
@@ -69,12 +70,55 @@ async def gen_run():
         print('Server has', len(guild.members), 'members, including bots')
         return
 
+    # DB Commands
+    puzzle_name = ' '.join(args)
+
+    if command == '_new':
+        await gen_announce_new(puzzle_name)
+        return
+
     raise Exception('command {0} not supported!'.format(command))
 
 @client.event
 async def on_error(*args, **kwargs):
     connection.close()
     await client.close()
+
+async def gen_announce_new(puzzle_name):
+    puzzle = get_puzzlex(puzzle_name)
+    channel = await gen_channelx(puzzle['channel_id'])
+    content = "**🚨 New Puzzle 🚨 _`{name}`_ ADDED!**".format(**puzzle)
+    embed = build_embed(puzzle)
+    message = await channel.send(content=content, embed=embed)
+    await message.pin()
+    status_channel = await gen_channelx(STATUS_CHANNEL)
+    await status_channel.send(content=content, embed=embed)
+
+def build_embed(puzzle):
+    hue = (int(puzzle['round'].lower(), 36)+2.0**31)/2**32
+    embed = discord.Embed(
+        color=discord.Color.from_hsv(hue, 0.655, 1),
+        title="Puzzle: _`{name}`_".format(**puzzle),
+    )
+
+    status = puzzle['status']
+    if status == 'Needs eyes':
+        embed.add_field(name="Status", value="❗️ {status} 👀".format(**puzzle), inline=False)
+    if status == 'Critical':
+        embed.add_field(name="Status", value="🚨️ {status} ⚠️".format(**puzzle), inline=False)
+    if status == 'Unnecessary':
+        embed.add_field(name="Status", value="🤷‍♀️️{status} 🤷‍♂️️".format(**puzzle), inline=False)
+    if status == 'Solved':
+        embed.add_field(name="Status", value="✅ {status} 🥳".format(**puzzle), inline=True)
+        embed.add_field(name="Answer", value="||`{answer}`||".format(**puzzle), inline=True)
+    if status == 'WTF':
+        embed.add_field(name="Status", value="☣️  {status} ☣️".format(**puzzle), inline=False)
+
+    embed.add_field(name="Puzzle URL", value=puzzle['puzzle_uri'], inline=False)
+    embed.add_field(name="Google Doc", value=puzzle['drive_uri'], inline=False)
+    embed.add_field(name="Discord Channel", value="<#{channel_id}>".format(**puzzle), inline=True)
+    embed.add_field(name="Round", value=puzzle['round'], inline=True)
+    return embed
 
 async def gen_create_channel(name, topic):
     category = await gen_channelx(PUZZLE_CATEGORY)
@@ -125,6 +169,12 @@ async def gen_channelx(channel_id):
         raise Exception(error_msg)
     return channel
 
+def get_puzzlex(puzzle_name):
+    puzzle = get_puzzle_from_db(puzzle_name)
+    if puzzle is None:
+        raise Exception('Puzzle "{0}" not found'.format(puzzle_name))
+    return puzzle
+
 def get_puzzle_from_db(puzzle_name):
     with connection.cursor() as cursor:
         cursor.execute(
@@ -134,7 +184,9 @@ def get_puzzle_from_db(puzzle_name):
                round,
                puzzle_uri,
                drive_uri,
-               slack_channel_id AS channel_id
+               slack_channel_id AS channel_id,
+               status,
+               answer
             FROM puzzle_view
             WHERE name = %s
             LIMIT 1
