@@ -1,8 +1,12 @@
 #! /usr/bin/python3
 
+import configparser
 import discord
 import json
 import sys
+
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 client = discord.Client()
 
@@ -125,5 +129,4 @@ if __name__ == "__main__":
         print('Usage: create | message | archive')
         sys.exit()
     command, *args = args
-    with open('.botsecret', 'r') as f:
-        client.run(f.read())
+    client.run(config['discord']['botsecret'])
