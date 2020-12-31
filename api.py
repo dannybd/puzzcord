@@ -81,6 +81,10 @@ async def gen_run():
         await gen_announce_solve(puzzle_name)
         return
 
+    if command == '_attention':
+        await gen_announce_attention(puzzle_name)
+        return
+
     raise Exception('command {0} not supported!'.format(command))
 
 @client.event
@@ -106,6 +110,25 @@ async def gen_announce_solve(puzzle_name):
     status_channel = await gen_channelx(STATUS_CHANNEL)
     await status_channel.send(content=content)
 
+async def gen_announce_attention(puzzle_name):
+    puzzle = get_puzzlex(puzzle_name)
+    status = puzzle['status']
+    if status == 'Needs eyes':
+        content = "**❗️ Puzzle `{name}` NEEDS EYES! 👀**".format(**puzzle)
+        embed = build_embed(puzzle)
+    elif status == 'Critical':
+        content = "**🚨 Puzzle `{name}` IS CRITICAL! ⚠️**".format(**puzzle)
+        embed = build_embed(puzzle)
+    elif status == 'Unnecessary':
+        content = "**🤷 Puzzle `{name}` is now UNNECESSARY! 🤷**".format(**puzzle)
+        embed = None
+    else:
+        return
+    channel = await gen_channelx(puzzle['channel_id'])
+    await channel.send(content=content, embed=embed)
+    status_channel = await gen_channelx(STATUS_CHANNEL)
+    await status_channel.send(content=content, embed=embed)
+
 def build_embed(puzzle):
     hue = (int(puzzle['round'].lower(), 36)+2.0**31)/2**32
     embed = discord.Embed(
@@ -119,7 +142,7 @@ def build_embed(puzzle):
     if status == 'Critical':
         embed.add_field(name="Status", value="🚨️ {status} ⚠️".format(**puzzle), inline=False)
     if status == 'Unnecessary':
-        embed.add_field(name="Status", value="🤷‍♀️️{status} 🤷‍♂️️".format(**puzzle), inline=False)
+        embed.add_field(name="Status", value="🤷 {status} 🤷".format(**puzzle), inline=False)
     if status == 'Solved':
         embed.add_field(name="Status", value="✅ {status} 🥳".format(**puzzle), inline=True)
         embed.add_field(name="Answer", value="||`{answer}`||".format(**puzzle), inline=True)
