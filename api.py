@@ -76,16 +76,21 @@ async def gen_run():
     puzzle_name = ' '.join(args)
 
     if command == '_new':
-        await gen_announce_new(puzzle_name)
-        return
+        return await gen_announce_new(puzzle_name)
 
     if command == '_solve':
-        await gen_announce_solve(puzzle_name)
-        return
+        return await gen_announce_solve(puzzle_name)
 
     if command == '_attention':
-        await gen_announce_attention(puzzle_name)
-        return
+        return await gen_announce_attention(puzzle_name)
+
+    if command == '_round':
+        round_name = puzzle_name
+        return await gen_announce_round(round_name, False)
+
+    if command == '_round2':
+        round_name = puzzle_name
+        return await gen_announce_round(round_name, True)
 
     raise Exception('command {0} not supported!'.format(command))
 
@@ -130,6 +135,22 @@ async def gen_announce_attention(puzzle_name):
     await channel.send(content=content, embed=embed)
     status_channel = await gen_channelx(STATUS_CHANNEL)
     await status_channel.send(content=content, embed=embed)
+
+async def gen_announce_round(round_name, should_create):
+    if should_create:
+        await gen_create_round(round_name)
+    content = "🆕🔄 **New Round added! _`{0}`_**".format(round_name)
+    status_channel = await gen_channelx(STATUS_CHANNEL)
+    embed = discord.Embed(
+        color=get_round_embed_color(round_name),
+        title="Round: _`{0}`_".format(round_name),
+    )
+
+    await status_channel.send(content=content, embed=embed)
+
+async def gen_create_round(round_name):
+    guild = client.get_guild(GUILD_ID)
+    return
 
 def build_puzzle_embed(puzzle):
     embed = discord.Embed(
