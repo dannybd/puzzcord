@@ -140,7 +140,7 @@ async def gen_announce_attention(puzzle_name):
         prefix = "🤷  "
         content = "**🤷 Puzzle _`{name}`_ is now UNNECESSARY! 🤷**".format(**puzzle)
         embed = None
-    elif status == "Unnecessary":
+    elif status == "WTF":
         prefix = "☣️  "
         content = None
         embed = None
