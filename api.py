@@ -58,20 +58,23 @@ async def gen_run():
         )
         return
 
-    if command == "message":
-        channel_id, *content = args
-        content = " ".join(content)
-        message = await gen_message_channel(channel_id, content)
-        print(message.jump_url)
-        return
+    # DB Commands
+    puzzle_name = " ".join(args)
 
-    if command == "archive":
-        channel_id, *answer = args
-        answer = " ".join(answer)
-        channel = get_channelx(channel_id)
-        await gen_archive_channel(channel, answer)
-        return
+    if command == "_new":
+        return await gen_announce_new(puzzle_name)
 
+    if command == "_solve":
+        return await gen_announce_solve(puzzle_name)
+
+    if command == "_attention":
+        return await gen_announce_attention(puzzle_name)
+
+    if command == "_round":
+        round_name = puzzle_name
+        return await gen_announce_round(round_name)
+
+    # Helper methods
     if command == "stats":
         print("Server has", len(guild.members), "members, including bots")
         with connection.cursor() as cursor:
@@ -88,22 +91,6 @@ async def gen_run():
                 [row["name"] for row in rows],
             )
         return
-
-    # DB Commands
-    puzzle_name = " ".join(args)
-
-    if command == "_new":
-        return await gen_announce_new(puzzle_name)
-
-    if command == "_solve":
-        return await gen_announce_solve(puzzle_name)
-
-    if command == "_attention":
-        return await gen_announce_attention(puzzle_name)
-
-    if command == "_round":
-        round_name = puzzle_name
-        return await gen_announce_round(round_name)
 
     raise Exception("command {0} not supported!".format(command))
 
@@ -131,11 +118,16 @@ async def gen_announce_new(puzzle_name):
 
 async def gen_announce_solve(puzzle_name):
     puzzle, channel = get_puzzle_and_channel(puzzle_name)
-    await gen_archive_channel(channel=channel, answer=puzzle["answer"])
+    await gen_archive_channel(puzzle, channel)
+    return
+    await channel.send(
+        "**Puzzle solved!** Answer: ||`{answer}`||".format(**puzzle)
+        + "\nChannel is now archived."
+    )
     content = (
         "**🎉 Puzzle _`{name}`_ has been solved! 🥳**\n"
         + "(Answer: ||`{answer}`||)\n"
-        + "Way to go team! <:doge:794152196429316117>"
+        + "Way to go team! 🎉"
     ).format(**puzzle)
     await status_channel.send(content=content)
 
@@ -163,7 +155,7 @@ async def gen_announce_attention(puzzle_name):
         embed = None
 
     if prefix:
-        await channel.edit(name=prefix+channel.name)
+        await channel.edit(name=prefix + channel.name)
     if content:
         await channel.send(content=content, embed=embed)
         await status_channel.send(content=content, embed=embed)
@@ -180,10 +172,10 @@ async def gen_announce_round(round_name):
 
 
 async def gen_or_create_round_category(round_name, is_solved=False):
-    category_name = ("Solved from: {0}" if is_solved else "🧩 {0}").format(round_name)
+    category_name = ("🏁 Solved from: {0}" if is_solved else "🧩 {0}").format(round_name)
     existing_categories = [c for c in guild.categories if c.name == category_name]
     category = discord.utils.find(
-        lambda category: len(category.channels) < 2,
+        lambda category: len(category.channels) < 50,
         existing_categories,
     )
     if category:
@@ -191,8 +183,8 @@ async def gen_or_create_round_category(round_name, is_solved=False):
         return category
 
     if is_solved:
-        # I Need a Break
-        source_category = client.get_channel(790351336884535317)
+        # 🏁 Solved Puzzles: 🏁
+        source_category = client.get_channel(790348578018820096)
     else:
         # 🧩 Puzzles below here: 🧩
         source_category = client.get_channel(790343785804201984)
@@ -279,31 +271,26 @@ async def gen_create_channel(name, topic):
     return channel
 
 
-async def gen_message_channel(channel_id, content):
-    channel = get_channelx(channel_id)
-    message = await channel.send(content=content)
-    logging.info("Message sent to {0.name}".format(channel))
-    return message
-
-
-async def gen_archive_channel(channel, answer):
-    if answer:
-        await channel.send(
-            "**Puzzle solved!** Answer: ||`{0}`||".format(answer)
-            + "\nChannel will now be archived."
-        )
-
-    if channel.category_id == SOLVED_PUZZLE_CATEGORY:
+async def gen_archive_channel(puzzle, channel):
+    start_category = channel.category
+    if start_category.name.startswith("🏁"):
         logging.warning("{0.name} ({0.id}) already solved".format(channel))
         return
 
-    solved_category = client.get_channel(SOLVED_PUZZLE_CATEGORY)
+    solved_category = await gen_or_create_round_category(
+        round_name=puzzle["round"],
+        is_solved=True,
+    )
     await channel.edit(
         category=solved_category,
-        position=1,
+        position=0,
         reason='Puzzle "{0.name}" solved, archiving!'.format(channel),
     )
     logging.info("Archived #{0.name} puzzle channel".format(channel))
+
+    if not start_category.channels:
+        logging.info("Puzzle category {0.name} now empty, deleting".format(channel))
+        await start_category.delete()
 
 
 def get_channelx(channel_id):
@@ -371,7 +358,7 @@ if __name__ == "__main__":
 
     args = sys.argv[1:]
     if len(args) == 0:
-        print("Usage: create | message | archive")
+        print("Usage: create | message | _round | _new | _solve | _attention")
         sys.exit()
     command, *args = args
     logging.info("Starting! Command: {0}, Args: {1}".format(command, args))
