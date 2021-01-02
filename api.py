@@ -288,6 +288,34 @@ async def gen_archive_channel(puzzle, channel):
 
 async def gen_stats():
     print("Server has", len(guild.members), "members, including bots")
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                id,
+                name,
+                round,
+                status
+            FROM puzzle_view
+            ORDER BY id
+            """,
+        )
+        rounds = {}
+        for puzzle in cursor.fetchall():
+            round_name = puzzle["round"]
+            if round_name not in rounds:
+                rounds[round_name] = []
+            rounds[round_name].append(puzzle)
+        # print(rounds)
+        for round_name, puzzles in rounds.items():
+            print("~~~~~")
+            print(round_name+":")
+            print("  {0} puzzles opened so far".format(len(puzzles)))
+            print("  {0} puzzles solved".format(len([p for p in puzzles if p["status"] == "Solved"])))
+            print("  {0} puzzles unsolved".format(len([p for p in puzzles if p["status"] != "Solved"])))
+            print("  {0} puzzles need eyes".format(len([p for p in puzzles if p["status"] == "Needs eyes"])))
+            print("  {0} puzzles critical".format(len([p for p in puzzles if p["status"] == "Critical"])))
+            print("  {0} puzzles WTF".format(len([p for p in puzzles if p["status"] == "WTF"])))
 
 
 async def gen_cleanup(justification):
