@@ -30,7 +30,7 @@ async def on_ready():
     try:
         await gen_run()
     except Exception as e:
-        logging.error(e)
+        logging.error(e, exc_info=e)
     finally:
         connection.close()
         await client.close()
@@ -343,3 +343,4 @@ if __name__ == "__main__":
     connection = get_db_connection()
     logging.info("Connected to DB! Starting Discord client...")
     client.run(config["discord"]["botsecret"])
+    logging.info("Done, closing out")
