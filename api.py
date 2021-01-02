@@ -21,7 +21,7 @@ GUILD_ID = 790341470171168800
 PUZZTECH_CHANNEL = 790387626531225611
 STATUS_CHANNEL = 790348440890507285
 PUZZLE_CATEGORY = 790343785804201984
-SOLVED_PUZZLE_CATEGORY = 790348578018820096
+SOLVED_PUZZLE_CATEGORY = 794869543448084491
 
 
 @client.event
@@ -79,21 +79,7 @@ async def gen_run():
 
     # Helper methods
     if command == "stats":
-        print("Server has", len(guild.members), "members, including bots")
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT
-                   name
-                FROM puzzle_view
-                """,
-            )
-            rows = cursor.fetchall()
-            print(
-                "Puzzles ({0}):".format(len(rows)),
-                [row["name"] for row in rows],
-            )
-        return
+        return await gen_stats()
 
     if command == "cleanup":
         justification = rest_of_args
@@ -117,7 +103,6 @@ async def gen_announce_new(puzzle_name):
     )
     content = "**🚨 New Puzzle 🚨 _`{name}`_ ADDED!**".format(**puzzle)
     embed = build_puzzle_embed(puzzle)
-    print("NEW:", puzzle, channel)
     message = await channel.send(content=content, embed=embed)
     await message.pin()
     await status_channel.send(content=content, embed=embed)
@@ -126,7 +111,6 @@ async def gen_announce_new(puzzle_name):
 async def gen_announce_solve(puzzle_name):
     puzzle, channel = get_puzzle_and_channel(puzzle_name)
     await gen_archive_channel(puzzle, channel)
-    return
     await channel.send(
         "**Puzzle solved!** Answer: ||`{answer}`||".format(**puzzle)
         + "\nChannel is now archived."
@@ -191,10 +175,10 @@ async def gen_or_create_round_category(round_name, is_solved=False):
 
     if is_solved:
         # 🏁 Solved Puzzles: 🏁
-        source_category = client.get_channel(790348578018820096)
+        source_category = client.get_channel(SOLVED_PUZZLE_CATEGORY)
     else:
         # 🧩 Puzzles below here: 🧩
-        source_category = client.get_channel(790343785804201984)
+        source_category = client.get_channel(PUZZLE_CATEGORY)
     position = source_category.position + 1
 
     if existing_categories:
@@ -295,9 +279,15 @@ async def gen_archive_channel(puzzle, channel):
     )
     logging.info("Archived #{0.name} puzzle channel".format(channel))
 
+    if start_category.id in [PUZZLE_CATEGORY, SOLVED_PUZZLE_CATEGORY]:
+        return
     if not start_category.channels:
         logging.info("Puzzle category {0.name} now empty, deleting".format(channel))
         await start_category.delete()
+
+
+async def gen_stats():
+    print("Server has", len(guild.members), "members, including bots")
 
 
 async def gen_cleanup(justification):
