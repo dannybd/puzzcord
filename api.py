@@ -103,11 +103,7 @@ async def gen_run():
 
     if command == "_round":
         round_name = puzzle_name
-        return await gen_announce_round(round_name, False)
-
-    if command == "_round2":
-        round_name = puzzle_name
-        return await gen_announce_round(round_name, True)
+        return await gen_announce_round(round_name)
 
     raise Exception("command {0} not supported!".format(command))
 
@@ -159,9 +155,8 @@ async def gen_announce_attention(puzzle_name):
     await status_channel.send(content=content, embed=embed)
 
 
-async def gen_announce_round(round_name, should_create):
-    if should_create:
-        await gen_create_round(round_name)
+async def gen_announce_round(round_name):
+    await gen_or_create_round_category(round_name, is_solved=False)
     content = "🆕🔄 **New Round added! _`{0}`_**".format(round_name)
     embed = discord.Embed(
         color=get_round_embed_color(round_name),
@@ -170,8 +165,30 @@ async def gen_announce_round(round_name, should_create):
     await status_channel.send(content=content, embed=embed)
 
 
-async def gen_create_round(round_name):
-    return
+async def gen_or_create_round_category(round_name, is_solved):
+    category_name = ("Solved from: {0}" if is_solved else "🧩 {0}").format(round_name)
+    category = discord.utils.find(
+        lambda category: category.name == category_name and len(category.channels) < 2,
+        guild.categories,
+    )
+    if category:
+        logging.info('Existing category "{0.name}" found'.format(category))
+        return category
+
+    if is_solved:
+        # I Need a Break
+        positional_category = client.get_channel(790351336884535317)
+    else:
+        # 🧩 Puzzles below here: 🧩
+        positional_category = client.get_channel(790343785804201984)
+    logging.info("Creating new category: {0}".format(category_name))
+    category = await positional_category.clone(
+        name=category_name,
+    )
+    await category.edit(
+        position=positional_category.position + 1,
+    )
+    return category
 
 
 def build_puzzle_embed(puzzle):
@@ -259,7 +276,7 @@ async def gen_archive_channel(channel, answer):
         )
 
     if channel.category_id == SOLVED_PUZZLE_CATEGORY:
-        logging.info("{0.name} ({0.id}) already solved".format(channel))
+        logging.warning("{0.name} ({0.id}) already solved".format(channel))
         return
 
     solved_category = client.get_channel(SOLVED_PUZZLE_CATEGORY)
