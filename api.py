@@ -331,8 +331,8 @@ if __name__ == "__main__":
         format="%(asctime)s [%(process)d][%(name)s - %(levelname)s] - %(message)s",
         level=loglevel,
     )
-    if loglevel == 'INFO':
-        logging.getLogger('discord').setLevel(logging.WARNING)
+    if loglevel == "INFO":
+        logging.getLogger("discord").setLevel(logging.WARNING)
 
     args = sys.argv[1:]
     if len(args) == 0:
@@ -341,5 +341,5 @@ if __name__ == "__main__":
     command, *args = args
     logging.info("Starting! Command: {0}, Args: {1}".format(command, args))
     connection = get_db_connection()
-    logging.info('Connected to DB! Starting Discord client...')
+    logging.info("Connected to DB! Starting Discord client...")
     client.run(config["discord"]["botsecret"])
