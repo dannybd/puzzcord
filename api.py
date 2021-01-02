@@ -3,6 +3,8 @@
 import configparser
 import discord
 import json
+import logging
+import os
 import pymysql
 import sys
 
@@ -24,12 +26,11 @@ SOLVED_PUZZLE_CATEGORY = 790348578018820096
 
 @client.event
 async def on_ready():
-    log("LOG: Connected as {0.user} and ready!".format(client))
-    log("LOG: Command: {0}, Args: {1}".format(command, args))
+    logging.info("Connected as {0.user} and ready!".format(client))
     try:
         await gen_run()
     except Exception as e:
-        log("ERROR:", e)
+        logging.error(e)
     finally:
         connection.close()
         await client.close()
@@ -239,14 +240,14 @@ async def gen_create_channel(name, topic):
         reason='New puzzle: "{0}"'.format(name),
         topic=topic,
     )
-    log("LOG: Created #{0.name} puzzle channel".format(channel))
+    logging.info("Created #{0.name} puzzle channel".format(channel))
     return channel
 
 
 async def gen_message_channel(channel_id, content):
     channel = get_channelx(channel_id)
     message = await channel.send(content=content)
-    log("LOG: Message sent to {0.name}".format(channel))
+    logging.info("Message sent to {0.name}".format(channel))
     return message
 
 
@@ -258,7 +259,7 @@ async def gen_archive_channel(channel, answer):
         )
 
     if channel.category_id == SOLVED_PUZZLE_CATEGORY:
-        log("LOG: {0.name} ({0.id}) already solved".format(channel))
+        logging.info("{0.name} ({0.id}) already solved".format(channel))
         return
 
     solved_category = client.get_channel(SOLVED_PUZZLE_CATEGORY)
@@ -267,7 +268,7 @@ async def gen_archive_channel(channel, answer):
         position=1,
         reason='Puzzle "{0.name}" solved, archiving!'.format(channel),
     )
-    log("LOG: Archived #{0.name} puzzle channel".format(channel))
+    logging.info("Archived #{0.name} puzzle channel".format(channel))
 
 
 def get_channelx(channel_id):
@@ -323,15 +324,22 @@ def get_db_connection():
     )
 
 
-def log(*a):
-    print(*a, file=sys.stderr)
-
-
 if __name__ == "__main__":
+    # Define logging levels
+    loglevel = os.environ.get("LOGLEVEL", "INFO").upper()
+    logging.basicConfig(
+        format="%(asctime)s [%(process)d][%(name)s - %(levelname)s] - %(message)s",
+        level=loglevel,
+    )
+    if loglevel == 'INFO':
+        logging.getLogger('discord').setLevel(logging.WARNING)
+
     args = sys.argv[1:]
     if len(args) == 0:
         print("Usage: create | message | archive")
         sys.exit()
     command, *args = args
+    logging.info("Starting! Command: {0}, Args: {1}".format(command, args))
     connection = get_db_connection()
+    logging.info('Connected to DB! Starting Discord client...')
     client.run(config["discord"]["botsecret"])
