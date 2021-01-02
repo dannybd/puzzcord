@@ -40,14 +40,7 @@ async def gen_run():
     guild = client.get_guild(GUILD_ID)
     status_channel = client.get_channel(STATUS_CHANNEL)
 
-    if command == "create":
-        name, *topic = args
-        topic = " ".join(topic)
-        channel = await gen_create_channel(name, topic)
-        print(channel.id)
-        return
-
-    if command == "create_json":
+    if command == "create" or command == "create_json":
         name, *topic = args
         topic = " ".join(topic)
         channel = await gen_create_channel(name, topic)
