@@ -320,19 +320,27 @@ async def gen_cleanup(justification):
             {c.id: c.name for c in unknown_channels},
         )
     )
-    if "purge" in justification:
-        await status_channel.purge(limit=1000)
     if "no really" not in justification:
         logging.info("Execute not used, exiting.")
         print("You need to call this with 'no really' to actually delete")
         return
-    for channel in unknown_channels:
+
+    if "purge" in justification:
+        await status_channel.purge(limit=1000)
+
+    if "everything" in justification:
+        channels_to_delete = discord_channels
+    else:
+        channels_to_delete = unknown_channels
+
+    for channel in channels_to_delete:
         logging.warning("Deleting {0.name} ({0.id})!".format(channel))
         await channel.delete()
     empty_categories = [
         category
         for category in guild.categories
         if not category.channels
+        and category.id not in [PUZZLE_CATEGORY, SOLVED_PUZZLE_CATEGORY]
         and (category.name.startswith("🧩") or category.name.startswith("🏁"))
     ]
     logging.info("Found {0} empty puzzle categories".format(len(empty_categories)))
