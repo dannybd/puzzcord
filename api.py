@@ -116,6 +116,11 @@ async def on_error(*args, **kwargs):
 
 async def gen_announce_new(puzzle_name):
     puzzle, channel = get_puzzle_and_channel(puzzle_name)
+    round_category = await gen_or_create_round_category(puzzle["round"])
+    await channel.edit(
+        category=round_category,
+        position=0,
+    )
     content = "**🚨 New Puzzle 🚨 _`{name}`_ ADDED!**".format(**puzzle)
     embed = build_puzzle_embed(puzzle)
     print("NEW:", puzzle, channel)
@@ -156,7 +161,7 @@ async def gen_announce_attention(puzzle_name):
 
 
 async def gen_announce_round(round_name):
-    await gen_or_create_round_category(round_name, is_solved=False)
+    await gen_or_create_round_category(round_name)
     content = "🆕🔄 **New Round added! _`{0}`_**".format(round_name)
     embed = discord.Embed(
         color=get_round_embed_color(round_name),
@@ -165,11 +170,12 @@ async def gen_announce_round(round_name):
     await status_channel.send(content=content, embed=embed)
 
 
-async def gen_or_create_round_category(round_name, is_solved):
+async def gen_or_create_round_category(round_name, is_solved=False):
     category_name = ("Solved from: {0}" if is_solved else "🧩 {0}").format(round_name)
+    existing_categories = [c for c in guild.categories if c.name == category_name]
     category = discord.utils.find(
-        lambda category: category.name == category_name and len(category.channels) < 2,
-        guild.categories,
+        lambda category: len(category.channels) < 2,
+        existing_categories,
     )
     if category:
         logging.info('Existing category "{0.name}" found'.format(category))
@@ -177,17 +183,20 @@ async def gen_or_create_round_category(round_name, is_solved):
 
     if is_solved:
         # I Need a Break
-        positional_category = client.get_channel(790351336884535317)
+        source_category = client.get_channel(790351336884535317)
     else:
         # 🧩 Puzzles below here: 🧩
-        positional_category = client.get_channel(790343785804201984)
+        source_category = client.get_channel(790343785804201984)
+    position = source_category.position + 1
+
+    if existing_categories:
+        # If this is an overflow category, position it just above the
+        # other categories it belongs to
+        position = min(category.position for category in existing_categories)
+
     logging.info("Creating new category: {0}".format(category_name))
-    category = await positional_category.clone(
-        name=category_name,
-    )
-    await category.edit(
-        position=positional_category.position + 1,
-    )
+    category = await source_category.clone(name=category_name)
+    await category.edit(position=position)
     return category
 
 
