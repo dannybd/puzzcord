@@ -6,6 +6,8 @@ import json
 import pymysql
 import sys
 
+from hashlib import md5
+
 config = configparser.ConfigParser()
 config.read('config.ini')
 
@@ -96,7 +98,7 @@ async def gen_announce_new(puzzle_name):
     puzzle = get_puzzlex(puzzle_name)
     channel = await gen_channelx(puzzle['channel_id'])
     content = "**🚨 New Puzzle 🚨 _`{name}`_ ADDED!**".format(**puzzle)
-    embed = build_embed(puzzle)
+    embed = build_puzzle_embed(puzzle)
     message = await channel.send(content=content, embed=embed)
     await message.pin()
     status_channel = await gen_channelx(STATUS_CHANNEL)
@@ -115,10 +117,10 @@ async def gen_announce_attention(puzzle_name):
     status = puzzle['status']
     if status == 'Needs eyes':
         content = "**❗️ Puzzle _`{name}`_ NEEDS EYES! 👀**".format(**puzzle)
-        embed = build_embed(puzzle)
+        embed = build_puzzle_embed(puzzle)
     elif status == 'Critical':
         content = "**🚨 Puzzle _`{name}`_ IS CRITICAL! ⚠️**".format(**puzzle)
-        embed = build_embed(puzzle)
+        embed = build_puzzle_embed(puzzle)
     elif status == 'Unnecessary':
         content = "**🤷 Puzzle _`{name}`_ is now UNNECESSARY! 🤷**".format(**puzzle)
         embed = None
@@ -129,10 +131,9 @@ async def gen_announce_attention(puzzle_name):
     status_channel = await gen_channelx(STATUS_CHANNEL)
     await status_channel.send(content=content, embed=embed)
 
-def build_embed(puzzle):
-    hue = (int(puzzle['round'].lower(), 36)+2.0**31)/2**32
+def build_puzzle_embed(puzzle):
     embed = discord.Embed(
-        color=discord.Color.from_hsv(hue, 0.655, 1),
+        color=get_round_embed_color(puzzle['round']),
         title="Puzzle: _`{name}`_".format(**puzzle),
     )
 
@@ -154,6 +155,11 @@ def build_embed(puzzle):
     embed.add_field(name="Discord Channel", value="<#{channel_id}>".format(**puzzle), inline=True)
     embed.add_field(name="Round", value=puzzle['round'], inline=True)
     return embed
+
+def get_round_embed_color(round):
+    hash = md5(round.encode("utf-8")).hexdigest()
+    hue = int(hash, 16) / 16 ** len(hash)
+    return discord.Color.from_hsv(hue, 0.655, 1)
 
 async def gen_create_channel(name, topic):
     category = await gen_channelx(PUZZLE_CATEGORY)
