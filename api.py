@@ -59,19 +59,22 @@ async def gen_run():
         return
 
     # DB Commands
-    puzzle_name = " ".join(args)
+    rest_of_args = " ".join(args)
 
     if command == "_new":
+        puzzle_name = rest_of_args
         return await gen_announce_new(puzzle_name)
 
     if command == "_solve":
+        puzzle_name = rest_of_args
         return await gen_announce_solve(puzzle_name)
 
     if command == "_attention":
+        puzzle_name = rest_of_args
         return await gen_announce_attention(puzzle_name)
 
     if command == "_round":
-        round_name = puzzle_name
+        round_name = rest_of_args
         return await gen_announce_round(round_name)
 
     # Helper methods
@@ -91,6 +94,10 @@ async def gen_run():
                 [row["name"] for row in rows],
             )
         return
+
+    if command == "cleanup":
+        justification = rest_of_args
+        return await gen_cleanup(justification)
 
     raise Exception("command {0} not supported!".format(command))
 
@@ -291,6 +298,57 @@ async def gen_archive_channel(puzzle, channel):
     if not start_category.channels:
         logging.info("Puzzle category {0.name} now empty, deleting".format(channel))
         await start_category.delete()
+
+
+async def gen_cleanup(justification):
+    discord_channels = [
+        channel
+        for channel in guild.text_channels
+        if channel.category
+        and (
+            channel.category.name.startswith("🧩")
+            or channel.category.name.startswith("🏁")
+        )
+    ]
+    logging.info("Found {0} puzzle channels on Discord".format(len(discord_channels)))
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+               slack_channel_id AS channel_id
+            FROM puzzle_view
+            """,
+        )
+        db_channel_ids = set(int(row["channel_id"]) for row in cursor.fetchall())
+        logging.info("Found {0} puzzle channels in the DB".format(len(db_channel_ids)))
+    unknown_channels = [
+        channel for channel in discord_channels if channel.id not in db_channel_ids
+    ]
+    logging.info(
+        "Found {0} puzzle channels on Discord NOT in the DB: {1}".format(
+            len(unknown_channels),
+            {c.id: c.name for c in unknown_channels},
+        )
+    )
+    if "purge" in justification:
+        await status_channel.purge(limit=1000)
+    if "no really" not in justification:
+        logging.info("Execute not used, exiting.")
+        print("You need to call this with 'no really' to actually delete")
+        return
+    for channel in unknown_channels:
+        logging.warning("Deleting {0.name} ({0.id})!".format(channel))
+        await channel.delete()
+    empty_categories = [
+        category
+        for category in guild.categories
+        if not category.channels
+        and (category.name.startswith("🧩") or category.name.startswith("🏁"))
+    ]
+    logging.info("Found {0} empty puzzle categories".format(len(empty_categories)))
+    for category in empty_categories:
+        logging.warning("Deleting {0.name} ({0.id})!".format(category))
+        await category.delete()
 
 
 def get_channelx(channel_id):
