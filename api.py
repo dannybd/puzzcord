@@ -144,20 +144,29 @@ async def gen_announce_attention(puzzle_name):
     puzzle, channel = get_puzzle_and_channel(puzzle_name)
 
     status = puzzle["status"]
+
     if status == "Needs eyes":
+        prefix = "❗ "
         content = "**❗️ Puzzle _`{name}`_ NEEDS EYES! 👀**".format(**puzzle)
         embed = build_puzzle_embed(puzzle)
     elif status == "Critical":
+        prefix = "⚠️  "
         content = "**🚨 Puzzle _`{name}`_ IS CRITICAL! ⚠️**".format(**puzzle)
         embed = build_puzzle_embed(puzzle)
     elif status == "Unnecessary":
+        prefix = "🤷  "
         content = "**🤷 Puzzle _`{name}`_ is now UNNECESSARY! 🤷**".format(**puzzle)
         embed = None
-    else:
-        return
+    elif status == "Unnecessary":
+        prefix = "☣️  "
+        content = None
+        embed = None
 
-    await channel.send(content=content, embed=embed)
-    await status_channel.send(content=content, embed=embed)
+    if prefix:
+        await channel.edit(name=prefix+channel.name)
+    if content:
+        await channel.send(content=content, embed=embed)
+        await status_channel.send(content=content, embed=embed)
 
 
 async def gen_announce_round(round_name):
@@ -216,7 +225,7 @@ def build_puzzle_embed(puzzle):
     if status == "Critical":
         embed.add_field(
             name="Status",
-            value="🚨️ {status} ⚠️".format(**puzzle),
+            value="⚠️  {status} 🚨️".format(**puzzle),
             inline=False,
         )
     if status == "Unnecessary":
