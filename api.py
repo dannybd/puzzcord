@@ -58,6 +58,13 @@ async def gen_run():
         )
         return
 
+    if command == "message":
+        channel_id, *content = args
+        content = " ".join(content)
+        message = await gen_message_channel(channel_id, content)
+        print(message.jump_url)
+        return
+
     # DB Commands
     rest_of_args = " ".join(args)
 
@@ -260,6 +267,13 @@ async def gen_create_channel(name, topic):
     )
     logging.info("Created #{0.name} puzzle channel".format(channel))
     return channel
+
+
+async def gen_message_channel(channel_id, content):
+    channel = get_channelx(channel_id)
+    message = await channel.send(content=content)
+    logging.info("Message sent to {0.name}".format(channel))
+    return message
 
 
 async def gen_archive_channel(puzzle, channel):
