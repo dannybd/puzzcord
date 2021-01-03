@@ -29,7 +29,8 @@ SOLVED_PUZZLE_CATEGORY = 794869543448084491
 async def on_ready():
     logging.info("Connected as {0.user} and ready!".format(client))
     try:
-        await gen_run()
+        response = await gen_run(command, args)
+        print(response, end="")
     except Exception as e:
         logging.error(e, exc_info=e)
     finally:
@@ -37,7 +38,7 @@ async def on_ready():
         await client.close()
 
 
-async def gen_run():
+async def gen_run(command, args):
     global guild, status_channel
     guild = client.get_guild(GUILD_ID)
     status_channel = client.get_channel(STATUS_CHANNEL)
@@ -47,24 +48,20 @@ async def gen_run():
         topic = " ".join(topic)
         channel = await gen_create_channel(name, topic)
         invite = await channel.create_invite()
-        print(
-            json.dumps(
-                {
-                    "id": channel.id,
-                    "name": channel.name,
-                    "mention": channel.mention,
-                    "url": invite.url,
-                }
-            )
-        )
-        return
+        return json.dumps(
+            {
+                "id": channel.id,
+                "name": channel.name,
+                "mention": channel.mention,
+                "url": invite.url,
+            }
+        ) + "\n"
 
     if command == "message":
         channel_id, *content = args
         content = " ".join(content)
         message = await gen_message_channel(channel_id, content)
-        print(message.jump_url)
-        return
+        return message.jump_url
 
     # DB Commands
     rest_of_args = " ".join(args)
@@ -333,7 +330,8 @@ async def gen_archive_channel(puzzle, channel):
 
 
 async def gen_stats():
-    print("Server has", len(guild.members), "members, including bots")
+    response = "Server has {0} members, including bots\n".format(len(guild.members))
+    return response
     with connection.cursor() as cursor:
         cursor.execute(
             """
@@ -352,16 +350,17 @@ async def gen_stats():
             if round_name not in rounds:
                 rounds[round_name] = []
             rounds[round_name].append(puzzle)
-        # print(rounds)
+        response += json.dumps(rounds) + "\n"
         for round_name, puzzles in rounds.items():
-            print("~~~~~")
-            print(round_name+":")
-            print("  {0} puzzles opened so far".format(len(puzzles)))
-            print("  {0} puzzles solved".format(len([p for p in puzzles if p["status"] == "Solved"])))
-            print("  {0} puzzles unsolved".format(len([p for p in puzzles if p["status"] != "Solved"])))
-            print("  {0} puzzles need eyes".format(len([p for p in puzzles if p["status"] == "Needs eyes"])))
-            print("  {0} puzzles critical".format(len([p for p in puzzles if p["status"] == "Critical"])))
-            print("  {0} puzzles WTF".format(len([p for p in puzzles if p["status"] == "WTF"])))
+            response += "~~~~~\n"
+            response += round_name+":\n"
+            response += "  {0} puzzles opened so far".format(len(puzzles)) + "\n"
+            response += "  {0} puzzles solved".format(len([p for p in puzzles if p["status"] == "Solved"])) + "\n"
+            response += "  {0} puzzles unsolved".format(len([p for p in puzzles if p["status"] != "Solved"])) + "\n"
+            response += "  {0} puzzles need eyes".format(len([p for p in puzzles if p["status"] == "Needs eyes"])) + "\n"
+            response += "  {0} puzzles critical".format(len([p for p in puzzles if p["status"] == "Critical"])) + "\n"
+            response += "  {0} puzzles WTF".format(len([p for p in puzzles if p["status"] == "WTF"])) + "\n"
+    return response
 
 
 async def gen_cleanup(justification):
@@ -396,8 +395,7 @@ async def gen_cleanup(justification):
     )
     if "no really" not in justification:
         logging.info("Execute not used, exiting.")
-        print("You need to call this with 'no really' to actually delete")
-        return
+        return "You need to call this with 'no really' to actually delete"
 
     if "purge" in justification:
         await status_channel.purge(limit=1000)
