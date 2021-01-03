@@ -61,12 +61,14 @@ async def on_ready():
 
 
 async def gen_handle_server_request(reader, writer):
+    response = None
     try:
         data = await reader.read(100)
         message = data.decode()
         logging.info("Recv: %r" % message)
-        command, *args = message.split()
-        response = await gen_run(command, args)
+        if message:
+            command, *args = message.split()
+            response = await gen_run(command, args)
     except Exception as e:
         logging.error(e, exc_info=e)
     finally:
