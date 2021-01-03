@@ -7,3 +7,7 @@ db = puzzledb
 
 [discord]
 botsecret = <<BOTSECRET>>
+
+[asyncio_server]
+host = localhost
+port = 8888
