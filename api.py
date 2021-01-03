@@ -8,6 +8,7 @@ import os
 import pymysql
 import sys
 
+from datetime import datetime, timedelta
 from hashlib import md5
 
 config = configparser.ConfigParser()
@@ -135,28 +136,59 @@ async def gen_announce_attention(puzzle_name):
 
     status = puzzle["status"]
 
+    channel_name_prefix = ""
+    content = None
+    embed = None
+
     if status == "Needs eyes":
-        prefix = "❗ "
+        channel_name_prefix = "🔴 "
         content = "**❗️ Puzzle _`{name}`_ NEEDS EYES! 👀**".format(**puzzle)
         embed = build_puzzle_embed(puzzle)
-    elif status == "Critical":
-        prefix = "⚠️  "
+
+    if status == "Critical":
+        channel_name_prefix = "🔥 "
         content = "**🚨 Puzzle _`{name}`_ IS CRITICAL! ⚠️**".format(**puzzle)
         embed = build_puzzle_embed(puzzle)
-    elif status == "Unnecessary":
-        prefix = "🤷  "
+
+    if status == "Unnecessary":
+        channel_name_prefix = "⚪️ "
         content = "**🤷 Puzzle _`{name}`_ is now UNNECESSARY! 🤷**".format(**puzzle)
         embed = None
-    elif status == "WTF":
-        prefix = "☣️  "
+
+    if status == "WTF":
+        channel_name_prefix = "💣 "
         content = None
         embed = None
 
-    if prefix:
-        await channel.edit(name=prefix + channel.name)
     if content:
-        await channel.send(content=content, embed=embed)
         await status_channel.send(content=content, embed=embed)
+        message = await channel.send(content=content, embed=embed)
+        await message.pin()
+
+    # We need to check for whether this bot has edited this channel's
+    # name too recently. If it has, we'll be rate limited. So instead,
+    # let's check and skip in that case.
+    rate_limit_range = datetime.now() - timedelta(minutes=10)
+    recent_channel_update_by_bot = await guild.audit_logs(
+        limit=None,
+        user=guild.me,
+        action=discord.AuditLogAction.channel_update,
+        after=rate_limit_range,
+    ).find(
+        lambda entry: entry.target == channel and entry.created_at >= rate_limit_range,
+    )
+
+    if recent_channel_update_by_bot:
+        logging.warning(
+            (
+                "Channel #{0.name} was auto-updated too recently! "
+                + "Bot will be rate-limited if we try, existing early. "
+                + "If you need to change the name, do it manually. "
+                + "(Channel last auto-updated at {1.created_at})"
+            ).format(channel, recent_channel_update_by_bot)
+        )
+        return
+    await channel.edit(name=channel_name_prefix + puzzle["name"])
 
 
 async def gen_announce_round(round_name):
