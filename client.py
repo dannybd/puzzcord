@@ -63,7 +63,7 @@ async def on_ready():
 async def gen_handle_server_request(reader, writer):
     response = None
     try:
-        data = await reader.read(100)
+        data = await reader.read()
         message = data.decode()
         logging.info("Recv: %r" % message)
         if message:
