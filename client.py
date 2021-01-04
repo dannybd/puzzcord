@@ -371,7 +371,8 @@ async def gen_archive_channel(puzzle, channel):
 
 async def gen_stats():
     response = "Server has {0} members, including bots\n".format(len(guild.members))
-    return response
+    connection = get_db_connection()
+    logging.info("Connected to DB!")
     with connection.cursor() as cursor:
         cursor.execute(
             """
@@ -400,6 +401,8 @@ async def gen_stats():
             response += "  {0} puzzles need eyes".format(len([p for p in puzzles if p["status"] == "Needs eyes"])) + "\n"
             response += "  {0} puzzles critical".format(len([p for p in puzzles if p["status"] == "Critical"])) + "\n"
             response += "  {0} puzzles WTF".format(len([p for p in puzzles if p["status"] == "WTF"])) + "\n"
+    logging.info("Closing DB connection!")
+    connection.close()
     return response
 
 
@@ -414,6 +417,8 @@ async def gen_cleanup(justification):
         )
     ]
     logging.info("Found {0} puzzle channels on Discord".format(len(discord_channels)))
+    connection = get_db_connection()
+    logging.info("Connected to DB!")
     with connection.cursor() as cursor:
         cursor.execute(
             """
@@ -424,6 +429,8 @@ async def gen_cleanup(justification):
         )
         db_channel_ids = set(int(row["channel_id"]) for row in cursor.fetchall())
         logging.info("Found {0} puzzle channels in the DB".format(len(db_channel_ids)))
+    logging.info("Closing DB!")
+    connection.close()
     unknown_channels = [
         channel for channel in discord_channels if channel.id not in db_channel_ids
     ]
@@ -483,6 +490,8 @@ def get_puzzle_and_channel(puzzle_name):
 
 
 def _get_puzzle_from_db(puzzle_name):
+    connection = get_db_connection()
+    logging.info("Connected to DB!")
     with connection.cursor() as cursor:
         cursor.execute(
             """
@@ -499,6 +508,8 @@ def _get_puzzle_from_db(puzzle_name):
             """,
             (puzzle_name,),
         )
+        logging.info("Closing DB!")
+        connection.close()
         return cursor.fetchone()
 
 
@@ -529,7 +540,5 @@ if __name__ == "__main__":
         logging.getLogger("discord").setLevel(logging.WARNING)
 
     logging.info("Starting!")
-    connection = get_db_connection()
-    logging.info("Connected to DB! Starting Discord client...")
     client.run(config["discord"]["botsecret"])
     logging.info("Done, closing out")
