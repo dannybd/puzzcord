@@ -146,14 +146,20 @@ def puzztech_only():
 @bot.command(hidden=True, aliases=["nr"])
 async def newround(ctx, *, round_name: str):
     """[puzztech only] Creates a new round"""
-    # TODO: Implement me!
-    return
-    # logging.info("Creating a new round: {}".format(round_name))
-    # url = "https://wind-up-birds.org/round/" + round_name
-    # async with aiohttp.ClientSession() as session:
-    #     async with session.post(url) as response:
-    #         logging.info("Sent!")
-    #         print(response)
+    logging.info("Creating a new round: {}".format(round_name))
+    url_root = "https://wind-up-birds.org/puzzleboss/bin/pbrest.pl"
+    url = url_root + "/rounds/" + round_name
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url) as response:
+            status = response.status
+            logging.info("Sent! Response = {}".format(status))
+            if status == 200:
+                await ctx.send("Round created!")
+                return
+            if status == 500:
+                await ctx.send("Error. This is likely because the round already exists.")
+                return
+            await ctx.send("Error. Something weird happened, try the PB UI directly.")
 
 
 @puzztech_only()
