@@ -90,6 +90,13 @@ async def gen_run(command, args):
         justification = rest_of_args
         return await gen_cleanup(justification)
 
+    if command == "members":
+        return await gen_members()
+
+    if command == "verify":
+        member = guild.get_member(276097439365201920)
+        return await gen_verify(member)
+
     raise Exception("command {0} not supported!".format(command))
 
 
@@ -419,6 +426,142 @@ async def gen_cleanup(justification):
     for category in empty_categories:
         logging.warning("Deleting {0.name} ({0.id})!".format(category))
         await category.delete()
+
+
+async def gen_members():
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+               DISTINCT discord_id
+            FROM discord_users
+            """,
+        )
+        ids = [row["discord_id"] for row in cursor.fetchall()]
+    # return ids
+    member_role = guild.get_role(790341818885734430) # Team Member
+    members = [
+        (m.display_name, "{0.name}#{0.discriminator}".format(m), m.id)
+        for m
+        in guild.members
+        if member_role in m.roles and str(m.id) not in ids
+    ]
+    return members
+
+
+async def gen_verify(member):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                solver_name,
+                update_time
+            FROM discord_users
+            WHERE discord_id = %s
+            ORDER BY update_time DESC
+            LIMIT 1
+            """,
+            (str(member.id),),
+        )
+        solver = cursor.fetchone()
+    if solver:
+        logging.info(
+            "Solver found: {solver_name}, added @ {update_time}".format(**solver)
+        )
+        # return
+    logging.info("Sending intro")
+    await member.send(
+        "**Hello!** I'm puzzbot; the bot which syncs information " +
+        "between our team's central puzzle tracking system and " +
+        "our Mystery Hunt team Discord server.\n" +
+        "Please **reply with your @wind-up-birds.org email address** " +
+        "so I can synchronize your Discord and puzzleboss accounts."
+    )
+
+    def dm_reply(message):
+        return message.channel == member.dm_channel and message.author == member
+
+    loop = 0
+    while True:
+        loop += 1
+        logging.info("Loop #{0}: Sending intro".format(loop))
+        response = await client.wait_for('message', check=dm_reply)
+        email = next(
+            (
+                x for x in response.content.split()
+                if x.endswith("@wind-up-birds.org")
+            ),
+            None
+        )
+        logging.info("Loop #{0}: Email: {1}".format(loop, email))
+        if not email:
+            logging.info("Loop #{0}: Email missing".format(loop))
+            await member.send(
+                "Sorry, I couldn't find a valid email in your response. " +
+                "Please respond just with your full @wind-up-birds.org email."
+            )
+            logging.info("Loop #{0}: Email missing, continuing".format(loop))
+            continue
+
+        username = email.split("@")[0]
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    name,
+                    fullname
+                FROM solver
+                WHERE name = %s
+                LIMIT 1
+                """,
+                (username,),
+            )
+            solver = cursor.fetchone()
+            logging.info("Loop #{0}: Queried for solver, found {1}".format(loop, json.dumps(solver)))
+
+        if not solver:
+            logging.info("Loop #{0}: Solver missing".format(loop))
+            await member.send(
+                "Sorry, I couldn't find a user registered in Puzzleboss " +
+                "with that email.\n" +
+                "Your email should be your Puzzleboss " +
+                "username (what you log into http://wind-up-birds.org/ " +
+                "with) followed by `@wind-up-birds.org`.\n" +
+                "Please try again, or contact @Puzztech on " +
+                "the Hunt server for help."
+            )
+            logging.info("Loop #{0}: Solver missing, continuing".format(loop))
+            continue
+
+        break
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO `discord_users`
+                (`solver_id`, `solver_name`, `discord_id`, `discord_name`)
+            VALUES
+                (%s, %s, %s, %s)
+            """,
+            (
+                solver["id"],
+                solver["name"],
+                str(member.id),
+                "{0.name}#{0.discriminator}".format(member)
+            ),
+        )
+        logging.info("Loop #{0}: Inserting row".format(loop))
+        connection.commit()
+        logging.info("Loop #{0}: Inserting row, done!".format(loop))
+    await member.send(
+        (
+            "Hello there **{fullname}**! Thanks for confirming.\n" +
+            "(If that isn't right, please contact @Puzztech on " +
+            "the Hunt server for help.)"
+        ).format(**solver)
+    )
+    logging.info("Loop #{0}: Sending thank you".format(loop))
+    return member
 
 
 def get_channelx(channel_id):
