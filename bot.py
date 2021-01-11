@@ -124,6 +124,45 @@ async def here(ctx):
     await ctx.send("Sorry, something went wrong. Please use Puzzleboss to select your puzzle.")
 
 
+@bot.command()
+async def joinus(ctx):
+    """Announces to a puzzle channel, inviting folks to join on a voice channel"""
+    if not is_puzzle_channel(ctx.channel):
+        await ctx.send("Sorry, the !joinus command only works in puzzle channels.")
+        return
+    table = get_table(ctx.author)
+    if not table:
+        await ctx.send("Sorry, you need to join one of the table voice chats before you can use the !joinus command.")
+        return
+    puzzle = get_puzzle_for_channel(ctx.channel)
+    await gen_pbrest(
+        "/puzzles/{name}/xyzloc".format(**puzzle),
+        {"data": table.name},
+    )
+
+
+def get_table(member):
+    voice = member.voice
+    if not voice:
+        return None
+    channel = voice.channel
+    if not channel:
+        return None
+    category = channel.category
+    if not category:
+        return None
+    if "tables" not in category.name.lower():
+        return None
+    return channel
+
+
+def get_tables(ctx):
+    return [
+        channel for channel in ctx.guild.voice_channels
+        if "tables" in str(channel.category).lower()
+    ]
+
+
 # PUZZBOSS ONLY COMMANDS
 
 
