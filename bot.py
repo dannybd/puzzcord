@@ -47,7 +47,9 @@ async def roll(ctx, dice: str):
     except Exception:
         await ctx.send('Format has to be in NdN!')
         return
-
+    if rolls > 100:
+        await ctx.send("Try 100 or fewer rolls.")
+        return
     result = ', '.join(str(random.randint(1, limit)) for r in range(rolls))
     await ctx.send(result)
 
