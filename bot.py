@@ -12,6 +12,7 @@ import sys
 import typing
 
 from discord.ext import commands
+from discord.ext.commands import guild_only
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -51,6 +52,7 @@ async def roll(ctx, dice: str):
     await ctx.send(result)
 
 
+@guild_only()
 @bot.command(aliases=["loc", "whereis"])
 async def location(ctx, *channel_mentions: str):
     """Find where discussion of a puzzle is happening.
@@ -119,7 +121,7 @@ async def location(ctx, *channel_mentions: str):
     response = ""
     if len(puzzles) > 1:
         response += "Found {} puzzles:\n\n".format(len(puzzles))
-    for puzzle in puzzles:
+    for puzzle in puzzles.values():
         if puzzle["xyzloc"]:
             line = "**`{name}`** can be found in **{xyzloc}**\n".format(**puzzle)
         else:
@@ -129,6 +131,7 @@ async def location(ctx, *channel_mentions: str):
     return
 
 
+@guild_only()
 @bot.command()
 async def here(ctx):
     """Lets folks know this is the puzzle you're working on now."""
@@ -137,16 +140,55 @@ async def here(ctx):
         return
     puzzle = get_puzzle_for_channel(ctx.channel)
     name = get_solver_name_for_member(ctx.author)
+    if not name:
+        await ctx.send(
+            "Sorry, we can't find your wind-up-birds.org account. Please talk to " +
+            "a @Role Verifier, then try again."
+        )
+        return
     response = await gen_pbrest(
         "/solvers/{0}/puzz".format(name),
         {"data": puzzle["name"]},
     )
-    if response.status == 200:
-        await ctx.message.add_reaction('\N{WHITE HEAVY CHECK MARK}')
+    if response.status != 200:
+        await ctx.send("Sorry, something went wrong. Please use Puzzleboss to select your puzzle.")
         return
-    await ctx.send("Sorry, something went wrong. Please use Puzzleboss to select your puzzle.")
+    message = await ctx.send(
+        (
+            "Thank you, {0.mention}, for marking yourself as working on this puzzle.\n" +
+            "Everyone else: please click the 🧩 reaction " +
+            "on this message to also indicate that you're working on this puzzle."
+        ).format(ctx.author)
+    )
+    await message.add_reaction('🧩')
 
 
+@bot.listen("on_reaction_add")
+async def handle_here_reacts(reaction, user):
+    if user == bot.user:
+        return
+    message = reaction.message
+    if message.author != bot.user:
+        return
+    if "Everyone else: please click the" not in message.content:
+        return
+    if str(reaction) != "🧩":
+        return
+    channel = message.channel
+    if not is_puzzle_channel(channel):
+        return
+    puzzle = get_puzzle_for_channel(channel)
+    if not puzzle:
+        return
+    name = get_solver_name_for_member(user)
+    if not name:
+        return
+    await gen_pbrest(
+        "/solvers/{0}/puzz".format(name),
+        {"data": puzzle["name"]},
+    )
+
+@guild_only()
 @bot.command()
 async def joinus(ctx):
     """Announces to a puzzle channel, inviting folks to join on a voice channel"""
@@ -213,6 +255,7 @@ async def newround(ctx, *, round_name: str):
 
 
 @puzzboss_only()
+@guild_only()
 @bot.command(hidden=True)
 async def solved(ctx, channel: typing.Optional[discord.TextChannel], *, answer: str):
     """[puzztech only] Mark a puzzle as solved and archive its channel"""
@@ -234,6 +277,7 @@ async def solved(ctx, channel: typing.Optional[discord.TextChannel], *, answer: 
 
 
 @puzzboss_only()
+@guild_only()
 @bot.command(hidden=True)
 async def unverified(ctx):
     """Lists not-yet-verified team members"""
@@ -255,6 +299,7 @@ async def unverified(ctx):
     await ctx.send("Folks needing verification ({0}):\n\n{1}".format(len(members), "\n".join(members)))
 
 
+@guild_only()
 @bot.command()
 async def verify(ctx, member: discord.Member, *, username: str):
     """Verifies a team member with their email
