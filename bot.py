@@ -19,11 +19,15 @@ config.read("config.ini")
 
 intents = discord.Intents.default()
 intents.members = True
-client = discord.Client(intents=intents)
+
+default_help = commands.DefaultHelpCommand(
+    no_category="Commands to try",
+)
 
 bot = commands.Bot(
     command_prefix='!',
     description="Controlling Puzzleboss via Discord",
+    help_command=default_help,
     intents=intents,
 )
 
@@ -39,7 +43,12 @@ async def on_ready():
     logging.info("Connected as {0.user} and ready!".format(bot))
 
 
-@bot.command()
+@bot.group()
+async def tools(ctx):
+    """Assorted puzzle-solving tools and utilities"""
+
+
+@tools.command()
 async def roll(ctx, dice: str):
     """Rolls a dice in NdN format."""
     try:
@@ -193,7 +202,11 @@ async def handle_here_reacts(reaction, user):
 @guild_only()
 @bot.command()
 async def joinus(ctx):
-    """Announces to a puzzle channel, inviting folks to join on a voice channel"""
+    """Invite folks to work on the puzzle on your voice channel.
+    If you have joined one of the table voice channels, you can use
+    this command to set that table as the solve location for this puzzle,
+    and announce as such within the puzzle channel, so everyone can see it.
+    """
     if not is_puzzle_channel(ctx.channel):
         await ctx.send("Sorry, the !joinus command only works in puzzle channels.")
         return
@@ -233,6 +246,11 @@ def get_tables(ctx):
 # PUZZBOSS ONLY COMMANDS
 
 
+@bot.group(hidden=True, usage="[sneaky]")
+async def admin(ctx):
+    """Administrative commands, mostly puzzboss-only"""
+
+
 def puzzboss_only():
     async def predicate(ctx):
         # TODO: Make this more open to whoever's puzzbossing
@@ -240,8 +258,15 @@ def puzzboss_only():
     return commands.check(predicate)
 
 
+def role_verifiers():
+    async def predicate(ctx):
+        roles = [role.id for role in ctx.author.roles]
+        return 794318951235715113 in roles or 790341841916002335 in roles
+    return commands.check(predicate)
+
+
 @puzzboss_only()
-@bot.command(hidden=True, aliases=["nr"])
+@admin.command(aliases=["nr"])
 async def newround(ctx, *, round_name: str):
     """[puzztech only] Creates a new round"""
     logging.info("{0.command}: Creating a new round: {1}".format(ctx, round_name))
@@ -258,7 +283,7 @@ async def newround(ctx, *, round_name: str):
 
 @puzzboss_only()
 @guild_only()
-@bot.command(hidden=True)
+@admin.command()
 async def solved(ctx, channel: typing.Optional[discord.TextChannel], *, answer: str):
     """[puzztech only] Mark a puzzle as solved and archive its channel"""
     logging.info("{0.command}: Marking a puzzle as solved".format(ctx))
@@ -278,9 +303,9 @@ async def solved(ctx, channel: typing.Optional[discord.TextChannel], *, answer: 
         await ctx.message.delete()
 
 
-@puzzboss_only()
+@role_verifiers()
 @guild_only()
-@bot.command(hidden=True)
+@admin.command()
 async def unverified(ctx):
     """Lists not-yet-verified team members"""
     connection = get_db_connection()
@@ -294,15 +319,17 @@ async def unverified(ctx):
         )
         verified_discord_ids = [int(row["discord_id"]) for row in cursor.fetchall()]
     member_role = ctx.guild.get_role(790341818885734430)
+    bot_role = ctx.guild.get_role(790388405728051201)
     members = [
         "{0.name}#{0.discriminator} ({0.display_name})".format(member) for member in ctx.guild.members
-        if member_role in member.roles and member.id not in verified_discord_ids
+        if member_role in member.roles and member.id not in verified_discord_ids and bot_role not in member.roles
     ]
     await ctx.send("Folks needing verification ({0}):\n\n{1}".format(len(members), "\n".join(members)))
 
 
+@role_verifiers()
 @guild_only()
-@bot.command()
+@admin.command()
 async def verify(ctx, member: discord.Member, *, username: str):
     """Verifies a team member with their email
     Usage: !verify @member username[@wind-up-birds.org]
@@ -424,7 +451,7 @@ if __name__ == "__main__":
         format="%(asctime)s [%(process)d][%(name)s - %(levelname)s] - %(message)s",
         level=loglevel,
         handlers=[
-            logging.FileHandler("logs/client.log"),
+            logging.FileHandler("logs/bot.log"),
             logging.StreamHandler(),
         ],
     )
