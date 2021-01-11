@@ -25,7 +25,7 @@ default_help = commands.DefaultHelpCommand(
 )
 
 bot = commands.Bot(
-    command_prefix='!',
+    command_prefix="!",
     description="Controlling Puzzleboss via Discord",
     help_command=default_help,
     intents=intents,
@@ -52,14 +52,14 @@ async def tools(ctx):
 async def roll(ctx, dice: str):
     """Rolls a dice in NdN format."""
     try:
-        rolls, limit = map(int, dice.split('d'))
+        rolls, limit = map(int, dice.split("d"))
     except Exception:
-        await ctx.send('Format has to be in NdN!')
+        await ctx.send("Format has to be in NdN!")
         return
     if rolls > 100:
         await ctx.send("Try 100 or fewer rolls.")
         return
-    result = ', '.join(str(random.randint(1, limit)) for r in range(rolls))
+    result = ", ".join(str(random.randint(1, limit)) for r in range(rolls))
     await ctx.send(result)
 
 
@@ -75,8 +75,7 @@ async def location(ctx, *channel_mentions: str):
     """
     if len(channel_mentions) == 1 and channel_mentions[0] in ["all", "everything"]:
         channels = [
-            channel for channel in ctx.guild.text_channels if
-            is_puzzle_channel(channel)
+            channel for channel in ctx.guild.text_channels if is_puzzle_channel(channel)
         ]
         xyzlocs = {}
         puzzles = get_puzzles_for_channels(channels)
@@ -103,9 +102,9 @@ async def location(ctx, *channel_mentions: str):
     if not channel_mentions:
         channel_mentions = [ctx.channel.mention]
     channels = [
-        channel for channel in ctx.guild.text_channels if
-            channel.mention in channel_mentions and
-            is_puzzle_channel(channel)
+        channel
+        for channel in ctx.guild.text_channels
+        if channel.mention in channel_mentions and is_puzzle_channel(channel)
     ]
     logging.info(
         "{0.command}: Found {1} puzzle channels".format(
@@ -115,18 +114,18 @@ async def location(ctx, *channel_mentions: str):
     )
     if not channels:
         await ctx.send(
-            "Sorry, I didn't find any puzzle channels in your command.\n" +
-            "Try linking to puzzle channels by prefixing with #, like " +
-            "#puzzle1"
+            "Sorry, I didn't find any puzzle channels in your command.\n"
+            + "Try linking to puzzle channels by prefixing with #, like "
+            + "#puzzle1"
         )
         return
     puzzles = get_puzzles_for_channels(channels)
     logging.info("{0.command}: {1} puzzles found!".format(ctx, len(puzzles)))
     if not puzzles:
         await ctx.send(
-            "Sorry, I didn't find any puzzle channels in your command.\n" +
-            "Try linking to puzzle channels by prefixing with #, like " +
-            "#puzzle1"
+            "Sorry, I didn't find any puzzle channels in your command.\n"
+            + "Try linking to puzzle channels by prefixing with #, like "
+            + "#puzzle1"
         )
         return
     response = ""
@@ -153,8 +152,8 @@ async def here(ctx):
     name = get_solver_name_for_member(ctx.author)
     if not name:
         await ctx.send(
-            "Sorry, we can't find your wind-up-birds.org account. Please talk to " +
-            "a @Role Verifier, then try again."
+            "Sorry, we can't find your wind-up-birds.org account. Please talk to "
+            + "a @Role Verifier, then try again."
         )
         return
     response = await gen_pbrest(
@@ -162,16 +161,18 @@ async def here(ctx):
         {"data": puzzle["name"]},
     )
     if response.status != 200:
-        await ctx.send("Sorry, something went wrong. Please use Puzzleboss to select your puzzle.")
+        await ctx.send(
+            "Sorry, something went wrong. Please use Puzzleboss to select your puzzle."
+        )
         return
     message = await ctx.send(
         (
-            "Thank you, {0.mention}, for marking yourself as working on this puzzle.\n" +
-            "Everyone else: please click the 🧩 reaction " +
-            "on this message to also indicate that you're working on this puzzle."
+            "Thank you, {0.mention}, for marking yourself as working on this puzzle.\n"
+            + "Everyone else: please click the 🧩 reaction "
+            + "on this message to also indicate that you're working on this puzzle."
         ).format(ctx.author)
     )
-    await message.add_reaction('🧩')
+    await message.add_reaction("🧩")
 
 
 @bot.listen("on_reaction_add")
@@ -199,6 +200,7 @@ async def handle_here_reacts(reaction, user):
         {"data": puzzle["name"]},
     )
 
+
 @guild_only()
 @bot.command()
 async def joinus(ctx):
@@ -212,7 +214,9 @@ async def joinus(ctx):
         return
     table = get_table(ctx.author)
     if not table:
-        await ctx.send("Sorry, you need to join one of the table voice chats before you can use the !joinus command.")
+        await ctx.send(
+            "Sorry, you need to join one of the table voice chats before you can use the !joinus command."
+        )
         return
     puzzle = get_puzzle_for_channel(ctx.channel)
     await gen_pbrest(
@@ -238,7 +242,8 @@ def get_table(member):
 
 def get_tables(ctx):
     return [
-        channel for channel in ctx.guild.voice_channels
+        channel
+        for channel in ctx.guild.voice_channels
         if "tables" in str(channel.category).lower()
     ]
 
@@ -255,6 +260,7 @@ def puzzboss_only():
     async def predicate(ctx):
         # TODO: Make this more open to whoever's puzzbossing
         return 790341841916002335 in [role.id for role in ctx.author.roles]
+
     return commands.check(predicate)
 
 
@@ -262,6 +268,7 @@ def role_verifiers():
     async def predicate(ctx):
         roles = [role.id for role in ctx.author.roles]
         return 794318951235715113 in roles or 790341841916002335 in roles
+
     return commands.check(predicate)
 
 
@@ -292,12 +299,13 @@ async def solved(ctx, channel: typing.Optional[discord.TextChannel], *, answer: 
         channel = ctx.channel
     puzzle = get_puzzle_for_channel(channel)
     if not puzzle:
-        await ctx.send("Error: Could not find a puzzle for channel {0.mention}".format(channel))
+        await ctx.send(
+            "Error: Could not find a puzzle for channel {0.mention}".format(channel)
+        )
         await ctx.message.delete()
         return
     response = await gen_pbrest(
-        "/puzzles/{name}/answer".format(**puzzle),
-        {"data": answer.upper()}
+        "/puzzles/{name}/answer".format(**puzzle), {"data": answer.upper()}
     )
     if apply_to_self:
         await ctx.message.delete()
@@ -321,10 +329,17 @@ async def unverified(ctx):
     member_role = ctx.guild.get_role(790341818885734430)
     bot_role = ctx.guild.get_role(790388405728051201)
     members = [
-        "{0.name}#{0.discriminator} ({0.display_name})".format(member) for member in ctx.guild.members
-        if member_role in member.roles and member.id not in verified_discord_ids and bot_role not in member.roles
+        "{0.name}#{0.discriminator} ({0.display_name})".format(member)
+        for member in ctx.guild.members
+        if member_role in member.roles
+        and member.id not in verified_discord_ids
+        and bot_role not in member.roles
     ]
-    await ctx.send("Folks needing verification ({0}):\n\n{1}".format(len(members), "\n".join(members)))
+    await ctx.send(
+        "Folks needing verification ({0}):\n\n{1}".format(
+            len(members), "\n".join(members)
+        )
+    )
 
 
 @role_verifiers()
@@ -336,10 +351,18 @@ async def verify(ctx, member: discord.Member, *, username: str):
     """
     verifier_role = ctx.guild.get_role(794318951235715113)
     if verifier_role not in ctx.author.roles:
-        await ctx.send("Sorry, only folks with the @{0.name} role can use this command.".format(verifier_role))
+        await ctx.send(
+            "Sorry, only folks with the @{0.name} role can use this command.".format(
+                verifier_role
+            )
+        )
         return
     username = username.replace("@wind-up-birds.org", "")
-    logging.info("{0.command}: Marking user {1.display_name} as PB user {2}".format(ctx, member, username))
+    logging.info(
+        "{0.command}: Marking user {1.display_name} as PB user {2}".format(
+            ctx, member, username
+        )
+    )
     connection = get_db_connection()
     with connection.cursor() as cursor:
         cursor.execute(
@@ -354,7 +377,11 @@ async def verify(ctx, member: discord.Member, *, username: str):
         solver = cursor.fetchone()
     logging.info("{0.command}: Found solver {1}".format(ctx, solver["fullname"]))
     if not solver:
-        await ctx.send("Error: Couldn't find a {0}@wind-up-birds.org, please try again.".format(username))
+        await ctx.send(
+            "Error: Couldn't find a {0}@wind-up-birds.org, please try again.".format(
+                username
+            )
+        )
         return
     with connection.cursor() as cursor:
         cursor.execute(
@@ -368,7 +395,7 @@ async def verify(ctx, member: discord.Member, *, username: str):
                 solver["id"],
                 solver["name"],
                 str(member.id),
-                "{0.name}#{0.discriminator}".format(member)
+                "{0.name}#{0.discriminator}".format(member),
             ),
         )
         logging.info("{0.command}: Committing row".format(ctx))
@@ -378,7 +405,11 @@ async def verify(ctx, member: discord.Member, *, username: str):
     if member_role not in member.roles:
         logging.info("{0.command}: Adding member role!".format(ctx))
         await member.add_roles([member_role])
-    await ctx.send("**{0.display_name}** is now verified as **{1}**!".format(member, solver["name"]))
+    await ctx.send(
+        "**{0.display_name}** is now verified as **{1}**!".format(
+            member, solver["name"]
+        )
+    )
 
 
 async def gen_pbrest(path, data=None):
@@ -387,7 +418,11 @@ async def gen_pbrest(path, data=None):
         data = json.dumps(data)
     async with aiohttp.ClientSession() as session:
         async with session.post(url, data=data) as response:
-            logging.info("POST to {} ; Data = {} ; Response status = {}".format(path, data, response.status))
+            logging.info(
+                "POST to {} ; Data = {} ; Response status = {}".format(
+                    path, data, response.status
+                )
+            )
             return response
 
 
@@ -404,7 +439,9 @@ def get_puzzles_for_channels(channels):
             SELECT *
             FROM puzzle_view
             WHERE slack_channel_id IN ({})
-            """.format(",".join(["%s"] * len(channels))),
+            """.format(
+                ",".join(["%s"] * len(channels))
+            ),
             tuple([c.id for c in channels]),
         )
         return {int(row["slack_channel_id"]): row for row in cursor.fetchall()}
