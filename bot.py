@@ -226,12 +226,13 @@ async def unverified(ctx):
         verified_discord_ids = [int(row["discord_id"]) for row in cursor.fetchall()]
     member_role = ctx.guild.get_role(790341818885734430)
     members = [
-        "{0.name}#{0.discriminator}".format(member) for member in ctx.guild.members
+        "{0.name}#{0.discriminator} ({0.display_name})".format(member) for member in ctx.guild.members
         if member_role in member.roles and member.id not in verified_discord_ids
     ]
     await ctx.send("Folks needing verification ({0}):\n\n{1}".format(len(members), "\n".join(members)))
 
 
+@bot.command()
 async def verify(ctx, member: discord.Member, *, username: str):
     """Verifies a team member with their email
     Usage: !verify @member username[@wind-up-birds.org]
