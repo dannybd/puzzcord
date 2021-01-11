@@ -87,22 +87,9 @@ async def location(ctx, *channel_mentions: str):
             "#puzzle1"
         )
         return
-    connection = get_db_connection()
-    logging.info("{0.command}: Connected to DB!".format(ctx))
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT
-                name,
-                xyzloc
-            FROM puzzle_view
-            WHERE slack_channel_id IN ({})
-            """.format(",".join(["%s"] * len(channels))),
-            tuple([c.id for c in channels]),
-        )
-        rows = cursor.fetchall()
-    logging.info("{0.command}: {1} rows found!".format(ctx, len(rows)))
-    if not rows:
+    puzzles = get_puzzles_for_channels(channels)
+    logging.info("{0.command}: {1} puzzles found!".format(ctx, len(puzzles)))
+    if not puzzles:
         await ctx.send(
             "Sorry, I didn't find any puzzle channels in your command.\n" +
             "Try linking to puzzle channels by prefixing with #, like " +
@@ -110,13 +97,13 @@ async def location(ctx, *channel_mentions: str):
         )
         return
     response = ""
-    if len(rows) > 1:
-        response += "Found {} puzzles:\n\n".format(len(rows))
-    for row in rows:
-        if row["xyzloc"]:
-            line = "**`{name}`** can be found in **{xyzloc}**\n".format(**row)
+    if len(puzzles) > 1:
+        response += "Found {} puzzles:\n\n".format(len(puzzles))
+    for puzzle in puzzles:
+        if puzzle["xyzloc"]:
+            line = "**`{name}`** can be found in **{xyzloc}**\n".format(**puzzle)
         else:
-            line = "**`{name}`** does not have a location set!\n".format(**row)
+            line = "**`{name}`** does not have a location set!\n".format(**puzzle)
         response += line
     await ctx.send(response)
     return
@@ -133,41 +120,156 @@ async def here(ctx):
     await ctx.message.add_reaction('\N{WHITE HEAVY CHECK MARK}')
 
 
-# PUZZTECH ONLY COMMANDS
+# PUZZBOSS ONLY COMMANDS
 
 
-def puzztech_only():
+def puzzboss_only():
     async def predicate(ctx):
+        # TODO: Make this more open to whoever's puzzbossing
         return 790341841916002335 in [role.id for role in ctx.author.roles]
     return commands.check(predicate)
 
 
-@puzztech_only()
+@puzzboss_only()
 @bot.command(hidden=True, aliases=["nr"])
 async def newround(ctx, *, round_name: str):
     """[puzztech only] Creates a new round"""
-    logging.info("Creating a new round: {}".format(round_name))
-    url_root = "https://wind-up-birds.org/puzzleboss/bin/pbrest.pl"
-    url = url_root + "/rounds/" + round_name
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url) as response:
-            status = response.status
-            logging.info("Sent! Response = {}".format(status))
-            if status == 200:
-                await ctx.send("Round created!")
-                return
-            if status == 500:
-                await ctx.send("Error. This is likely because the round already exists.")
-                return
-            await ctx.send("Error. Something weird happened, try the PB UI directly.")
+    logging.info("{0.command}: Creating a new round: {1}".format(ctx, round_name))
+    response = await gen_pbrest("/rounds/" + round_name)
+    status = response.status
+    if status == 200:
+        await ctx.send("Round created!")
+        return
+    if status == 500:
+        await ctx.send("Error. This is likely because the round already exists.")
+        return
+    await ctx.send("Error. Something weird happened, try the PB UI directly.")
 
 
-@puzztech_only()
+@puzzboss_only()
 @bot.command(hidden=True)
-async def solved(ctx, *, channel: typing.Optional[discord.TextChannel]=None, answer: str):
+async def solved(ctx, channel: typing.Optional[discord.TextChannel], *, answer: str):
     """[puzztech only] Mark a puzzle as solved and archive its channel"""
-    # TODO: Implement me!
-    return
+    logging.info("{0.command}: Marking a puzzle as solved".format(ctx))
+    apply_to_self = channel is None
+    if apply_to_self:
+        channel = ctx.channel
+    puzzle = get_puzzle_for_channel(channel)
+    if not puzzle:
+        await ctx.send("Error: Could not find a puzzle for channel {0.mention}".format(channel))
+        await ctx.message.delete()
+        return
+    response = await gen_pbrest(
+        "/puzzles/{name}/answer".format(**puzzle),
+        {"data": answer.upper()}
+    )
+    if apply_to_self:
+        await ctx.message.delete()
+
+
+@puzzboss_only()
+@bot.command(hidden=True)
+async def unverified(ctx):
+    """Lists not-yet-verified team members"""
+    connection = get_db_connection()
+    logging.info("Connected to DB!")
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                DISTINCT discord_id
+            FROM discord_users
+            """,
+        )
+        verified_discord_ids = [int(row["discord_id"]) for row in cursor.fetchall()]
+    member_role = ctx.guild.get_role(790341818885734430)
+    members = [
+        "{0.name}#{0.discriminator}".format(member) for member in ctx.guild.members
+        if member_role in member.roles and member.id not in verified_discord_ids
+    ]
+    await ctx.send("Folks needing verification ({0}):\n\n{1}".format(len(members), "\n".join(members)))
+
+
+async def verify(ctx, member: discord.Member, *, username: str):
+    """Verifies a team member with their email
+    Usage: !verify @member username[@wind-up-birds.org]
+    """
+    verifier_role = ctx.guild.get_role(794318951235715113)
+    if verifier_role not in ctx.message.author.roles:
+        await ctx.send("Sorry, only folks with the @{0.name} role can use this command.".format(verifier_role))
+        return
+    username = username.replace("@wind-up-birds.org", "")
+    logging.info("{0.command}: Marking user {1.display_name} as PB user {2}".format(ctx, member, username))
+    connection = get_db_connection()
+    logging.info("Connected to DB!")
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT id, name, fullname
+            FROM solver
+            WHERE name LIKE %s
+            LIMIT 1
+            """,
+            (username,),
+        )
+        solver = cursor.fetchone()
+    logging.info("{0.command}: Found solver {1}".format(ctx, solver["fullname"]))
+    if not solver:
+        await ctx.send("Error: Couldn't find a {0}@wind-up-birds.org, please try again.".format(username))
+        return
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO discord_users
+                (solver_id, solver_name, discord_id, discord_name)
+            VALUES
+                (%s, %s, %s, %s)
+            """,
+            (
+                solver["id"],
+                solver["name"],
+                str(member.id),
+                "{0.name}#{0.discriminator}".format(member)
+            ),
+        )
+        logging.info("{0.command}: Committing row".format(ctx))
+        connection.commit()
+        logging.info("{0.command}: Committed row successfully!".format(ctx))
+    member_role = ctx.guild.get_role(790341818885734430)
+    if member_role not in member.roles:
+        logging.info("{0.command}: Adding member role!".format(ctx))
+        await member.add_roles([member_role])
+    await ctx.send("**{0.display_name}** is now verified as **{1}**!".format(member, solver["name"]))
+
+
+async def gen_pbrest(path, data=None):
+    url = "https://wind-up-birds.org/puzzleboss/bin/pbrest.pl" + path
+    if data:
+        data = json.dumps(data)
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, data=data) as response:
+            logging.info("POST to {} ; Data = {} ; Response status = {}".format(path, data, response.status))
+            return response
+
+
+def get_puzzle_for_channel(channel):
+    rows = get_puzzles_for_channels([channel])
+    return rows[channel.id] if channel.id in rows else None
+
+
+def get_puzzles_for_channels(channels):
+    connection = get_db_connection()
+    logging.info("Connected to DB!")
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT *
+            FROM puzzle_view
+            WHERE slack_channel_id IN ({})
+            """.format(",".join(["%s"] * len(channels))),
+            tuple([c.id for c in channels]),
+        )
+        return {int(row["slack_channel_id"]): row for row in cursor.fetchall()}
 
 
 def get_db_connection():
