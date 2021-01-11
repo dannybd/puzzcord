@@ -55,9 +55,32 @@ async def roll(ctx, dice: str):
 async def location(ctx, *channel_mentions: str):
     """Find where discussion of a puzzle is happening.
     Usage:
-        Current puzzle:  !location
-        Other puzzle(s): !location #puzzle1 #puzzle2
+        Current puzzle:   !location
+        Other puzzle(s):  !location #puzzle1 #puzzle2
+        All open puzzles: !location all
+                          !whereis everything
     """
+    if len(channel_mentions) == 1 and channel_mentions[0] in ["all", "everything"]:
+        channels = [
+            channel for channel in ctx.guild.text_channels if
+            is_puzzle_channel(channel)
+        ]
+        xyzlocs = {}
+        puzzles = get_puzzles_for_channels(channels)
+        for id, puzzle in puzzles.items():
+            xyzloc = puzzle["xyzloc"]
+            if not xyzloc:
+                continue
+            if puzzle["status"] in ["Solved", "Unnecessary"]:
+                continue
+            if xyzloc not in xyzlocs:
+                xyzlocs[xyzloc] = []
+            xyzlocs[xyzloc].append("<#{0}>".format(id))
+        response = "Which puzzles are where:\n\n"
+        for xyzloc, mentions in xyzlocs.items():
+            response += "In **{0}**: {1}\n".format(xyzloc, ", ".join(mentions))
+        await ctx.send(response)
+        return
     logging.info(
         "{0.command}: Start with {1} channel mentions".format(
             ctx,
