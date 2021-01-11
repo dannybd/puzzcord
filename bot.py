@@ -69,10 +69,7 @@ async def location(ctx, *channel_mentions: str):
     channels = [
         channel for channel in ctx.guild.text_channels if
             channel.mention in channel_mentions and
-            (
-                channel.category.name.startswith("🧩")
-                or channel.category.name.startswith("🏁")
-            )
+            is_puzzle_channel(channel)
     ]
     logging.info(
         "{0.command}: Found {1} puzzle channels".format(
@@ -112,12 +109,19 @@ async def location(ctx, *channel_mentions: str):
 @bot.command()
 async def here(ctx):
     """Lets folks know this is the puzzle you're working on now."""
-    # url = "https://wind-up-birds.org//" + "TODO"
-    # async with aiohttp.ClientSession() as session:
-    #     async with session.post(url) as response:
-    #         logging.info("Sent!")
-    #         print(response)
-    await ctx.message.add_reaction('\N{WHITE HEAVY CHECK MARK}')
+    if not is_puzzle_channel(ctx.channel):
+        await ctx.send("Sorry, the !here command only works in puzzle channels.")
+        return
+    puzzle = get_puzzle_for_channel(ctx.channel)
+    name = get_solver_name_for_member(ctx.author)
+    response = await gen_pbrest(
+        "/solvers/{0}/puzz".format(name),
+        {"data": puzzle["name"]},
+    )
+    if response.status == 200:
+        await ctx.message.add_reaction('\N{WHITE HEAVY CHECK MARK}')
+        return
+    await ctx.send("Sorry, something went wrong. Please use Puzzleboss to select your puzzle.")
 
 
 # PUZZBOSS ONLY COMMANDS
@@ -172,7 +176,6 @@ async def solved(ctx, channel: typing.Optional[discord.TextChannel], *, answer: 
 async def unverified(ctx):
     """Lists not-yet-verified team members"""
     connection = get_db_connection()
-    logging.info("Connected to DB!")
     with connection.cursor() as cursor:
         cursor.execute(
             """
@@ -195,13 +198,12 @@ async def verify(ctx, member: discord.Member, *, username: str):
     Usage: !verify @member username[@wind-up-birds.org]
     """
     verifier_role = ctx.guild.get_role(794318951235715113)
-    if verifier_role not in ctx.message.author.roles:
+    if verifier_role not in ctx.author.roles:
         await ctx.send("Sorry, only folks with the @{0.name} role can use this command.".format(verifier_role))
         return
     username = username.replace("@wind-up-birds.org", "")
     logging.info("{0.command}: Marking user {1.display_name} as PB user {2}".format(ctx, member, username))
     connection = get_db_connection()
-    logging.info("Connected to DB!")
     with connection.cursor() as cursor:
         cursor.execute(
             """
@@ -259,7 +261,6 @@ def get_puzzle_for_channel(channel):
 
 def get_puzzles_for_channels(channels):
     connection = get_db_connection()
-    logging.info("Connected to DB!")
     with connection.cursor() as cursor:
         cursor.execute(
             """
@@ -272,6 +273,21 @@ def get_puzzles_for_channels(channels):
         return {int(row["slack_channel_id"]): row for row in cursor.fetchall()}
 
 
+def get_solver_name_for_member(member):
+    connection = get_db_connection()
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT solver_name
+            FROM discord_users
+            WHERE discord_id = %s
+            """,
+            (str(member.id),),
+        )
+        row = cursor.fetchone()
+    return row["solver_name"] if row else None
+
+
 def get_db_connection():
     creds = config["puzzledb"]
     return pymysql.connect(
@@ -282,6 +298,13 @@ def get_db_connection():
         db=creds["db"],
         cursorclass=pymysql.cursors.DictCursor,
     )
+
+
+def is_puzzle_channel(channel):
+    category = channel.category
+    if not category:
+        return False
+    return category.name.startswith("🧩") or channel.category.name.startswith("🏁")
 
 
 if __name__ == "__main__":
