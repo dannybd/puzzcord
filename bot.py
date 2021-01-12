@@ -119,6 +119,14 @@ async def puzzle(ctx, *, query: typing.Optional[str]):
 
 
 @guild_only()
+@bot.command()
+async def tables(ctx):
+    """What is happening at each table?
+    Equivalent to calling `!location all` or `!whereis everything`"""
+    return await location(ctx, "everything")
+
+
+@guild_only()
 @bot.command(aliases=["loc", "whereis"])
 async def location(ctx, *channel_mentions: str):
     """Find where discussion of a puzzle is happening.
@@ -467,12 +475,25 @@ async def unverified(ctx):
 
 
 @role_verifiers()
+@bot.command(name="verify", hidden=True)
+async def bot_verify(ctx, member: discord.Member, *, username: str):
+    """Verifies a team member with their email
+    Usage: !verify @member username[@wind-up-birds.org]
+    """
+    return await _verify(ctx, member, username)
+
+
+@role_verifiers()
 @guild_only()
 @admin.command()
 async def verify(ctx, member: discord.Member, *, username: str):
     """Verifies a team member with their email
     Usage: !verify @member username[@wind-up-birds.org]
     """
+    return await _verify(ctx, member, username)
+
+
+async def _verify(ctx, member, username):
     verifier_role = ctx.guild.get_role(794318951235715113)
     if verifier_role not in ctx.author.roles:
         await ctx.send(
@@ -559,7 +580,6 @@ async def search(ctx, *, word: str):
     async with aiohttp.ClientSession() as session:
         async with session.get(url, params=params) as response:
             text = await response.text()
-            print(text)
             await ctx.send(text)
 
 
@@ -594,7 +614,8 @@ def get_puzzles_for_channels(channels):
                 drive_uri,
                 slack_channel_id AS channel_id,
                 status,
-                answer
+                answer,
+                xyzloc
             FROM puzzle_view
             WHERE slack_channel_id IN ({})
             """.format(
