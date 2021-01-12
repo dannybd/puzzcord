@@ -48,7 +48,7 @@ async def on_ready():
 
 @bot.group()
 async def tools(ctx):
-    """Assorted puzzle-solving tools and utilities"""
+    """[category] Assorted puzzle-solving tools and utilities"""
 
 
 @tools.command()
@@ -379,6 +379,37 @@ def get_tables(ctx):
         for channel in ctx.guild.voice_channels
         if "tables" in str(channel.category).lower()
     ]
+
+
+@guild_only()
+@bot.command(aliases=["markas"])
+async def mark(ctx, channel: typing.Optional[discord.TextChannel], *, markas: str):
+    """Update a puzzle's state: needs eyes, critical, wtf, unnecessary"""
+    logging.info("{0.command}: Marking a puzzle as solved".format(ctx))
+    markas = markas.lower().strip()
+    if markas in ["eyes", "needs eyes", "needseyes"]:
+        status = "Needs eyes"
+    elif markas == "critical":
+        status = "Critical"
+    elif markas == "wtf":
+        status = "WTF"
+    elif markas in ["unnecessary", "unecessary", "unnecesary"]:
+        status = "Unnecessary"
+    else:
+        await ctx.send("Usage: `!mark [needs eyes|critical|wtf|unnecessary]")
+        return
+
+    if not channel:
+        channel = ctx.channel
+    puzzle = get_puzzle_for_channel(channel)
+    if not puzzle:
+        await ctx.send(
+            "Error: Could not find a puzzle for channel {0.mention}".format(channel)
+        )
+        return
+    response = await gen_pbrest(
+        "/puzzles/{name}/status".format(**puzzle), {"data": status}
+    )
 
 
 # PUZZBOSS ONLY COMMANDS
