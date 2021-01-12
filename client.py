@@ -65,15 +65,15 @@ async def gen_handle_server_request(reader, writer):
     try:
         data = await reader.read()
         message = data.decode()
-        logging.info("Recv: %r" % message)
         if message:
+            logging.info("Recv: %r" % message)
             command, *args = message.split()
             response = await gen_run(command, args)
     except Exception as e:
         logging.error(e, exc_info=e)
     finally:
-        logging.info("Send: %r" % response)
         if response:
+            logging.info("Send: %r" % response)
             writer.write(response.encode())
         await writer.drain()
         writer.close()
@@ -311,12 +311,21 @@ def build_puzzle_embed(puzzle):
             inline=False,
         )
 
+    def link_to(label, uri):
+        return "[{}]({})".format(label, uri)
+
     embed.add_field(name="Puzzle URL", value=puzzle["puzzle_uri"], inline=False)
-    embed.add_field(name="Google Doc", value=puzzle["drive_uri"], inline=False)
+    embed.add_field(name="Google Doc", value=link_to("Spreadsheet 📃", puzzle["drive_uri"]), inline=True)
+    whiteboard_uri = "https://cocreate.mehtank.com/api/slug?slug=wchyyom21-{name}".format(**puzzle)
+    embed.add_field(name="Whiteboard", value=link_to("Whiteboard 🎨", whiteboard_uri), inline=True)
+    # spacer field to make it 2x2
+    embed.add_field(name="\u200B", value="\u200B", inline=True)
     embed.add_field(
         name="Discord Channel", value="<#{channel_id}>".format(**puzzle), inline=True
     )
     embed.add_field(name="Round", value=puzzle["round"], inline=True)
+    # spacer field to make it 2x2
+    embed.add_field(name="\u200B", value="\u200B", inline=True)
     return embed
 
 
