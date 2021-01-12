@@ -527,6 +527,67 @@ def role_verifiers():
     return commands.check(predicate)
 
 
+@role_verifiers()
+@guild_only()
+@admin.command()
+async def whois(ctx, *, member: discord.Member):
+    """Looks up a discord user"""
+    return await _whois(ctx, member)
+
+
+@role_verifiers()
+@guild_only()
+@bot.command(name="whois", hidden=True)
+async def bot_whois(ctx, *, member: discord.Member):
+    """Looks up a discord user"""
+    return await _whois(ctx, member)
+
+
+async def _whois(ctx, member):
+    if member.bot:
+        await ctx.send("{0.mention} is a bot, like me :)".format(member))
+        return
+    connection = get_db_connection()
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                solver_name
+            FROM discord_users
+            WHERE discord_id = %s
+            ORDER BY update_time DESC
+            LIMIT 1
+            """,
+            (member.id,),
+        )
+        discord_user = cursor.fetchone()
+        if not discord_user:
+            await ctx.send("Sorry, couldn't find that user; they may not be verified yet.")
+            return
+        name = discord_user["solver_name"]
+        cursor.execute(
+            """
+            SELECT
+                name,
+                fullname
+            FROM solver
+            WHERE name = %s
+            LIMIT 1
+            """,
+            (name,),
+        )
+        solver = cursor.fetchone()
+        if not solver:
+            await ctx.send("Sorry, couldn't find that user; they may not be verified yet.")
+            return
+        await ctx.send(
+            (
+                "Discord user `{0.display_name}` (`{0.name}#{0.discriminator}`) "
+                + "is PB user `{1}` (`{2}`)"
+            ).format(member, solver["name"], solver["fullname"])
+        )
+
+
 @puzzboss_only()
 @admin.command(aliases=["nr"])
 async def newround(ctx, *, round_name: str):
