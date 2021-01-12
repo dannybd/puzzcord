@@ -9,9 +9,11 @@ import logging
 import os
 import pymysql
 import random
+import re
 import sys
 import typing
 
+from common import *
 from discord.ext import commands
 from discord.ext.commands import guild_only
 
@@ -62,6 +64,58 @@ async def roll(ctx, dice: str):
         return
     result = ", ".join(str(random.randint(1, limit)) for r in range(rolls))
     await ctx.send(result)
+
+
+@bot.command()
+async def puzzle(ctx, *, query: typing.Optional[str]):
+    """Display current state of a puzzle.
+    If no state is provided, we default to the current puzzle channel."""
+    if not query:
+        if not is_puzzle_channel(ctx.channel):
+            await ctx.send("You need to provide a search query, or run in a puzzle channel")
+            return
+        puzzle = get_puzzle_for_channel(ctx.channel)
+    else:
+        try:
+            regex = re.compile(query, re.IGNORECASE)
+        except Exception as e:
+            regex = re.compile(r"^$")
+        query = query.replace(" ", "").lower()
+        def puzzle_matches(name):
+            if not name:
+                return False
+            if query in name.lower():
+                return True
+            return regex.search(name) is not None
+
+        connection = get_db_connection()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    name,
+                    round,
+                    puzzle_uri,
+                    drive_uri,
+                    slack_channel_id AS channel_id,
+                    status,
+                    answer
+                FROM puzzle_view
+                """,
+            )
+            puzzles = cursor.fetchall()
+            puzzle = next(
+                (
+                    puzzle for puzzle in puzzles
+                    if puzzle_matches(puzzle["name"])
+                ),
+                None,
+            )
+    if not puzzle:
+        await ctx.send("Sorry, I couldn't find a puzzle for that query. Please try again.")
+        return
+    embed = build_puzzle_embed(puzzle)
+    await ctx.send(embed=embed)
 
 
 @guild_only()
@@ -190,6 +244,7 @@ async def here(ctx):
         "/solvers/{0}/puzz".format(name),
         {"data": puzzle["name"]},
     )
+    logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
     if response.status != 200:
         await ctx.send(
             "Sorry, something went wrong. Please use Puzzleboss to select your puzzle."
@@ -253,18 +308,22 @@ async def handle_reacts(payload):
             return
         if "Everyone else: please click the" not in message.content:
             return
+        member = payload.member
+        if not member:
+            return
         if not is_puzzle_channel(channel):
             return
         puzzle = get_puzzle_for_channel(channel)
         if not puzzle:
             return
-        name = get_solver_name_for_member(user)
+        name = get_solver_name_for_member(member)
         if not name:
             return
         await gen_pbrest(
             "/solvers/{0}/puzz".format(name),
             {"data": puzzle["name"]},
         )
+        logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
 
 
 @guild_only()
@@ -477,6 +536,33 @@ async def verify(ctx, member: discord.Member, *, username: str):
     )
 
 
+def dictionary(corpus):
+    corpus = corpus.lower()
+    if corpus in ["ud", "urban"]:
+        return None
+    if corpus in ["wiki", "wp", "wikipedia"]:
+        return "wikipedia-titles3.txt"
+    if corpus in ["words", "gw", "english"]:
+        return "google-books-common-words.txt"
+    return None
+
+
+# TODO: Fix this
+@tools.command(hidden=True)
+async def search(ctx, *, word: str):
+    # https://wind-up-birds.org/scripts/cgi-bin/grep.cgi?dictionary=google-books-common-words.txt&word=%5Ef.ot.
+    url = "https://wind-up-birds.org/scripts/cgi-bin/grep.cgi"
+    params = {
+        "dictionary": dictionary("english"),
+        "word": word,
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, params=params) as response:
+            text = await response.text()
+            print(text)
+            await ctx.send(text)
+
+
 async def gen_pbrest(path, data=None):
     url = "https://wind-up-birds.org/puzzleboss/bin/pbrest.pl" + path
     if data:
@@ -501,7 +587,14 @@ def get_puzzles_for_channels(channels):
     with connection.cursor() as cursor:
         cursor.execute(
             """
-            SELECT *
+            SELECT
+                name,
+                round,
+                puzzle_uri,
+                drive_uri,
+                slack_channel_id AS channel_id,
+                status,
+                answer
             FROM puzzle_view
             WHERE slack_channel_id IN ({})
             """.format(
@@ -509,7 +602,7 @@ def get_puzzles_for_channels(channels):
             ),
             tuple([c.id for c in channels]),
         )
-        return {int(row["slack_channel_id"]): row for row in cursor.fetchall()}
+        return {int(row["channel_id"]): row for row in cursor.fetchall()}
 
 
 def get_solver_name_for_member(member):
@@ -540,6 +633,8 @@ def get_db_connection():
 
 
 def is_puzzle_channel(channel):
+    if channel.type != discord.ChannelType.text:
+        return False
     category = channel.category
     if not category:
         return False

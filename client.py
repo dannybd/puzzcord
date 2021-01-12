@@ -10,8 +10,8 @@ import os
 import pymysql
 import sys
 
+from common import *
 from datetime import datetime, timedelta
-from hashlib import md5
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -23,7 +23,6 @@ intents.members = True
 client = discord.Client(intents=intents)
 
 GUILD_ID = 790341470171168800
-PUZZTECH_CHANNEL = 790387626531225611
 STATUS_CHANNEL = 790348440890507285
 PUZZLE_CATEGORY = 790343785804201984
 SOLVED_PUZZLE_CATEGORY = 794869543448084491
@@ -268,73 +267,6 @@ async def gen_or_create_round_category(round_name, is_solved=False):
     return category
 
 
-def build_puzzle_embed(puzzle):
-    embed = discord.Embed(
-        color=get_round_embed_color(puzzle["round"]),
-        title="Puzzle: _`{name}`_".format(**puzzle),
-    )
-
-    status = puzzle["status"]
-    if status == "Needs eyes":
-        embed.add_field(
-            name="Status",
-            value="❗️ {status} 👀".format(**puzzle),
-            inline=False,
-        )
-    if status == "Critical":
-        embed.add_field(
-            name="Status",
-            value="⚠️  {status} 🚨️".format(**puzzle),
-            inline=False,
-        )
-    if status == "Unnecessary":
-        embed.add_field(
-            name="Status",
-            value="🤷 {status} 🤷".format(**puzzle),
-            inline=False,
-        )
-    if status == "Solved":
-        embed.add_field(
-            name="Status",
-            value="✅ {status} 🥳".format(**puzzle),
-            inline=True,
-        )
-        embed.add_field(
-            name="Answer",
-            value="||`{answer}`||".format(**puzzle),
-            inline=True,
-        )
-    if status == "WTF":
-        embed.add_field(
-            name="Status",
-            value="☣️  {status} ☣️".format(**puzzle),
-            inline=False,
-        )
-
-    def link_to(label, uri):
-        return "[{}]({})".format(label, uri)
-
-    embed.add_field(name="Puzzle URL", value=puzzle["puzzle_uri"], inline=False)
-    embed.add_field(name="Google Doc", value=link_to("Spreadsheet 📃", puzzle["drive_uri"]), inline=True)
-    whiteboard_uri = "https://cocreate.mehtank.com/api/slug?slug=wchyyom21-{name}".format(**puzzle)
-    embed.add_field(name="Whiteboard", value=link_to("Whiteboard 🎨", whiteboard_uri), inline=True)
-    # spacer field to make it 2x2
-    embed.add_field(name="\u200B", value="\u200B", inline=True)
-    embed.add_field(
-        name="Discord Channel", value="<#{channel_id}>".format(**puzzle), inline=True
-    )
-    embed.add_field(name="Round", value=puzzle["round"], inline=True)
-    # spacer field to make it 2x2
-    embed.add_field(name="\u200B", value="\u200B", inline=True)
-    return embed
-
-
-def get_round_embed_color(round):
-    hash = md5(round.encode("utf-8")).hexdigest()
-    hue = int(hash, 16) / 16 ** len(hash)
-    return discord.Color.from_hsv(hue, 0.655, 1)
-
-
 async def gen_create_channel(name, topic):
     category = client.get_channel(PUZZLE_CATEGORY)
     channel = await category.create_text_channel(
@@ -505,12 +437,12 @@ def _get_puzzle_from_db(puzzle_name):
         cursor.execute(
             """
             SELECT
-               name,
-               round,
-               puzzle_uri,
-               slack_channel_id AS channel_id,
-               status,
-               answer
+                name,
+                round,
+                puzzle_uri,
+                slack_channel_id AS channel_id,
+                status,
+                answer
             FROM puzzle_view
             WHERE name = %s
             LIMIT 1
