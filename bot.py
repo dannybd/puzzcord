@@ -588,6 +588,52 @@ async def _whois(ctx, member):
         )
 
 
+@role_verifiers()
+@guild_only()
+@admin.command()
+async def finduser(ctx, *, query: str):
+    """Fuzzy user lookup in Puzzleboss. (Regex supported)"""
+    try:
+        regex = re.compile(query, re.IGNORECASE)
+    except Exception as e:
+        regex = re.compile(r"^$")
+    query = query.lower()
+    def solver_matches(name, fullname):
+        if query in name.lower():
+            return True
+        if regex.search(name):
+            return True
+        if query in fullname.lower():
+            return True
+        if regex.search(fullname):
+            return True
+        return False
+
+    connection = get_db_connection()
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                name,
+                fullname
+            FROM solver
+            ORDER BY name
+            """,
+        )
+        solvers = cursor.fetchall()
+    results = []
+    for solver in solvers:
+        if solver_matches(**solver):
+            results.append("{name} ({fullname})".format(**solver))
+    if not results:
+        await ctx.send("No results found for that query.")
+        return
+    if len(results) == 1:
+        await ctx.send("Found 1 match:\n\n{}".format("\n".join(results)))
+        return
+    await ctx.send("Found {} matches:\n\n{}".format(len(results), "\n".join(results)))
+
+
 @puzzboss_only()
 @admin.command(aliases=["nr"])
 async def newround(ctx, *, round_name: str):
