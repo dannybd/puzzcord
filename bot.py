@@ -2,6 +2,7 @@
 
 import aiohttp
 import configparser
+import datetime
 import discord
 import json
 import logging
@@ -77,6 +78,9 @@ async def location(ctx, *channel_mentions: str):
         channels = [
             channel for channel in ctx.guild.text_channels if is_puzzle_channel(channel)
         ]
+        if not channels:
+            await ctx.send("You don't have any puzzles")
+            return
         xyzlocs = {}
         puzzles = get_puzzles_for_channels(channels)
         for id, puzzle in puzzles.items():
@@ -88,6 +92,12 @@ async def location(ctx, *channel_mentions: str):
             if xyzloc not in xyzlocs:
                 xyzlocs[xyzloc] = []
             xyzlocs[xyzloc].append("<#{0}>".format(id))
+        if not xyzlocs:
+            await ctx.send(
+                "There aren't any open puzzles being worked on at a table. "
+                + "Try joining a table and using `!joinus` in a puzzle channel."
+            )
+            return
         response = "Which puzzles are where:\n\n"
         for xyzloc, mentions in xyzlocs.items():
             response += "In **{0}**: {1}\n".format(xyzloc, ", ".join(mentions))
@@ -141,6 +151,26 @@ async def location(ctx, *channel_mentions: str):
     return
 
 
+@bot.command(aliases=["huntyet"], hidden=True)
+async def isithuntyet(ctx):
+    """Is it hunt yet?"""
+    timeleft = datetime.datetime.fromtimestamp(1610730000) - datetime.datetime.now()
+    if timeleft.days < 0:
+        await ctx.send("Yes! 🎉")
+        return
+    def plural(num, noun):
+        if num == 1:
+            return "1 {}".format(noun)
+        return "{} {}s".format(num, noun)
+    left = [
+        plural(timeleft.days, "day"),
+        plural(timeleft.seconds // 3600, "hour"),
+        plural(timeleft.seconds // 60 % 60, "minute"),
+        plural(timeleft.seconds % 60, "second"),
+    ]
+    await ctx.send("No! " + ", ".join(left))
+
+
 @guild_only()
 @bot.command()
 async def here(ctx):
@@ -175,30 +205,66 @@ async def here(ctx):
     await message.add_reaction("🧩")
 
 
-@bot.listen("on_reaction_add")
-async def handle_here_reacts(reaction, user):
-    if user == bot.user:
+@bot.listen("on_message")
+async def fun_replies(message):
+    if message.author == bot.user:
         return
-    message = reaction.message
-    if message.author != bot.user:
-        return
-    if "Everyone else: please click the" not in message.content:
-        return
-    if str(reaction) != "🧩":
-        return
+    content = message.content.lower()
     channel = message.channel
-    if not is_puzzle_channel(channel):
+    if "50/50" in content:
+        await channel.send("Roll up your sleeves!")
         return
-    puzzle = get_puzzle_for_channel(channel)
-    if not puzzle:
+    if "thanks obama" in content:
+        await channel.send("You're welcome!")
         return
-    name = get_solver_name_for_member(user)
-    if not name:
+
+
+@bot.listen("on_raw_reaction_add")
+async def handle_reacts(payload):
+    if payload.user_id == bot.user.id:
         return
-    await gen_pbrest(
-        "/solvers/{0}/puzz".format(name),
-        {"data": puzzle["name"]},
-    )
+    if not payload.guild_id:
+        return
+    emoji = str(payload.emoji)
+    if emoji not in "🧩📌🧹":
+        return
+    guild = bot.get_guild(payload.guild_id)
+    if not guild:
+        return
+    channel = guild.get_channel(payload.channel_id)
+    if not channel:
+        return
+    message = await channel.fetch_message(payload.message_id)
+    if not message:
+        return
+    if emoji == "📌":
+        if not message.pinned:
+            await message.pin()
+            await message.clear_reaction("🧹")
+        return
+    if emoji == "🧹":
+        if message.pinned:
+            await message.unpin()
+            await message.clear_reaction("📌")
+            await message.clear_reaction("🧹")
+        return
+    if emoji == "🧩":
+        if message.author != bot.user:
+            return
+        if "Everyone else: please click the" not in message.content:
+            return
+        if not is_puzzle_channel(channel):
+            return
+        puzzle = get_puzzle_for_channel(channel)
+        if not puzzle:
+            return
+        name = get_solver_name_for_member(user)
+        if not name:
+            return
+        await gen_pbrest(
+            "/solvers/{0}/puzz".format(name),
+            {"data": puzzle["name"]},
+        )
 
 
 @guild_only()
@@ -327,13 +393,12 @@ async def unverified(ctx):
         )
         verified_discord_ids = [int(row["discord_id"]) for row in cursor.fetchall()]
     member_role = ctx.guild.get_role(790341818885734430)
-    bot_role = ctx.guild.get_role(790388405728051201)
     members = [
         "{0.name}#{0.discriminator} ({0.display_name})".format(member)
         for member in ctx.guild.members
         if member_role in member.roles
         and member.id not in verified_discord_ids
-        and bot_role not in member.roles
+        and not member.bot
     ]
     await ctx.send(
         "Folks needing verification ({0}):\n\n{1}".format(

@@ -3,3 +3,4 @@ __pycache__/
 *.swp
 logs/*
 !logs/example.log
+*.py~
