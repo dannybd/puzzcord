@@ -10,6 +10,7 @@ import os
 import pymysql
 import random
 import re
+import string
 import sys
 import typing
 
@@ -51,6 +52,7 @@ async def on_ready():
 @bot.group()
 async def tools(ctx):
     """[category] Assorted puzzle-solving tools and utilities"""
+    # TODO: Show something more useful here, like links to tools
 
 
 @tools.command()
@@ -810,6 +812,46 @@ async def search(ctx, *, word: str):
         async with session.get(url, params=params) as response:
             text = await response.text()
             await ctx.send(text)
+
+
+@tools.command(aliases=["rotn"])
+async def rot(ctx, *, msg: str):
+    """Rotates a message through all rot N and displays the permutations"""
+    return await _rot(ctx, msg)
+
+@bot.command(name="rot", aliases=["rotn"], hidden=True)
+async def bot_rot(ctx, *, msg: str):
+    """Rotates a message through all rot N and displays the permutations"""
+    return await _rot(ctx, msg)
+
+async def _rot(ctx, msg):
+    lower = string.ascii_lowercase + string.ascii_lowercase
+    upper = string.ascii_uppercase + string.ascii_uppercase
+    chars = []
+    for c in msg:
+        if c in lower:
+            chars.append(lower[lower.index(c):][:26])
+            continue
+        if c in upper:
+            chars.append(upper[upper.index(c):][:26])
+            continue
+        chars.append(c * 26)
+    rotn = [''.join(x) for x in zip(*chars)]
+    response = (
+        "```\n"
+        + "ROT  -N   N   MESSAGE\n"
+    )
+    i = 0
+    for rot in rotn:
+        response += " {0}  {1:3d}  {2:2d}   {3}\n".format(upper[i], i-26, i, rot)
+        i += 1
+    response += "```"
+    await ctx.send(response)
+
+
+@bot.command(hidden=True, aliases=["hurray"])
+async def hooray(ctx):
+    await ctx.send("🥳🎉🎊✨")
 
 
 async def gen_pbrest(path, data=None):
