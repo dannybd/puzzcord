@@ -137,7 +137,10 @@ class Puzzboss(commands.Cog):
         if len(results) == 1:
             await ctx.send("Found 1 match:\n\n{}".format("\n".join(results)))
             return
-        await ctx.send("Found {} matches:\n\n{}".format(len(results), "\n".join(results)))
+        try:
+            await ctx.send("Found {} matches:\n\n{}".format(len(results), "\n".join(results)))
+        except:
+            await ctx.send("Sorry, too many matches ({}) found to display in Discord. Please narrow your query.".format(len(results)))
 
 
     @puzzboss_only()
@@ -284,7 +287,7 @@ class Puzzboss(commands.Cog):
         member_role = ctx.guild.get_role(790341818885734430)
         if member_role not in member.roles:
             logging.info("{0.command}: Adding member role!".format(ctx))
-            await member.add_roles([member_role])
+            await member.add_roles(member_role)
         await ctx.send(
             "**{0.display_name}** is now verified as **{1}**!".format(
                 member, solver["name"]
