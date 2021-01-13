@@ -35,8 +35,8 @@ class PinMessages(commands.Cog):
                 await message.clear_reaction("📌")
                 await message.clear_reaction("🧹")
             return
-    
+
+
 def setup(bot):
     cog = PinMessages(bot)
     bot.add_cog(cog)
-        

@@ -25,7 +25,7 @@ intents.members = True
 intents.presences = True
 
 default_help = commands.DefaultHelpCommand(
-    no_category="Commands to try",
+    no_category="Other Commands",
 )
 
 bot = commands.Bot(
@@ -35,9 +35,11 @@ bot = commands.Bot(
     intents=intents,
 )
 
+
 @bot.event
 async def on_ready():
     logging.info("Connected as {0.user} and ready!".format(bot))
+
 
 if __name__ == "__main__":
     # Define logging levels
@@ -55,7 +57,7 @@ if __name__ == "__main__":
 
     logging.info("Loading extensions...")
     for extension in glob.glob("bot_extensions/*.py"):
-        try: 
+        try:
             ext = extension[:-3]
             ext = ext.replace("/", ".")
             logging.info("Loading {}".format(ext))

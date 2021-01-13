@@ -7,7 +7,6 @@ from discord.ext.commands import guild_only
 import datetime
 
 class Toys(commands.Cog):
-        
     def __init__(self, bot):
         self.bot = bot
 
@@ -30,7 +29,7 @@ class Toys(commands.Cog):
         ]
         await ctx.send("No! " + ", ".join(left))
 
-    
+
     @commands.Cog.listener("on_message")
     async def fun_replies(self, message):
         if message.author == self.bot.user:

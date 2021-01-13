@@ -20,14 +20,16 @@ class SolvingTools(commands.Cog):
         """Rotates a message through all rot N and displays the permutations"""
         return await self._rot(ctx, msg)
 
+
     @commands.command(name="rot", aliases=["rotn"], hidden=True)
     async def do_rot(self, ctx, *, msg: str):
         """Rotates a message through all rot N and displays the permutations"""
         return await self._rot(ctx, msg)
 
+
     async def _rot(self, ctx, msg):
-        lower = string.ascii_lowercase + string.ascii_lowercase
-        upper = string.ascii_uppercase + string.ascii_uppercase
+        lower = string.ascii_lowercase * 2
+        upper = string.ascii_uppercase * 2
         chars = []
         for c in msg:
             if c in lower:
@@ -47,12 +49,25 @@ class SolvingTools(commands.Cog):
             response += " {0}  {1:3d}  {2:2d}   {3}\n".format(upper[i], i-26, i, rot)
             i += 1
         response += "```"
-        await ctx.send(response)
+        try:
+            await ctx.send(response)
+        except:
+            await ctx.send("Sorry, response was too long for Discord. Try a shorter string")
 
 
-    @commands.command()
+    @tools.command()
     async def roll(self, ctx, dice: str):
         """Rolls a dice in NdN format."""
+        return await self._roll(ctx, dice)
+
+
+    @commands.command(name="roll", hidden=True)
+    async def do_roll(self, ctx, dice: str):
+        """Rolls a dice in NdN format."""
+        return await self._roll(ctx, dice)
+
+
+    async def _roll(self, ctx, dice):
         try:
             rolls, limit = map(int, dice.split("d"))
         except Exception:
@@ -78,7 +93,7 @@ class SolvingTools(commands.Cog):
             async with session.get(url, params=params) as response:
                 text = await response.text()
                 await ctx.send(text)
-                
+
 
     def dictionary(self, corpus):
         corpus = corpus.lower()
@@ -89,6 +104,7 @@ class SolvingTools(commands.Cog):
         if corpus in ["words", "gw", "english"]:
             return "google-books-common-words.txt"
         return None
+
 
 def setup(bot):
     cog = SolvingTools(bot)

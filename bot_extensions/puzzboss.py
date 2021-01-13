@@ -27,9 +27,11 @@ class Puzzboss(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+
     @commands.group(hidden=True, usage="[sneaky]")
     async def admin(self, ctx):
         """Administrative commands, mostly puzzboss-only"""
+
 
     @role_verifiers()
     @guild_only()
@@ -51,7 +53,7 @@ class Puzzboss(commands.Cog):
         if member.bot:
             await ctx.send("{0.mention} is a bot, like me :)".format(member))
             return
-        connection = puzzboss_interface.SQL.get_db_connection()
+        connection = puzzboss_interface.SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -113,7 +115,7 @@ class Puzzboss(commands.Cog):
                 return True
             return False
 
-        connection = puzzboss_interface.SQL.get_db_connection()
+        connection = puzzboss_interface.SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -292,4 +294,3 @@ class Puzzboss(commands.Cog):
 def setup(bot):
     cog = Puzzboss(bot)
     bot.add_cog(cog)
-        

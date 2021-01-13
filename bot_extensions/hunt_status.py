@@ -1,5 +1,4 @@
-""" Get an overview of the entire hunt sattus"""
-
+""" Get an overview of the entire hunt status """
 import discord
 from discord.ext import commands
 import puzzboss_interface
@@ -8,9 +7,10 @@ from pytz import timezone
 import datetime
 
 class HuntStatus(commands.Cog):
-        
+
     def __init__(self, bot):
         self.bot = bot
+
 
     @commands.command(aliases=["hunt"])
     async def status(self, ctx):
@@ -70,7 +70,7 @@ class HuntStatus(commands.Cog):
             if round["Needs eyes"]:
                 value += "🔴 Needs eyes: **{}**\n".format(round["Needs eyes"])
             if round["Critical"]:
-                value += "🔥  Critical: **{Critical}**\n".format(**round)
+                value += "🔥 Critical: **{Critical}**\n".format(**round)
             if round["WTF"]:
                 value += "☣️ WTF: **{WTF}**\n".format(**round)
             if round["Unnecessary"]:

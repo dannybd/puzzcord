@@ -5,6 +5,7 @@ import logging
 import pymysql
 from config import config
 
+
 class REST:
     @staticmethod
     async def post(path, data=None):
@@ -100,5 +101,3 @@ class SQL:
             )
             row = cursor.fetchone()
         return row["solver_name"] if row else None
-
-

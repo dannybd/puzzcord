@@ -14,6 +14,7 @@ class PuzzleStatus(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+
     @commands.command()
     async def puzzle(self, ctx, *, query: typing.Optional[str]):
         """Display current state of a puzzle.
@@ -97,7 +98,7 @@ class PuzzleStatus(commands.Cog):
                 xyzloc = puzzle["xyzloc"]
                 if not xyzloc:
                     continue
-                if puzzle["status"] in ["Solved", "Unnecessary"]:
+                if puzzle["status"] in ["Solved"]:
                     continue
                 if xyzloc not in xyzlocs:
                     xyzlocs[xyzloc] = []
@@ -160,6 +161,7 @@ class PuzzleStatus(commands.Cog):
         await ctx.send(response)
         return
 
+
     @guild_only()
     @commands.command(aliases=["markas"])
     async def mark(self, ctx, channel: typing.Optional[discord.TextChannel], *, markas: str):
@@ -192,7 +194,6 @@ class PuzzleStatus(commands.Cog):
 
     @commands.Cog.listener("on_raw_reaction_add")
     async def handle_workingon(self, payload):
-            
         if payload.user_id == self.bot.user.id:
             return
         if not payload.guild_id:
@@ -204,7 +205,8 @@ class PuzzleStatus(commands.Cog):
 
         guild = self.bot.get_guild(payload.guild_id)
         if not guild:
-            return            
+            return
+
         channel = guild.get_channel(payload.channel_id)
 
         message = await channel.fetch_message(payload.message_id)
@@ -231,7 +233,8 @@ class PuzzleStatus(commands.Cog):
             {"data": puzzle["name"]},
         )
         logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
-        
+
+
     @guild_only()
     @commands.command()
     async def here(self, ctx):
@@ -247,7 +250,7 @@ class PuzzleStatus(commands.Cog):
                 + "a @Role Verifier, then try again."
             )
             return
-        response = await puzzboss_interface.post(
+        response = await puzzboss_interface.REST.post(
             "/solvers/{0}/puzz".format(name),
             {"data": puzzle["name"]},
         )
@@ -265,6 +268,7 @@ class PuzzleStatus(commands.Cog):
             ).format(ctx.author)
         )
         await message.add_reaction("🧩")
+
 
     @guild_only()
     @commands.command()
@@ -284,11 +288,10 @@ class PuzzleStatus(commands.Cog):
             )
             return
         puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(ctx.channel)
-        await puzzboss_interface.post(
+        await puzzboss_interface.REST.post(
             "/puzzles/{name}/xyzloc".format(**puzzle),
             {"data": table.name},
         )
-
 
 
 def setup(bot):
