@@ -17,17 +17,66 @@ class SolvingTools(commands.Cog):
 
     @tools.command(aliases=["rotn"])
     async def rot(self, ctx, *, msg: str):
-        """Rotates a message through all rot N and displays the permutations"""
+        """Rotates a message through all rot N and displays the permutations
+        Limited to the first 60 chars due to Discord message size limits.
+        To rotate for a specific rotN, use something like `!tools rot13 foobar`"""
         return await self._rot(ctx, msg)
 
 
     @commands.command(name="rot", aliases=["rotn"], hidden=True)
     async def do_rot(self, ctx, *, msg: str):
-        """Rotates a message through all rot N and displays the permutations"""
+        """Rotates a message through all rot N and displays the permutations
+        Limited to the first 60 chars due to Discord message size limits.
+        To rotate for a specific rotN, use something like `!rot13 foobar`"""
         return await self._rot(ctx, msg)
 
 
     async def _rot(self, ctx, msg):
+        response = (
+            "```\n"
+            + "ROT  -N   N   MESSAGE\n"
+        )
+        upper = string.ascii_uppercase * 2
+        i = 0
+        for rot in self._all_rotn(msg):
+            response += " {0}  {1:3d}  {2:2d}   {3}\n".format(upper[i + 25], i-26, i, rot[:60])
+            i += 1
+        response += "```"
+        try:
+            await ctx.send(response)
+        except:
+            await ctx.send("Sorry, response was too long for Discord. Try a shorter string")
+
+
+    @tools.command(name="rot0", aliases=[f"rot{n}" for n in range(1, 26)], hidden=True)
+    async def specific_rot(self, ctx, *, msg: str):
+        """Rotates a message just by rotN"""
+        return await self._specific_rot(ctx, msg)
+
+
+    @commands.command(name="rot0", aliases=[f"rot{n}" for n in range(1, 26)], hidden=True)
+    async def do_specific_rot(self, ctx, *, msg: str):
+        """Rotates a message just by rotN"""
+        return await self._specific_rot(ctx, msg)
+
+
+    async def _specific_rot(self, ctx, msg):
+        i = int(ctx.invoked_with[3:])
+        all_rotn = self._all_rotn(msg)
+        response = (
+            "```\n"
+            + "ROT  -N   N   MESSAGE\n"
+        )
+        upper = string.ascii_uppercase * 2
+        response += " {0}  {1:3d}  {2:2d}   {3}\n".format(upper[i + 25], i-26, i, all_rotn[i])
+        response += "```"
+        try:
+            await ctx.send(response)
+        except:
+            await ctx.send("Sorry, response was too long for Discord. Try a shorter string")
+
+
+    def _all_rotn(self, msg):
         lower = string.ascii_lowercase * 2
         upper = string.ascii_uppercase * 2
         chars = []
@@ -39,20 +88,7 @@ class SolvingTools(commands.Cog):
                 chars.append(upper[upper.index(c):][:26])
                 continue
             chars.append(c * 26)
-        rotn = [''.join(x) for x in zip(*chars)]
-        response = (
-            "```\n"
-            + "ROT  -N   N   MESSAGE\n"
-        )
-        i = 0
-        for rot in rotn:
-            response += " {0}  {1:3d}  {2:2d}   {3}\n".format(upper[i], i-26, i, rot)
-            i += 1
-        response += "```"
-        try:
-            await ctx.send(response)
-        except:
-            await ctx.send("Sorry, response was too long for Discord. Try a shorter string")
+        return [''.join(x) for x in zip(*chars)]
 
 
     @tools.command()
