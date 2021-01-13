@@ -37,7 +37,7 @@ class PuzzleStatus(commands.Cog):
                     return True
                 return regex.search(name) is not None
 
-            connection = puzzboss_interface.SQL.get_db_connection()
+            connection = puzzboss_interface.SQL._get_db_connection()
             with connection.cursor() as cursor:
                 cursor.execute(
                     """

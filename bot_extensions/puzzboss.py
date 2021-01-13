@@ -187,7 +187,7 @@ class Puzzboss(commands.Cog):
     @admin.command()
     async def unverified(self, ctx):
         """Lists not-yet-verified team members"""
-        connection = puzzboss_interface.SQL.get_db_connection()
+        connection = puzzboss_interface.SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -246,7 +246,7 @@ class Puzzboss(commands.Cog):
                 ctx, member, username
             )
         )
-        connection = puzzboss_interface.SQL.get_db_connection()
+        connection = puzzboss_interface.SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
