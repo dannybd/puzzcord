@@ -308,10 +308,17 @@ class PuzzleStatus(commands.Cog):
         table = discord_info.get_table(ctx.author)
         if not table:
             await ctx.send(
-                "Sorry, you need to join one of the table voice chats before you can use the !joinus command."
+                "Sorry, you need to join one of the table voice chats "
+                + "before you can use the !joinus command."
             )
             return
         puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(ctx.channel)
+        if not puzzle:
+            await ctx.send(
+                "Sorry, I can't find this channel in the "
+                + "Puzzleboss database, so !joinus won't work."
+            )
+            return
         await puzzboss_interface.REST.post(
             "/puzzles/{name}/xyzloc".format(**puzzle),
             {"data": table.name},
@@ -324,9 +331,7 @@ class PuzzleStatus(commands.Cog):
             {"data": puzzle["name"]},
         )
         if response.status != 200:
-            logging.error(
-                "Failed to mark {} as working on {}".format(name, puzzle["name"])
-            )
+            logging.error("Failed to mark {} as working on {}".format(name, puzzle["name"]))
             return
         logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
 
