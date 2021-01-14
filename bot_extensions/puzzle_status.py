@@ -279,12 +279,12 @@ class PuzzleStatus(commands.Cog):
             "/solvers/{0}/puzz".format(name),
             {"data": puzzle["name"]},
         )
-        logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
         if response.status != 200:
             await ctx.send(
                 "Sorry, something went wrong. Please use Puzzleboss to select your puzzle."
             )
             return
+        logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
         message = await ctx.send(
             (
                 "Thank you, {0.mention}, for marking yourself as working on this puzzle.\n"
@@ -316,6 +316,19 @@ class PuzzleStatus(commands.Cog):
             "/puzzles/{name}/xyzloc".format(**puzzle),
             {"data": table.name},
         )
+        name = puzzboss_interface.SQL.get_solver_name_for_member(ctx.author)
+        if not name:
+            return
+        response = await puzzboss_interface.REST.post(
+            "/solvers/{0}/puzz".format(name),
+            {"data": puzzle["name"]},
+        )
+        if response.status != 200:
+            logging.error(
+                "Failed to mark {} as working on {}".format(name, puzzle["name"])
+            )
+            return
+        logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
 
 
 def setup(bot):
