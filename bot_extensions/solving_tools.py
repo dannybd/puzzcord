@@ -148,6 +148,7 @@ class SolvingTools(commands.Cog):
         return await self.nutrimatic(ctx, query=query)
     @tools.command(name="nutrimatic", aliases = ["nut"])
     async def nutrimatic(self, ctx, *, query: str):
+        """Queries nutrimatic.org"""
         url = "https://nutrimatic.org/?q={}".format(query)
         response = await urlhandler.get(url)
         soup = BeautifulSoup(response, 'html.parser')
@@ -155,6 +156,19 @@ class SolvingTools(commands.Cog):
         await ctx.send(result)
 
 
+    @commands.command(name="abc", aliases=["123"], hidden=True)
+    async def abc_alias(self, ctx, *args):
+        return await self.abc(ctx, *args)
+
+    @tools.command(name="abc", aliases=["123"])
+    async def abc(self, ctx, *args):
+        """Converts letters A-Z to/from numbers 1-26"""
+        def convert(x:str):
+            if (x.isalpha()):
+                return ",".join([str(ord(char.lower()) - ord('a') + 1) for char in x])
+            else:
+                return chr(int(x) + ord('a') - 1)
+        await ctx.send(" ".join([convert(i) for i in args]))
 
     
 

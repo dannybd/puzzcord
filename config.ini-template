@@ -6,7 +6,7 @@ passwd = secureihope
 db = puzzledb
 
 [discord]
-botsecret = <<BOTSECRET>>
+botsecret = Nzk4Nzc4MDE4MTM4MTYxMTk2.X_5-AA.5VNnJgyPUsvriqHI3cnzJUnxQpI
 
 [asyncio_server]
 host = localhost
