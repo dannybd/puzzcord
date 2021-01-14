@@ -169,7 +169,9 @@ class PuzzleStatus(commands.Cog):
     async def mark(
         self, ctx, channel: typing.Optional[discord.TextChannel], *, markas: str
     ):
-        """Update a puzzle's state: needs eyes, critical, wtf, unnecessary"""
+        """Update a puzzle's state: needs eyes, critical, wtf, unnecessary
+        Note: These all have shortcuts: (!eyes, !critical, etc.)
+        """
         logging.info("{0.command}: Marking a puzzle as solved".format(ctx))
         markas = markas.lower().strip()
         if markas in ["eyes", "needs eyes", "needseyes"]:
@@ -195,6 +197,26 @@ class PuzzleStatus(commands.Cog):
         response = await puzzboss_interface.REST.post(
             "/puzzles/{name}/status".format(**puzzle), {"data": status}
         )
+
+    @commands.command(hidden=True)
+    async def eyes(self, ctx, channel: typing.Optional[discord.TextChannel]):
+        """Update a puzzle's state to Needs Eyes"""
+        return await self.mark(ctx, channel, markas="eyes")
+
+    @commands.command(hidden=True)
+    async def critical(self, ctx, channel: typing.Optional[discord.TextChannel]):
+        """Update a puzzle's state to Critical"""
+        return await self.mark(ctx, channel, markas="critical")
+
+    @commands.command(hidden=True)
+    async def wtf(self, ctx, channel: typing.Optional[discord.TextChannel]):
+        """Update a puzzle's state to WTF"""
+        return await self.mark(ctx, channel, markas="wtf")
+
+    @commands.command(hidden=True)
+    async def unnecessary(self, ctx, channel: typing.Optional[discord.TextChannel]):
+        """Update a puzzle's state to Unnecessary"""
+        return await self.mark(ctx, channel, markas="unnecessary")
 
     @commands.Cog.listener("on_raw_reaction_add")
     async def handle_workingon(self, payload):
