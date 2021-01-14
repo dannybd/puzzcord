@@ -18,6 +18,7 @@ def is_puzzle_channel(channel):
         return False
     return category.name.startswith("🧩") or channel.category.name.startswith("🏁")
 
+
 def get_table(member):
     voice = member.voice
     if not voice:
@@ -39,4 +40,3 @@ def get_tables(ctx):
         for channel in ctx.guild.voice_channels
         if "tables" in str(channel.category).lower()
     ]
-

@@ -7,6 +7,7 @@ import puzzboss_interface
 import re
 import typing
 
+
 def puzzboss_only():
     async def predicate(ctx):
         # TODO: Make this more open to whoever's puzzbossing
@@ -27,11 +28,9 @@ class Puzzboss(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
     @commands.group(hidden=True, usage="[sneaky]")
     async def admin(self, ctx):
         """Administrative commands, mostly puzzboss-only"""
-
 
     @role_verifiers()
     @guild_only()
@@ -40,14 +39,12 @@ class Puzzboss(commands.Cog):
         """Looks up a discord user"""
         return await self._whois(ctx, member)
 
-
     @role_verifiers()
     @guild_only()
     @commands.command(name="whois", hidden=True)
     async def do_whois(self, ctx, *, member: discord.Member):
         """Looks up a discord user"""
         return await self._whois(ctx, member)
-
 
     async def _whois(self, ctx, member):
         if member.bot:
@@ -68,7 +65,9 @@ class Puzzboss(commands.Cog):
             )
             discord_user = cursor.fetchone()
             if not discord_user:
-                await ctx.send("Sorry, couldn't find that user; they may not be verified yet.")
+                await ctx.send(
+                    "Sorry, couldn't find that user; they may not be verified yet."
+                )
                 return
             name = discord_user["solver_name"]
             cursor.execute(
@@ -84,7 +83,9 @@ class Puzzboss(commands.Cog):
             )
             solver = cursor.fetchone()
             if not solver:
-                await ctx.send("Sorry, couldn't find that user; they may not be verified yet.")
+                await ctx.send(
+                    "Sorry, couldn't find that user; they may not be verified yet."
+                )
                 return
             await ctx.send(
                 (
@@ -92,7 +93,6 @@ class Puzzboss(commands.Cog):
                     + "is PB user `{1}` (`{2}`)"
                 ).format(member, solver["name"], solver["fullname"])
             )
-
 
     @role_verifiers()
     @guild_only()
@@ -104,6 +104,7 @@ class Puzzboss(commands.Cog):
         except Exception as e:
             regex = re.compile(r"^$")
         query = query.lower()
+
         def solver_matches(name, fullname):
             if query in name.lower():
                 return True
@@ -138,10 +139,15 @@ class Puzzboss(commands.Cog):
             await ctx.send("Found 1 match:\n\n{}".format("\n".join(results)))
             return
         try:
-            await ctx.send("Found {} matches:\n\n{}".format(len(results), "\n".join(results)))
+            await ctx.send(
+                "Found {} matches:\n\n{}".format(len(results), "\n".join(results))
+            )
         except:
-            await ctx.send("Sorry, too many matches ({}) found to display in Discord. Please narrow your query.".format(len(results)))
-
+            await ctx.send(
+                "Sorry, too many matches ({}) found to display in Discord. Please narrow your query.".format(
+                    len(results)
+                )
+            )
 
     @puzzboss_only()
     @admin.command(aliases=["nr"])
@@ -158,11 +164,12 @@ class Puzzboss(commands.Cog):
             return
         await ctx.send("Error. Something weird happened, try the PB UI directly.")
 
-
     @puzzboss_only()
     @guild_only()
     @admin.command()
-    async def solved(self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str):
+    async def solved(
+        self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
+    ):
         """[puzztech only] Mark a puzzle as solved and archive its channel"""
         logging.info("{0.command}: Marking a puzzle as solved".format(ctx))
         apply_to_self = channel is None
@@ -180,7 +187,6 @@ class Puzzboss(commands.Cog):
         )
         if apply_to_self:
             await ctx.message.delete()
-
 
     @role_verifiers()
     @guild_only()
@@ -211,7 +217,6 @@ class Puzzboss(commands.Cog):
             )
         )
 
-
     @role_verifiers()
     @commands.command(name="verify", hidden=True)
     async def do_verify(self, ctx, member: discord.Member, *, username: str):
@@ -219,7 +224,6 @@ class Puzzboss(commands.Cog):
         Usage: !verify @member username[@wind-up-birds.org]
         """
         return await self._verify(ctx, member, username)
-
 
     @role_verifiers()
     @guild_only()
@@ -229,7 +233,6 @@ class Puzzboss(commands.Cog):
         Usage: !verify @member username[@wind-up-birds.org]
         """
         return await self._verify(ctx, member, username)
-
 
     async def _verify(self, ctx, member, username):
         verifier_role = ctx.guild.get_role(794318951235715113)
@@ -293,6 +296,7 @@ class Puzzboss(commands.Cog):
                 member, solver["name"]
             )
         )
+
 
 def setup(bot):
     cog = Puzzboss(bot)

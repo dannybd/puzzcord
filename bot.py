@@ -63,8 +63,8 @@ if __name__ == "__main__":
             logging.info("Loading {}".format(ext))
             bot.load_extension(ext)
         except Exception as e:
-            exc = '{}: {}'.format(type(e).__name__, traceback.format_exc())
-            logging.warning('Failed to load extension {}\n{}'.format(extension, exc))
+            exc = "{}: {}".format(type(e).__name__, traceback.format_exc())
+            logging.warning("Failed to load extension {}\n{}".format(extension, exc))
     logging.info("Starting!")
     bot.run(config["discord"]["botsecret"])
     logging.info("Done, closing out")

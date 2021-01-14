@@ -64,7 +64,6 @@ class SQL:
             )
             return {int(row["channel_id"]): row for row in cursor.fetchall()}
 
-
     @staticmethod
     def get_all_puzzles():
         connection = SQL._get_db_connection()
@@ -85,7 +84,6 @@ class SQL:
                 """,
             )
             return cursor.fetchall()
-
 
     @staticmethod
     def get_solver_name_for_member(member):

@@ -10,10 +10,10 @@ import typing
 import re
 from common import build_puzzle_embed
 
+
 class PuzzleStatus(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
 
     @commands.command()
     async def puzzle(self, ctx, *, query: typing.Optional[str]):
@@ -21,7 +21,9 @@ class PuzzleStatus(commands.Cog):
         If no state is provided, we default to the current puzzle channel."""
         if not query:
             if not discord_info.is_puzzle_channel(ctx.channel):
-                await ctx.send("You need to provide a search query, or run in a puzzle channel")
+                await ctx.send(
+                    "You need to provide a search query, or run in a puzzle channel"
+                )
                 return
             puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(ctx.channel)
         else:
@@ -30,6 +32,7 @@ class PuzzleStatus(commands.Cog):
             except Exception as e:
                 regex = re.compile(r"^$")
             query = query.replace(" ", "").lower()
+
             def puzzle_matches(name):
                 if not name:
                     return False
@@ -54,18 +57,16 @@ class PuzzleStatus(commands.Cog):
                 )
                 puzzles = cursor.fetchall()
                 puzzle = next(
-                    (
-                        puzzle for puzzle in puzzles
-                        if puzzle_matches(puzzle["name"])
-                    ),
+                    (puzzle for puzzle in puzzles if puzzle_matches(puzzle["name"])),
                     None,
                 )
         if not puzzle:
-            await ctx.send("Sorry, I couldn't find a puzzle for that query. Please try again.")
+            await ctx.send(
+                "Sorry, I couldn't find a puzzle for that query. Please try again."
+            )
             return
         embed = build_puzzle_embed(puzzle)
         await ctx.send(embed=embed)
-
 
     @guild_only()
     @commands.command()
@@ -73,7 +74,6 @@ class PuzzleStatus(commands.Cog):
         """What is happening at each table?
         Equivalent to calling `!location all` or `!whereis everything`"""
         return await self.location(ctx, "everything")
-
 
     @guild_only()
     @commands.command(aliases=["loc", "whereis"])
@@ -87,7 +87,9 @@ class PuzzleStatus(commands.Cog):
         """
         if len(channel_mentions) == 1 and channel_mentions[0] in ["all", "everything"]:
             channels = [
-                channel for channel in ctx.guild.text_channels if discord_info.is_puzzle_channel(channel)
+                channel
+                for channel in ctx.guild.text_channels
+                if discord_info.is_puzzle_channel(channel)
             ]
             if not channels:
                 await ctx.send("You don't have any puzzles")
@@ -125,7 +127,8 @@ class PuzzleStatus(commands.Cog):
         channels = [
             channel
             for channel in ctx.guild.text_channels
-            if channel.mention in channel_mentions and discord_info.is_puzzle_channel(channel)
+            if channel.mention in channel_mentions
+            and discord_info.is_puzzle_channel(channel)
         ]
         logging.info(
             "{0.command}: Found {1} puzzle channels".format(
@@ -161,10 +164,11 @@ class PuzzleStatus(commands.Cog):
         await ctx.send(response)
         return
 
-
     @guild_only()
     @commands.command(aliases=["markas"])
-    async def mark(self, ctx, channel: typing.Optional[discord.TextChannel], *, markas: str):
+    async def mark(
+        self, ctx, channel: typing.Optional[discord.TextChannel], *, markas: str
+    ):
         """Update a puzzle's state: needs eyes, critical, wtf, unnecessary"""
         logging.info("{0.command}: Marking a puzzle as solved".format(ctx))
         markas = markas.lower().strip()
@@ -234,7 +238,6 @@ class PuzzleStatus(commands.Cog):
         )
         logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
 
-
     @guild_only()
     @commands.command()
     async def here(self, ctx):
@@ -268,7 +271,6 @@ class PuzzleStatus(commands.Cog):
             ).format(ctx.author)
         )
         await message.add_reaction("🧩")
-
 
     @guild_only()
     @commands.command()

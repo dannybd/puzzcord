@@ -10,6 +10,7 @@ def encode_with_table(table, decoded, sep=""):
     return sep.join([str(table[str(i)] if str(i) in table else i) for i in decoded])
 
 
+# fmt: off
 alpha2morse = {
     'A': '.-',      'a': '.-',
     'B': '-...',    'b': '-...',
@@ -49,4 +50,5 @@ alpha2morse = {
     '9': '----.',   ')': '-.--.-',
     ' ': '/',       '_': '..--.-',
 }
+# fmt: on
 morse2alpha = invert_table(alpha2morse)

@@ -9,6 +9,7 @@ import bot_extensions.util.tables as tables
 
 from bs4 import BeautifulSoup
 
+
 class SolvingTools(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -30,23 +31,25 @@ class SolvingTools(commands.Cog):
         """Rotates a message through all rot N and displays the permutations
         Limited to the first 60 chars due to Discord message size limits.
         To rotate for a specific rotN, use something like `!tools rot13 foobar`"""
-        response = (
-            "```\n"
-            + "ROT  -N   N   MESSAGE\n"
-        )
+        response = "```\n" + "ROT  -N   N   MESSAGE\n"
         upper = string.ascii_uppercase * 2
         i = 0
         for rot in self._all_rotn(msg):
             response += " {0}  {1:3d}  {2:2d}   {3}\n".format(
-                upper[i + 25], i-26, i, rot[:60])
+                upper[i + 25], i - 26, i, rot[:60]
+            )
             i += 1
         response += "```"
         try:
             await ctx.send(response)
         except:
-            await ctx.send("Sorry, response was too long for Discord. Try a shorter string")
+            await ctx.send(
+                "Sorry, response was too long for Discord. Try a shorter string"
+            )
 
-    @commands.command(name="rot0", aliases=[f"rot{n}" for n in range(1, 26)], hidden=True)
+    @commands.command(
+        name="rot0", aliases=[f"rot{n}" for n in range(1, 26)], hidden=True
+    )
     async def rot_specific_alias(self, ctx, *, msg: str):
         """Rotates a message just by rotN"""
         return await self.rot_specific(ctx, msg=msg)
@@ -56,18 +59,18 @@ class SolvingTools(commands.Cog):
         """Rotates a message just by rotN"""
         i = int(ctx.invoked_with[3:])
         all_rotn = self._all_rotn(msg)
-        response = (
-            "```\n"
-            + "ROT  -N   N   MESSAGE\n"
-        )
+        response = "```\n" + "ROT  -N   N   MESSAGE\n"
         upper = string.ascii_uppercase * 2
         response += " {0}  {1:3d}  {2:2d}   {3}\n".format(
-            upper[i + 25], i-26, i, all_rotn[i])
+            upper[i + 25], i - 26, i, all_rotn[i]
+        )
         response += "```"
         try:
             await ctx.send(response)
         except:
-            await ctx.send("Sorry, response was too long for Discord. Try a shorter string")
+            await ctx.send(
+                "Sorry, response was too long for Discord. Try a shorter string"
+            )
 
     def _all_rotn(self, msg):
         lower = string.ascii_lowercase * 2
@@ -75,14 +78,13 @@ class SolvingTools(commands.Cog):
         chars = []
         for c in msg:
             if c in lower:
-                chars.append(lower[lower.index(c):][:26])
+                chars.append(lower[lower.index(c) :][:26])
                 continue
             if c in upper:
-                chars.append(upper[upper.index(c):][:26])
+                chars.append(upper[upper.index(c) :][:26])
                 continue
             chars.append(c * 26)
-        return [''.join(x) for x in zip(*chars)]
-
+        return ["".join(x) for x in zip(*chars)]
 
     @commands.command(name="roll", hidden=True)
     async def roll_alias(self, ctx, dice: str):
@@ -128,7 +130,9 @@ class SolvingTools(commands.Cog):
             return "google-books-common-words.txt"
         return None
 
-    @commands.command(name="nutrimatic", aliases=["nu", "nut", "nutr", "nutri", "newt"], hidden=True)
+    @commands.command(
+        name="nutrimatic", aliases=["nu", "nut", "nutr", "nutri", "newt"], hidden=True
+    )
     async def nutrimatic_alias(self, ctx, *, query: str):
         """Queries nutrimatic.org
         Matches patterns against a dictionary of words and phrases mined from Wikipedia. Text is normalized to lowercase letters, numbers and spaces. More common results are returned first.
@@ -164,9 +168,10 @@ class SolvingTools(commands.Cog):
         url = "https://nutrimatic.org/"
         params = {"q": query}
         response = await urlhandler.get(url, params=params)
-        soup = BeautifulSoup(response, 'html.parser')
-        result = "```\n" + \
-            "\n".join([i.text for i in soup.find_all('span')][:10]) + "```"
+        soup = BeautifulSoup(response, "html.parser")
+        result = (
+            "```\n" + "\n".join([i.text for i in soup.find_all("span")][:10]) + "```"
+        )
         await ctx.send(result)
 
     @commands.command(name="abc", aliases=["123"], hidden=True)
@@ -183,16 +188,18 @@ class SolvingTools(commands.Cog):
         Usage: !tools abc Hello world
         Usage: !tools abc 8 5 12 12 15
         """
+
         def convert(x: str):
-            if (x.isalpha()):
-                return ",".join([str(ord(char.lower()) - ord('a') + 1) for char in x])
+            if x.isalpha():
+                return ",".join([str(ord(char.lower()) - ord("a") + 1) for char in x])
             else:
-                return chr(int(x) + ord('a') - 1)
+                return chr(int(x) + ord("a") - 1)
+
         await ctx.send(" ".join([convert(i) for i in args]))
 
     @commands.command(name="morse", hidden=True)
     async def morse_alias(self, ctx, *, text: str):
-        """ Convert to/from morse code (/ for word boundaries)
+        """Convert to/from morse code (/ for word boundaries)
         Usage: !morse hello world
         Usage: !morse .... . .-.. .-.. ---/.-- --- .-. .-.. -..
         """
@@ -200,16 +207,30 @@ class SolvingTools(commands.Cog):
 
     @tools.command(name="morse")
     async def morse(self, ctx, *, text: str):
-        """ Convert to/from morse code (/ for word boundaries)
+        """Convert to/from morse code (/ for word boundaries)
         Usage: !tools morse hello world
         Usage: !tools morse .... . .-.. .-.. ---/.-- --- .-. .-.. -..
         """
         if text[0] in ".-":
             text = text.replace("/", " / ").split()
-            await ctx.send("".join([tables.morse2alpha[word] if word in tables.morse2alpha else word for word in text]))
+            await ctx.send(
+                "".join(
+                    [
+                        tables.morse2alpha[word] if word in tables.morse2alpha else word
+                        for word in text
+                    ]
+                )
+            )
 
         else:
-            await ctx.send("/".join([tables.encode_with_table(tables.alpha2morse, word, sep=" ") for word in text.split()]))
+            await ctx.send(
+                "/".join(
+                    [
+                        tables.encode_with_table(tables.alpha2morse, word, sep=" ")
+                        for word in text.split()
+                    ]
+                )
+            )
 
     @commands.command(name="braille", hidden=True)
     async def braille_alias(self, ctx):
@@ -221,8 +242,11 @@ class SolvingTools(commands.Cog):
         """ Print the braille alphabet """
         braille_chars = "'⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵"
         alpha_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        await ctx.send("```" + "\n".join([" ".join(x) for x in zip(braille_chars, alpha_chars)])
-                       + "```")
+        await ctx.send(
+            "```"
+            + "\n".join([" ".join(x) for x in zip(braille_chars, alpha_chars)])
+            + "```"
+        )
 
 
 def setup(bot):

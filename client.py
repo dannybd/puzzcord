@@ -42,7 +42,7 @@ async def on_ready():
         server = loop.run_until_complete(coro)
 
         # Serve requests until Ctrl+C is pressed
-        logging.info('Serving on {}'.format(server.sockets[0].getsockname()))
+        logging.info("Serving on {}".format(server.sockets[0].getsockname()))
         try:
             loop.run_forever()
         except KeyboardInterrupt:
@@ -88,14 +88,17 @@ async def gen_run(command, args):
         topic = " ".join(topic)
         channel = await gen_create_channel(name, topic)
         invite = await channel.create_invite()
-        return json.dumps(
-            {
-                "id": channel.id,
-                "name": channel.name,
-                "mention": channel.mention,
-                "url": invite.url,
-            }
-        ) + "\n"
+        return (
+            json.dumps(
+                {
+                    "id": channel.id,
+                    "name": channel.name,
+                    "mention": channel.mention,
+                    "url": invite.url,
+                }
+            )
+            + "\n"
+        )
 
     if command == "message":
         channel_id, *content = args
@@ -335,13 +338,38 @@ async def gen_stats():
         response += json.dumps(rounds) + "\n"
         for round_name, puzzles in rounds.items():
             response += "~~~~~\n"
-            response += round_name+":\n"
+            response += round_name + ":\n"
             response += "  {0} puzzles opened so far".format(len(puzzles)) + "\n"
-            response += "  {0} puzzles solved".format(len([p for p in puzzles if p["status"] == "Solved"])) + "\n"
-            response += "  {0} puzzles unsolved".format(len([p for p in puzzles if p["status"] != "Solved"])) + "\n"
-            response += "  {0} puzzles need eyes".format(len([p for p in puzzles if p["status"] == "Needs eyes"])) + "\n"
-            response += "  {0} puzzles critical".format(len([p for p in puzzles if p["status"] == "Critical"])) + "\n"
-            response += "  {0} puzzles WTF".format(len([p for p in puzzles if p["status"] == "WTF"])) + "\n"
+            response += (
+                "  {0} puzzles solved".format(
+                    len([p for p in puzzles if p["status"] == "Solved"])
+                )
+                + "\n"
+            )
+            response += (
+                "  {0} puzzles unsolved".format(
+                    len([p for p in puzzles if p["status"] != "Solved"])
+                )
+                + "\n"
+            )
+            response += (
+                "  {0} puzzles need eyes".format(
+                    len([p for p in puzzles if p["status"] == "Needs eyes"])
+                )
+                + "\n"
+            )
+            response += (
+                "  {0} puzzles critical".format(
+                    len([p for p in puzzles if p["status"] == "Critical"])
+                )
+                + "\n"
+            )
+            response += (
+                "  {0} puzzles WTF".format(
+                    len([p for p in puzzles if p["status"] == "WTF"])
+                )
+                + "\n"
+            )
     logging.info("Closing DB connection!")
     connection.close()
     return response

@@ -6,11 +6,10 @@ import discord_info
 from pytz import timezone
 import datetime
 
-class HuntStatus(commands.Cog):
 
+class HuntStatus(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
 
     @commands.command(aliases=["hunt"])
     async def status(self, ctx):
@@ -28,7 +27,7 @@ class HuntStatus(commands.Cog):
                     "Critical": 0,
                     "WTF": 0,
                     "Unnecessary": 0,
-                    "max_id": 0
+                    "max_id": 0,
                 }
             rounds[round]["total"] += 1
             status = puzzle["status"]
@@ -37,22 +36,24 @@ class HuntStatus(commands.Cog):
             else:
                 rounds[round]["Other"] += 1
             rounds[round]["max_id"] = max(rounds[round]["max_id"], int(puzzle["id"]))
-        rounds = dict(sorted(
-            rounds.items(),
-            key=lambda item: -item[1]["max_id"],
-        ))
+        rounds = dict(
+            sorted(
+                rounds.items(),
+                key=lambda item: -item[1]["max_id"],
+            )
+        )
         solved = [
-            puzzle for puzzle in puzzles
+            puzzle
+            for puzzle in puzzles
             if puzzle["status"] == "Solved" and puzzle["answer"]
         ]
-        tz = timezone('US/Eastern')
+        tz = timezone("US/Eastern")
         now = datetime.datetime.now(tz)
 
         guild = ctx.guild if ctx.guild else self.bot.get_guild(discord_info.GUILD_ID)
         members = guild.get_role(790341818885734430).members
         online_members = [
-            member for member in members
-            if member.status != discord.Status.offline
+            member for member in members if member.status != discord.Status.offline
         ]
         embed = discord.Embed(
             title="Hunt Status 📈📊",
@@ -62,7 +63,13 @@ class HuntStatus(commands.Cog):
                 + "🧩 Puzzles: **{} solved** out of **{} open**\n"
                 + "👥 Hunters: **{} online** out of **{} total**\n"
                 + "\n**Rounds:**"
-            ).format(len(rounds), len(solved), len(puzzles), len(online_members), len(members))
+            ).format(
+                len(rounds),
+                len(solved),
+                len(puzzles),
+                len(online_members),
+                len(members),
+            ),
         )
         for name, round in rounds.items():
             value = "Out of **{total}** puzzles open:\n".format(**round)

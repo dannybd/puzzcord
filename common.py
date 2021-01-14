@@ -2,6 +2,7 @@ import discord
 
 from hashlib import md5
 
+
 def build_puzzle_embed(puzzle):
     embed = discord.Embed(
         color=get_round_embed_color(puzzle["round"]),
@@ -49,9 +50,17 @@ def build_puzzle_embed(puzzle):
         return "[{}]({})".format(label, uri)
 
     embed.add_field(name="Puzzle URL", value=puzzle["puzzle_uri"], inline=False)
-    embed.add_field(name="Google Doc", value=link_to("Spreadsheet 📃", puzzle["drive_uri"]), inline=True)
-    whiteboard_uri = "https://cocreate.mehtank.com/api/slug?slug=wchyyom21-{name}".format(**puzzle)
-    embed.add_field(name="Whiteboard", value=link_to("Whiteboard 🎨", whiteboard_uri), inline=True)
+    embed.add_field(
+        name="Google Doc",
+        value=link_to("Spreadsheet 📃", puzzle["drive_uri"]),
+        inline=True,
+    )
+    whiteboard_uri = (
+        "https://cocreate.mehtank.com/api/slug?slug=wchyyom21-{name}".format(**puzzle)
+    )
+    embed.add_field(
+        name="Whiteboard", value=link_to("Whiteboard 🎨", whiteboard_uri), inline=True
+    )
     # spacer field to make it 2x2
     embed.add_field(name="\u200B", value="\u200B", inline=True)
     embed.add_field(
@@ -67,4 +76,3 @@ def get_round_embed_color(round):
     hash = md5(round.encode("utf-8")).hexdigest()
     hue = int(hash, 16) / 16 ** len(hash)
     return discord.Color.from_hsv(hue, 0.655, 1)
-

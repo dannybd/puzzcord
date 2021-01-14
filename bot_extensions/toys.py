@@ -6,6 +6,7 @@ from discord.ext import commands
 from discord.ext.commands import guild_only
 import datetime
 
+
 class Toys(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -17,10 +18,12 @@ class Toys(commands.Cog):
         if timeleft.days < 0:
             await ctx.send("Yes! 🎉")
             return
+
         def plural(num, noun):
             if num == 1:
                 return "1 {}".format(noun)
             return "{} {}s".format(num, noun)
+
         left = [
             plural(timeleft.days, "day"),
             plural(timeleft.seconds // 3600, "hour"),
@@ -28,7 +31,6 @@ class Toys(commands.Cog):
             plural(timeleft.seconds % 60, "second"),
         ]
         await ctx.send("No! " + ", ".join(left))
-
 
     @commands.Cog.listener("on_message")
     async def fun_replies(self, message):
@@ -42,7 +44,6 @@ class Toys(commands.Cog):
         if "thanks obama" in content:
             await channel.send("You're welcome!")
             return
-
 
     @commands.command(hidden=True, aliases=["hurray"])
     async def hooray(self, ctx):
