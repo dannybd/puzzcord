@@ -4,6 +4,8 @@ from discord.ext import commands
 import string
 import aiohttp
 import random
+import bot_extensions.util.urlhandler as urlhandler
+from bs4 import BeautifulSoup
 
 class SolvingTools(commands.Cog):
     def __init__(self, bot):
@@ -140,6 +142,22 @@ class SolvingTools(commands.Cog):
         if corpus in ["words", "gw", "english"]:
             return "google-books-common-words.txt"
         return None
+
+    @commands.command(name="nutrimatic", aliases = ["nut"], hidden=True)
+    async def nutrimatic_alias(self, ctx, *, query: str):
+        return await self.nutrimatic(ctx, query=query)
+    @tools.command(name="nutrimatic", aliases = ["nut"])
+    async def nutrimatic(self, ctx, *, query: str):
+        url = "https://nutrimatic.org/?q={}".format(query)
+        response = await urlhandler.get(url)
+        soup = BeautifulSoup(response, 'html.parser')
+        result = "```" + "\n".join([i.text for i in soup.find_all('span')][:10]) + "```"
+        await ctx.send(result)
+
+
+
+    
+
 
 
 def setup(bot):
