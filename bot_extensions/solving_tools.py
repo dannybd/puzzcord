@@ -4,6 +4,10 @@ from discord.ext import commands
 import string
 import aiohttp
 import random
+import bot_extensions.util.urlhandler as urlhandler
+import bot_extensions.util.tables as tables
+
+from bs4 import BeautifulSoup
 
 class SolvingTools(commands.Cog):
     def __init__(self, bot):
@@ -14,24 +18,18 @@ class SolvingTools(commands.Cog):
         """[category] Assorted puzzle-solving tools and utilities"""
         # TODO: Show something more useful here, like links to tools
 
+    @commands.command(name="rot", aliases=["rotn"], hidden=True)
+    async def rot_alias(self, ctx, *, msg: str):
+        """Rotates a message through all rot N and displays the permutations
+        Limited to the first 60 chars due to Discord message size limits.
+        To rotate for a specific rotN, use something like `!rot13 foobar`"""
+        return await self.rot(ctx, msg=msg)
 
-    @tools.command(aliases=["rotn"])
+    @tools.command(name="rot", aliases=["rotn"])
     async def rot(self, ctx, *, msg: str):
         """Rotates a message through all rot N and displays the permutations
         Limited to the first 60 chars due to Discord message size limits.
         To rotate for a specific rotN, use something like `!tools rot13 foobar`"""
-        return await self._rot(ctx, msg)
-
-
-    @commands.command(name="rot", aliases=["rotn"], hidden=True)
-    async def do_rot(self, ctx, *, msg: str):
-        """Rotates a message through all rot N and displays the permutations
-        Limited to the first 60 chars due to Discord message size limits.
-        To rotate for a specific rotN, use something like `!rot13 foobar`"""
-        return await self._rot(ctx, msg)
-
-
-    async def _rot(self, ctx, msg):
         response = (
             "```\n"
             + "ROT  -N   N   MESSAGE\n"
@@ -39,7 +37,8 @@ class SolvingTools(commands.Cog):
         upper = string.ascii_uppercase * 2
         i = 0
         for rot in self._all_rotn(msg):
-            response += " {0}  {1:3d}  {2:2d}   {3}\n".format(upper[i + 25], i-26, i, rot[:60])
+            response += " {0}  {1:3d}  {2:2d}   {3}\n".format(
+                upper[i + 25], i-26, i, rot[:60])
             i += 1
         response += "```"
         try:
@@ -47,20 +46,14 @@ class SolvingTools(commands.Cog):
         except:
             await ctx.send("Sorry, response was too long for Discord. Try a shorter string")
 
+    @commands.command(name="rot0", aliases=[f"rot{n}" for n in range(1, 26)], hidden=True)
+    async def rot_specific_alias(self, ctx, *, msg: str):
+        """Rotates a message just by rotN"""
+        return await self.rot_specific(ctx, msg=msg)
 
     @tools.command(name="rot0", aliases=[f"rot{n}" for n in range(1, 26)], hidden=True)
-    async def specific_rot(self, ctx, *, msg: str):
+    async def rot_specific(self, ctx, *, msg: str):
         """Rotates a message just by rotN"""
-        return await self._specific_rot(ctx, msg)
-
-
-    @commands.command(name="rot0", aliases=[f"rot{n}" for n in range(1, 26)], hidden=True)
-    async def do_specific_rot(self, ctx, *, msg: str):
-        """Rotates a message just by rotN"""
-        return await self._specific_rot(ctx, msg)
-
-
-    async def _specific_rot(self, ctx, msg):
         i = int(ctx.invoked_with[3:])
         all_rotn = self._all_rotn(msg)
         response = (
@@ -68,13 +61,13 @@ class SolvingTools(commands.Cog):
             + "ROT  -N   N   MESSAGE\n"
         )
         upper = string.ascii_uppercase * 2
-        response += " {0}  {1:3d}  {2:2d}   {3}\n".format(upper[i + 25], i-26, i, all_rotn[i])
+        response += " {0}  {1:3d}  {2:2d}   {3}\n".format(
+            upper[i + 25], i-26, i, all_rotn[i])
         response += "```"
         try:
             await ctx.send(response)
         except:
             await ctx.send("Sorry, response was too long for Discord. Try a shorter string")
-
 
     def _all_rotn(self, msg):
         lower = string.ascii_lowercase * 2
@@ -91,19 +84,14 @@ class SolvingTools(commands.Cog):
         return [''.join(x) for x in zip(*chars)]
 
 
-    @tools.command()
+    @commands.command(name="roll", hidden=True)
+    async def roll_alias(self, ctx, dice: str):
+        """Rolls a dice in NdN format."""
+        return await self.roll(ctx, dice)
+
+    @tools.command(name="roll")
     async def roll(self, ctx, dice: str):
         """Rolls a dice in NdN format."""
-        return await self._roll(ctx, dice)
-
-
-    @commands.command(name="roll", hidden=True)
-    async def do_roll(self, ctx, dice: str):
-        """Rolls a dice in NdN format."""
-        return await self._roll(ctx, dice)
-
-
-    async def _roll(self, ctx, dice):
         try:
             rolls, limit = map(int, dice.split("d"))
         except Exception:
@@ -115,8 +103,8 @@ class SolvingTools(commands.Cog):
         result = ", ".join(str(random.randint(1, limit)) for r in range(rolls))
         await ctx.send(result)
 
-
     # TODO: Fix this
+
     @tools.command(hidden=True)
     async def search(self, ctx, *, word: str):
         # https://wind-up-birds.org/scripts/cgi-bin/grep.cgi?dictionary=google-books-common-words.txt&word=%5Ef.ot.
@@ -130,7 +118,6 @@ class SolvingTools(commands.Cog):
                 text = await response.text()
                 await ctx.send(text)
 
-
     def dictionary(self, corpus):
         corpus = corpus.lower()
         if corpus in ["ud", "urban"]:
@@ -140,6 +127,102 @@ class SolvingTools(commands.Cog):
         if corpus in ["words", "gw", "english"]:
             return "google-books-common-words.txt"
         return None
+
+    @commands.command(name="nutrimatic", aliases=["nu", "nut", "nutr", "nutri", "newt"], hidden=True)
+    async def nutrimatic_alias(self, ctx, *, query: str):
+        """Queries nutrimatic.org
+        Matches patterns against a dictionary of words and phrases mined from Wikipedia. Text is normalized to lowercase letters, numbers and spaces. More common results are returned first.
+
+        See https://nutrimatic.org for syntax.
+
+        Usage:
+            !nutrimatic "C*aC*eC*iC*oC*uC*yC*"
+                yields "facetiously"
+            !nutrimatic 867-####
+                yields "867-5309"
+            !nutrimatic "_ ___ ___ _*burger"
+                yields "i can has cheezburger"
+        """
+        return await self.nutrimatic(ctx, query=query)
+
+    @tools.command(name="nutrimatic", aliases=["nu", "nut", "nutr", "nutri", "newt"])
+    async def nutrimatic(self, ctx, *, query: str):
+        """Queries nutrimatic.org
+        Matches patterns against a dictionary of words and phrases mined from Wikipedia. Text is normalized to lowercase letters, numbers and spaces. More common results are returned first.
+
+        See https://nutrimatic.org for syntax.
+
+
+        Usage:
+            !tools nutrimatic "C*aC*eC*iC*oC*uC*yC*"
+                yields "facetiously"
+            !tools nutrimatic 867-####
+                yields "867-5309"
+            !tools nutrimatic "_ ___ ___ _*burger"
+                yields "i can has cheezburger"
+        """
+        url = "https://nutrimatic.org/"
+        params = {"q": query}
+        response = await urlhandler.get(url, params=params)
+        soup = BeautifulSoup(response, 'html.parser')
+        result = "```\n" + \
+            "\n".join([i.text for i in soup.find_all('span')][:10]) + "```"
+        await ctx.send(result)
+
+    @commands.command(name="abc", aliases=["123"], hidden=True)
+    async def abc_alias(self, ctx, *args: str):
+        """Converts letters A-Z to/from numbers 1-26
+        Usage: !abc Hello world
+        Usage: !abc 8 5 12 12 15
+        """
+        return await self.abc(ctx, *args)
+
+    @tools.command(name="abc", aliases=["123"])
+    async def abc(self, ctx, *args: str):
+        """Converts letters A-Z to/from numbers 1-26
+        Usage: !tools abc Hello world
+        Usage: !tools abc 8 5 12 12 15
+        """
+        def convert(x: str):
+            if (x.isalpha()):
+                return ",".join([str(ord(char.lower()) - ord('a') + 1) for char in x])
+            else:
+                return chr(int(x) + ord('a') - 1)
+        await ctx.send(" ".join([convert(i) for i in args]))
+
+    @commands.command(name="morse", hidden=True)
+    async def morse_alias(self, ctx, *, text: str):
+        """ Convert to/from morse code (/ for word boundaries)
+        Usage: !morse hello world
+        Usage: !morse .... . .-.. .-.. ---/.-- --- .-. .-.. -..
+        """
+        return await self.morse(ctx, text=text)
+
+    @tools.command(name="morse")
+    async def morse(self, ctx, *, text: str):
+        """ Convert to/from morse code (/ for word boundaries)
+        Usage: !tools morse hello world
+        Usage: !tools morse .... . .-.. .-.. ---/.-- --- .-. .-.. -..
+        """
+        if text[0] in ".-":
+            text = text.replace("/", " / ").split()
+            await ctx.send("".join([tables.morse2alpha[word] if word in tables.morse2alpha else word for word in text]))
+
+        else:
+            await ctx.send("/".join([tables.encode_with_table(tables.alpha2morse, word, sep=" ") for word in text.split()]))
+
+    @commands.command(name="braille", hidden=True)
+    async def braille_alias(self, ctx):
+        """ Print the braille alphabet """
+        return await self.braille(ctx)
+
+    @tools.command(name="braille")
+    async def braille(self, ctx):
+        """ Print the braille alphabet """
+        braille_chars = "'⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵"
+        alpha_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        await ctx.send("```" + "\n".join([" ".join(x) for x in zip(braille_chars, alpha_chars)])
+                       + "```")
 
 
 def setup(bot):
