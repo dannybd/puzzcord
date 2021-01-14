@@ -17,71 +17,46 @@ class Puzzboss(commands.Cog):
     @commands.group(hidden=True, usage="[sneaky]")
     async def admin(self, ctx):
         """Administrative commands, mostly puzzboss-only"""
+        if ctx.invoked_subcommand:
+            return
+        await ctx.send("Sneaky things happen here 👀")
 
     @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(name="whois", hidden=True)
-    async def whois_alias(self, ctx, *, member: discord.Member):
-        """Looks up a discord user"""
-        return await self.whois(ctx, member=member)
+    async def whois_alias(
+        self,
+        ctx,
+        member: typing.Optional[discord.Member],
+        *,
+        query: typing.Optional[str],
+    ):
+        """Looks up a user in Discord and Puzzleboss. (Regex supported)"""
+        return await self.whois(ctx, member=member, query=query)
 
     @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
     @guild_only()
-    @admin.command()
-    async def whois(self, ctx, *, member: discord.Member):
-        """Looks up a discord user"""
-        if member.bot:
-            await ctx.send("{0.mention} is a bot, like me :)".format(member))
+    @admin.command(name="whois", aliases=["finduser"])
+    async def whois(
+        self,
+        ctx,
+        member: typing.Optional[discord.Member],
+        *,
+        query: typing.Optional[str],
+    ):
+        """Looks up a user in Discord and Puzzleboss. (Regex supported)"""
+        response = ""
+        discord_result = ""
+        if member:
+            discord_result = self._lookup_discord_user(member)
+            response += f"{discord_result}\n\n"
+            query = member.display_name
+
+        if not query:
+            await ctx.send(response)
             return
-        connection = puzzboss_interface.SQL._get_db_connection()
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT
-                    solver_name
-                FROM discord_users
-                WHERE discord_id = %s
-                ORDER BY update_time DESC
-                LIMIT 1
-                """,
-                (member.id,),
-            )
-            discord_user = cursor.fetchone()
-            if not discord_user:
-                await ctx.send(
-                    "Sorry, couldn't find that user; they may not be verified yet."
-                )
-                return
-            name = discord_user["solver_name"]
-            cursor.execute(
-                """
-                SELECT
-                    name,
-                    fullname
-                FROM solver
-                WHERE name = %s
-                LIMIT 1
-                """,
-                (name,),
-            )
-            solver = cursor.fetchone()
-            if not solver:
-                await ctx.send(
-                    "Sorry, couldn't find that user; they may not be verified yet."
-                )
-                return
-            await ctx.send(
-                (
-                    "Discord user `{0.display_name}` (`{0.name}#{0.discriminator}`) "
-                    + "is PB user `{1}` (`{2}`)"
-                ).format(member, solver["name"], solver["fullname"])
-            )
 
-    @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
-    @guild_only()
-    @admin.command()
-    async def finduser(self, ctx, *, query: str):
-        """Fuzzy user lookup in Puzzleboss. (Regex supported)"""
+        response += "Checking Puzzleboss accounts... "
         try:
             regex = re.compile(query, re.IGNORECASE)
         except Exception as e:
@@ -111,25 +86,84 @@ class Puzzboss(commands.Cog):
                 """,
             )
             solvers = cursor.fetchall()
+            cursor.execute(
+                """
+                SELECT
+                    solver_name as solver,
+                    discord_name as discord
+                FROM discord_users
+                ORDER BY id
+                """,
+            )
+            discord_users = {row["solver"]: row["discord"] for row in cursor.fetchall()}
         results = []
         for solver in solvers:
             if solver_matches(**solver):
-                results.append("{name} ({fullname})".format(**solver))
+                solver_tag = "`{name} ({fullname})`".format(**solver)
+                if solver["name"] in discord_users:
+                    solver_tag += " [Discord user `{}`]".format(
+                        discord_users[solver["name"]]
+                    )
+                results.append(solver_tag)
+
         if not results:
-            await ctx.send("No results found for that query.")
-            return
-        if len(results) == 1:
-            await ctx.send("Found 1 match:\n\n{}".format("\n".join(results)))
-            return
-        try:
-            await ctx.send(
-                "Found {} matches:\n\n{}".format(len(results), "\n".join(results))
+            response += "0 results found in Puzzleboss for that query."
+        elif len(results) == 1:
+            response += "1 match found:\n\n{}".format(results[0])
+        else:
+            response += "{} matches found:\n\n{}".format(
+                len(results), "\n".join(results)
             )
+        try:
+            await ctx.send(response)
         except:
-            await ctx.send(
-                "Sorry, too many matches ({}) found to display in Discord. Please narrow your query.".format(
-                    len(results)
-                )
+            response = f"{discord_result}\n\nChecking Puzzleboss accounts... Error! 😔\n"
+            response += (
+                "Sorry, too many matches ({}) found to display in Discord. "
+                + "Please narrow your query."
+            ).format(len(results))
+            await ctx.send(response)
+
+    def _lookup_discord_user(self, member: discord.Member):
+        member_tag = (
+            "Discord user `{0.display_name} ({0.name}#{0.discriminator})`"
+        ).format(member)
+        if member.bot:
+            return f"{member_tag} is a bot, like me :)"
+        connection = puzzboss_interface.SQL._get_db_connection()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    solver_name
+                FROM discord_users
+                WHERE discord_id = %s
+                ORDER BY update_time DESC
+                LIMIT 1
+                """,
+                (member.id,),
+            )
+            discord_user = cursor.fetchone()
+            not_found = f"{member_tag} does not seem to be verified yet!"
+            if not discord_user:
+                return not_found
+            name = discord_user["solver_name"]
+            cursor.execute(
+                """
+                SELECT
+                    name,
+                    fullname
+                FROM solver
+                WHERE name = %s
+                LIMIT 1
+                """,
+                (name,),
+            )
+            solver = cursor.fetchone()
+            if not solver:
+                return not_found
+            return ("{0} is Puzzleboss user `{1} ({2})`").format(
+                member_tag, solver["name"], solver["fullname"]
             )
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
