@@ -4,9 +4,19 @@ from hashlib import md5
 
 
 def build_puzzle_embed(puzzle):
+
+    description = ""
+
+    if "xyzloc" in puzzle and puzzle["xyzloc"]:
+        description += "Being worked in: **{xyzloc}**".format(**puzzle)
+
+    if "comments" in puzzle and puzzle["comments"]:
+        description += "**Comments:** {comments}".format(**puzzle)
+
     embed = discord.Embed(
         color=get_round_embed_color(puzzle["round"]),
         title="Puzzle: _`{name}`_".format(**puzzle),
+        description=description,
     )
 
     status = puzzle["status"]

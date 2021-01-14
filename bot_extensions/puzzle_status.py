@@ -15,7 +15,7 @@ class PuzzleStatus(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(aliases=["puz", "puzz", "puzzl"])
     async def puzzle(self, ctx, *, query: typing.Optional[str]):
         """Display current state of a puzzle.
         If no state is provided, we default to the current puzzle channel."""
@@ -51,7 +51,9 @@ class PuzzleStatus(commands.Cog):
                         drive_uri,
                         slack_channel_id AS channel_id,
                         status,
-                        answer
+                        answer,
+                        xyzloc,
+                        comments
                     FROM puzzle_view
                     """,
                 )
@@ -331,7 +333,9 @@ class PuzzleStatus(commands.Cog):
             {"data": puzzle["name"]},
         )
         if response.status != 200:
-            logging.error("Failed to mark {} as working on {}".format(name, puzzle["name"]))
+            logging.error(
+                "Failed to mark {} as working on {}".format(name, puzzle["name"])
+            )
             return
         logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
 

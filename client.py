@@ -475,7 +475,9 @@ def _get_puzzle_from_db(puzzle_name):
                 puzzle_uri,
                 slack_channel_id AS channel_id,
                 status,
-                answer
+                answer,
+                xyzloc,
+                comments
             FROM puzzle_view
             WHERE name = %s
             LIMIT 1
