@@ -3,11 +3,11 @@ def invert_table(table):
 
 
 def decode_with_table(table, encoded, sep=""):
-    return sep.join([str(table[i]) for i in encoded])
+    return sep.join([str(table[i] if i in table else i) for i in encoded])
 
 
 def encode_with_table(table, decoded, sep=""):
-    return sep.join([str(table[str(i)]) for i in decoded])
+    return sep.join([str(table[str(i)] if str(i) in table else i) for i in decoded])
 
 
 alpha2morse = {
@@ -37,16 +37,16 @@ alpha2morse = {
     'X': '-..-',    'x': '-..-',
     'Y': '-.--',    'y': '-.--',
     'Z': '--..',    'z': '--..',
-    '0': '-----',       ',': '--..--',
-    '1': '.----',       '.': '.-.-.-',
-    '2': '..---',       '?': '..--..',
-    '3': '...--',       ';': '-.-.-.',
-    '4': '....-',       ':': '---...',
-    '5': '.....',       "'": '.----.',
-    '6': '-....',       '-': '-....-',
-    '7': '--...',       '/': '-..-.',
-    '8': '---..',       '(': '-.--.-',
-    '9': '----.',       ')': '-.--.-',
+    '0': '-----',   ',': '--..--',
+    '1': '.----',   '.': '.-.-.-',
+    '2': '..---',   '?': '..--..',
+    '3': '...--',   ';': '-.-.-.',
+    '4': '....-',   ':': '---...',
+    '5': '.....',   "'": '.----.',
+    '6': '-....',   '-': '-....-',
+    '7': '--...',   '/': '-..-.',
+    '8': '---..',   '(': '-.--.-',
+    '9': '----.',   ')': '-.--.-',
     ' ': '/',       '_': '..--.-',
 }
 morse2alpha = invert_table(alpha2morse)
