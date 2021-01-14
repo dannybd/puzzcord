@@ -5,6 +5,8 @@ import string
 import aiohttp
 import random
 import bot_extensions.util.urlhandler as urlhandler
+import bot_extensions.util.tables as tables
+
 from bs4 import BeautifulSoup
 
 class SolvingTools(commands.Cog):
@@ -171,6 +173,20 @@ class SolvingTools(commands.Cog):
         await ctx.send(" ".join([convert(i) for i in args]))
 
     
+
+
+    @commands.command(name="morse", hidden=True)
+    async def morse_alias(self, ctx, *args):
+        return await self.morse(ctx, *args)
+
+    @tools.command(name="morse")
+    async def morse(self, ctx, *args):
+        if args[0][0] in [".","-"]:
+            await ctx.send("".join([tables.morse2alpha[arg] for arg in args]))
+
+        else:
+            await ctx.send("/".join([tables.encode_with_table(tables.alpha2morse, arg, sep=" ") for arg in args]))
+        
 
 
 
