@@ -153,6 +153,11 @@ async def gen_announce_new(puzzle_name):
     message = await channel.send(content=content, embed=embed)
     await message.pin()
     await status_channel.send(content=content, embed=embed)
+    here = await channel.send(
+        "**Please click the 🧩 reaction** on this message to indicate "
+        + "that you're working on this puzzle."
+    )
+    await here.add_reaction("🧩")
 
 
 async def gen_announce_solve(puzzle_name):

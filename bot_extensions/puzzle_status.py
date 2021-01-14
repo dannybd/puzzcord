@@ -240,7 +240,7 @@ class PuzzleStatus(commands.Cog):
             return
         if message.author != self.bot.user:
             return
-        if "Everyone else: please click the" not in message.content:
+        if "please click the 🧩 reaction" not in message.content.lower():
             return
 
         member = payload.member
