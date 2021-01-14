@@ -51,7 +51,7 @@ class HuntStatus(commands.Cog):
         now = datetime.datetime.now(tz)
 
         guild = ctx.guild if ctx.guild else self.bot.get_guild(discord_info.GUILD_ID)
-        members = guild.get_role(790341818885734430).members
+        members = get_team_members(guild)
         online_members = [
             member for member in members if member.status != discord.Status.offline
         ]

@@ -1,27 +1,13 @@
 """ Puzzboss-only commands """
 import discord
 from discord.ext import commands
-from discord.ext.commands import guild_only
+from discord.ext.commands import guild_only, has_any_role
 import logging
 import puzzboss_interface
 import re
 import typing
 
-
-def puzzboss_only():
-    async def predicate(ctx):
-        # TODO: Make this more open to whoever's puzzbossing
-        return 790341841916002335 in [role.id for role in ctx.author.roles]
-
-    return commands.check(predicate)
-
-
-def role_verifiers():
-    async def predicate(ctx):
-        roles = [role.id for role in ctx.author.roles]
-        return 794318951235715113 in roles or 790341841916002335 in roles
-
-    return commands.check(predicate)
+from discord_info import *
 
 
 class Puzzboss(commands.Cog):
@@ -32,21 +18,18 @@ class Puzzboss(commands.Cog):
     async def admin(self, ctx):
         """Administrative commands, mostly puzzboss-only"""
 
-    @role_verifiers()
+    @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
+    @guild_only()
+    @commands.command(name="whois", hidden=True)
+    async def whois_alias(self, ctx, *, member: discord.Member):
+        """Looks up a discord user"""
+        return await self.whois(ctx, member=member)
+
+    @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command()
     async def whois(self, ctx, *, member: discord.Member):
         """Looks up a discord user"""
-        return await self._whois(ctx, member)
-
-    @role_verifiers()
-    @guild_only()
-    @commands.command(name="whois", hidden=True)
-    async def do_whois(self, ctx, *, member: discord.Member):
-        """Looks up a discord user"""
-        return await self._whois(ctx, member)
-
-    async def _whois(self, ctx, member):
         if member.bot:
             await ctx.send("{0.mention} is a bot, like me :)".format(member))
             return
@@ -94,7 +77,7 @@ class Puzzboss(commands.Cog):
                 ).format(member, solver["name"], solver["fullname"])
             )
 
-    @role_verifiers()
+    @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command()
     async def finduser(self, ctx, *, query: str):
@@ -149,10 +132,10 @@ class Puzzboss(commands.Cog):
                 )
             )
 
-    @puzzboss_only()
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @admin.command(aliases=["nr"])
     async def newround(self, ctx, *, round_name: str):
-        """[puzztech only] Creates a new round"""
+        """[puzzboss only] Creates a new round"""
         logging.info("{0.command}: Creating a new round: {1}".format(ctx, round_name))
         response = await puzzboss_interface.REST.post("/rounds/" + round_name)
         status = response.status
@@ -164,13 +147,13 @@ class Puzzboss(commands.Cog):
             return
         await ctx.send("Error. Something weird happened, try the PB UI directly.")
 
-    @puzzboss_only()
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command()
     async def solved(
         self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
     ):
-        """[puzztech only] Mark a puzzle as solved and archive its channel"""
+        """[puzzboss only] Mark a puzzle as solved and archive its channel"""
         logging.info("{0.command}: Marking a puzzle as solved".format(ctx))
         apply_to_self = channel is None
         if apply_to_self:
@@ -188,7 +171,7 @@ class Puzzboss(commands.Cog):
         if apply_to_self:
             await ctx.message.delete()
 
-    @role_verifiers()
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command()
     async def unverified(self, ctx):
@@ -203,7 +186,7 @@ class Puzzboss(commands.Cog):
                 """,
             )
             verified_discord_ids = [int(row["discord_id"]) for row in cursor.fetchall()]
-        member_role = ctx.guild.get_role(790341818885734430)
+        member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
         members = [
             "{0.name}#{0.discriminator} ({0.display_name})".format(member)
             for member in ctx.guild.members
@@ -211,30 +194,34 @@ class Puzzboss(commands.Cog):
             and member.id not in verified_discord_ids
             and not member.bot
         ]
+        if not members:
+            await ctx.send(
+                "Looks like all team members are verified, nice!\n\n"
+                + "(If this is unexpected, try adding the Team Member "
+                + "role to someone first.)"
+            )
+            return
         await ctx.send(
             "Folks needing verification ({0}):\n\n{1}".format(
                 len(members), "\n".join(members)
             )
         )
 
-    @role_verifiers()
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @commands.command(name="verify", hidden=True)
-    async def do_verify(self, ctx, member: discord.Member, *, username: str):
+    async def verify_alias(self, ctx, member: discord.Member, *, username: str):
         """Verifies a team member with their email
         Usage: !verify @member username[@wind-up-birds.org]
         """
-        return await self._verify(ctx, member, username)
+        return await self.verify(ctx, member, username=username)
 
-    @role_verifiers()
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command()
     async def verify(self, ctx, member: discord.Member, *, username: str):
         """Verifies a team member with their email
         Usage: !verify @member username[@wind-up-birds.org]
         """
-        return await self._verify(ctx, member, username)
-
-    async def _verify(self, ctx, member, username):
         verifier_role = ctx.guild.get_role(794318951235715113)
         if verifier_role not in ctx.author.roles:
             await ctx.send(
@@ -287,7 +274,7 @@ class Puzzboss(commands.Cog):
             logging.info("{0.command}: Committing row".format(ctx))
             connection.commit()
             logging.info("{0.command}: Committed row successfully!".format(ctx))
-        member_role = ctx.guild.get_role(790341818885734430)
+        member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
         if member_role not in member.roles:
             logging.info("{0.command}: Adding member role!".format(ctx))
             await member.add_roles(member_role)

@@ -18,7 +18,7 @@ from common import *
 from discord.ext import commands
 from discord.ext.commands import guild_only
 from config import config
-from discord_info import is_puzzle_channel
+from discord_info import GUILD_ID, WELCOME_LOBBY, get_team_members
 
 intents = discord.Intents.default()
 intents.members = True
@@ -39,6 +39,22 @@ bot = commands.Bot(
 @bot.event
 async def on_ready():
     logging.info("Connected as {0.user} and ready!".format(bot))
+
+
+@bot.check
+async def members_only(ctx):
+    guild = bot.get_guild(GUILD_ID)
+    if ctx.guild and ctx.guild != guild:
+        return False
+
+    members = get_team_members(guild)
+    if ctx.author not in members:
+        return False
+
+    if ctx.channel.id != WELCOME_LOBBY:
+        return True
+
+    return ctx.invoked_with in ["huntyet", "isithuntyet"]
 
 
 if __name__ == "__main__":
