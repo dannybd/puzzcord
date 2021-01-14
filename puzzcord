@@ -1,2 +1,2 @@
 #! /bin/bash
-echo "$@" | ncat localhost 8888
+echo "$@" | ncat localhost 2134
