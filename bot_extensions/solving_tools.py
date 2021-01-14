@@ -14,9 +14,51 @@ class SolvingTools(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group()
+    @commands.group(aliases=["tool"])
     async def tools(self, ctx):
         """[category] Assorted puzzle-solving tools and utilities"""
+        if ctx.invoked_subcommand:
+            return
+        text = (
+            "Run `!help tools` to see everything I support.\n\n"
+            + "Popular links:\n"
+            + "http://nutrimatic.org/ (see `!tools nu`)\n"
+            + "https://tools.qhex.org/ \n"
+            + "https://util.in/ \n"
+            + "https://wind-up-birds.org/scripts/ \n"
+            + "https://www.mit.edu/~puzzle/tools.html \n"
+        )
+        embed = discord.Embed(title="Popular links:", color=discord.Colour.greyple())
+        embed.add_field(
+            name="tools.qhex.org",
+            value="[Link](https://tools.qhex.org/)",
+            inline=True,
+        )
+        embed.add_field(
+            name="util.in",
+            value="[Link](https://util.in/)",
+            inline=True,
+        )
+        # spacer field to make it 2x2
+        embed.add_field(name="\u200B", value="\u200B", inline=True)
+        embed.add_field(
+            name="WUB Scripts",
+            value="[Link](https://wind-up-birds.org/scripts/)",
+            inline=True,
+        )
+        embed.add_field(
+            name="Puzzle Club Scripts",
+            value="[Link](https://www.mit.edu/~puzzle/tools.html)",
+            inline=True,
+        )
+        # spacer field to make it 2x2
+        embed.add_field(name="\u200B", value="\u200B", inline=True)
+        embed.add_field(
+            name="Nutrimatic",
+            value="[Link](http://nutrimatic.org/) (also see `!tools nu`)",
+            inline=True,
+        )
+        await ctx.send("Run `!help tools` to see everything I support.", embed=embed)
         # TODO: Show something more useful here, like links to tools
 
     @commands.command(name="rot", aliases=["rotn"], hidden=True)

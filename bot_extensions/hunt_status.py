@@ -87,7 +87,11 @@ class HuntStatus(commands.Cog):
             embed.add_field(name=name, value=value, inline=True)
         hunt_begins = datetime.datetime(2021, 1, 15, hour=13, tzinfo=tz)
         hours_in = (now - hunt_begins).total_seconds() / 3600
-        embed.set_footer(text="T{0:+.1f} hours into Hunt".format(hours_in))
+        embed.set_footer(
+            text="T{0:+.1f} hours {1} Hunt".format(
+                hours_in, "into" if hours_in >= 0 else "until"
+            )
+        )
         await ctx.send(embed=embed)
 
 
