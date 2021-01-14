@@ -167,6 +167,39 @@ class Puzzboss(commands.Cog):
             )
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @guild_only()
+    @admin.command(aliases=["boss"])
+    async def newpuzzboss(self, ctx, newboss: discord.Member):
+        """[puzzboss only] Designates a new person as Puzzleboss"""
+        puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
+        current_puzzbosses = puzzboss_role.members
+        if newboss in current_puzzbosses:
+            await ctx.send("{0.mention} is already Puzzleboss!".format(newboss))
+            return
+        betaboss_role = ctx.guild.get_role(BETABOSS_ROLE)
+        puzztech_role = ctx.guild.get_role(PUZZTECH_ROLE)
+        if betaboss_role not in newboss.roles and puzztech_role not in newboss.roles:
+            await ctx.send("{0.mention} should be a Beta Boss first!".format(newboss))
+            return
+        author = ctx.author
+        if puzzboss_role not in author.roles and puzztech_role not in author.roles:
+            await ctx.send(
+                "Sorry, {0.mention}, only the current Puzzboss and Puzztechs can run this.".format(
+                    author
+                )
+            )
+            return
+        if puzzboss_role in author.roles:
+            await author.remove_roles(puzzboss_role)
+        await newboss.add_roles(puzzboss_role)
+        await ctx.send(
+            (
+                "{0.mention} has annointed {1.mention} as the new {2.mention}! "
+                + "Use {2.mention} to get their attention."
+            ).format(author, newboss, puzzboss_role)
+        )
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @admin.command(aliases=["nr"])
     async def newround(self, ctx, *, round_name: str):
         """[puzzboss only] Creates a new round"""
