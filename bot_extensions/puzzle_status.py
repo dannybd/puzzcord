@@ -52,7 +52,7 @@ class PuzzleStatus(commands.Cog):
             )
 
     @guild_only()
-    @commands.command()
+    @commands.command(aliases=["table"])
     async def tables(self, ctx):
         """What is happening at each table?
         Equivalent to calling `!location all` or `!whereis everything`"""
@@ -297,7 +297,7 @@ class PuzzleStatus(commands.Cog):
         await ctx.message.add_reaction("💤")
 
     @guild_only()
-    @commands.command()
+    @commands.command(aliases=["join"])
     async def joinus(self, ctx):
         """Invite folks to work on the puzzle on your voice channel.
         If you have joined one of the table voice channels, you can use
