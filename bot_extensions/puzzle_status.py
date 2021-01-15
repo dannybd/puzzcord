@@ -104,9 +104,13 @@ class PuzzleStatus(commands.Cog):
         return
 
     @guild_only()
-    @commands.command(aliases=["notes", "note", "comment"])
-    async def comments(
-        self, ctx, channel: typing.Optional[discord.TextChannel], *, comments: str
+    @commands.command(aliases=["comment", "addnote", "addcomment"])
+    async def note(
+        self,
+        ctx,
+        channel: typing.Optional[discord.TextChannel],
+        *,
+        comments: typing.Optional[str]
     ):
         """Update a puzzle's comments in Puzzleboss
         These are visible on the Puzzleboss site, and when people run !puzzle"""
@@ -118,7 +122,7 @@ class PuzzleStatus(commands.Cog):
             )
             return
         response = await puzzboss_interface.REST.post(
-            "/puzzles/{name}/comments".format(**puzzle), {"data": comments}
+            "/puzzles/{name}/comments".format(**puzzle), {"data": comments or ""}
         )
         await ctx.message.add_reaction("📃")
         await ctx.message.add_reaction("✍️")
