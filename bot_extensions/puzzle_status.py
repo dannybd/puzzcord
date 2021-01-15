@@ -104,6 +104,26 @@ class PuzzleStatus(commands.Cog):
         return
 
     @guild_only()
+    @commands.command(aliases=["notes", "note", "comment"])
+    async def comments(
+        self, ctx, channel: typing.Optional[discord.TextChannel], *, comments: str
+    ):
+        """Update a puzzle's comments in Puzzleboss
+        These are visible on the Puzzleboss site, and when people run !puzzle"""
+        channel = channel or ctx.channel
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel)
+        if not puzzle:
+            await ctx.send(
+                "Error: Could not find a puzzle for channel {0.mention}".format(channel)
+            )
+            return
+        response = await puzzboss_interface.REST.post(
+            "/puzzles/{name}/comments".format(**puzzle), {"data": comments}
+        )
+        await ctx.message.add_reaction("📃")
+        await ctx.message.add_reaction("✍️")
+
+    @guild_only()
     @commands.command(aliases=["markas"])
     async def mark(
         self, ctx, channel: typing.Optional[discord.TextChannel], *, markas: str
@@ -125,8 +145,7 @@ class PuzzleStatus(commands.Cog):
             await ctx.send("Usage: `!mark [needs eyes|critical|wtf|unnecessary]`")
             return
 
-        if not channel:
-            channel = ctx.channel
+        channel = channel or ctx.channel
         puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel)
         if not puzzle:
             await ctx.send(
