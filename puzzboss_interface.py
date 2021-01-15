@@ -1,9 +1,12 @@
 """ Methods for interacting with the puzzbost REST api and SQL database """
-import json
 import aiohttp
+import discord
+import json
 import logging
 import pymysql
+import re
 from config import config
+from discord_info import is_puzzle_channel
 
 
 class REST:
@@ -54,7 +57,8 @@ class SQL:
                     slack_channel_id AS channel_id,
                     status,
                     answer,
-                    xyzloc
+                    xyzloc,
+                    comments
                 FROM puzzle_view
                 WHERE slack_channel_id IN ({})
                 """.format(
@@ -63,6 +67,54 @@ class SQL:
                 tuple([c.id for c in channels]),
             )
             return {int(row["channel_id"]): row for row in cursor.fetchall()}
+
+    @staticmethod
+    def get_puzzle_for_channel_fuzzy(ctx, channel_or_query):
+        if not channel_or_query:
+            if not is_puzzle_channel(ctx.channel):
+                return None
+            return SQL.get_puzzle_for_channel(ctx.channel)
+
+        if isinstance(channel_or_query, discord.TextChannel):
+            channel = channel_or_query
+            return SQL.get_puzzle_for_channel(channel)
+
+        query = channel_or_query
+        try:
+            regex = re.compile(query, re.IGNORECASE)
+        except Exception as e:
+            regex = re.compile(r"^$")
+        query = query.replace(" ", "").lower()
+
+        def puzzle_matches(name):
+            if not name:
+                return False
+            if query in name.lower():
+                return True
+            return regex.search(name) is not None
+
+        connection = SQL._get_db_connection()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    name,
+                    round,
+                    puzzle_uri,
+                    drive_uri,
+                    slack_channel_id AS channel_id,
+                    status,
+                    answer,
+                    xyzloc,
+                    comments
+                FROM puzzle_view
+                """,
+            )
+            puzzles = cursor.fetchall()
+            return next(
+                (puzzle for puzzle in puzzles if puzzle_matches(puzzle["name"])),
+                None,
+            )
 
     @staticmethod
     def get_all_puzzles():
@@ -79,7 +131,8 @@ class SQL:
                     slack_channel_id AS channel_id,
                     status,
                     answer,
-                    xyzloc
+                    xyzloc,
+                    comments
                 FROM puzzle_view
                 """,
             )

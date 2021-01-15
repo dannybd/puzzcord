@@ -7,7 +7,6 @@ import puzzboss_interface
 import discord_info
 import logging
 import typing
-import re
 from common import build_puzzle_embed
 
 
@@ -21,51 +20,7 @@ class PuzzleStatus(commands.Cog):
     ):
         """Display current state of a puzzle.
         If no state is provided, we default to the current puzzle channel."""
-        if not query:
-            if not discord_info.is_puzzle_channel(ctx.channel):
-                await ctx.send(
-                    "You need to provide a search query, or run in a puzzle channel"
-                )
-                return
-            puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(ctx.channel)
-        elif isinstance(query, discord.TextChannel):
-            puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(query)
-        else:
-            try:
-                regex = re.compile(query, re.IGNORECASE)
-            except Exception as e:
-                regex = re.compile(r"^$")
-            query = query.replace(" ", "").lower()
-
-            def puzzle_matches(name):
-                if not name:
-                    return False
-                if query in name.lower():
-                    return True
-                return regex.search(name) is not None
-
-            connection = puzzboss_interface.SQL._get_db_connection()
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT
-                        name,
-                        round,
-                        puzzle_uri,
-                        drive_uri,
-                        slack_channel_id AS channel_id,
-                        status,
-                        answer,
-                        xyzloc,
-                        comments
-                    FROM puzzle_view
-                    """,
-                )
-                puzzles = cursor.fetchall()
-                puzzle = next(
-                    (puzzle for puzzle in puzzles if puzzle_matches(puzzle["name"])),
-                    None,
-                )
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(ctx, query)
         if not puzzle:
             await ctx.send(
                 "Sorry, I couldn't find a puzzle for that query. Please try again."
@@ -79,12 +34,40 @@ class PuzzleStatus(commands.Cog):
     async def tables(self, ctx):
         """What is happening at each table?
         Equivalent to calling `!location all` or `!whereis everything`"""
-        return await self.location(ctx, "everything")
+        channels = [
+            channel
+            for channel in ctx.guild.text_channels
+            if discord_info.is_puzzle_channel(channel)
+        ]
+        if not channels:
+            await ctx.send("You don't have any puzzles")
+            return
+        xyzlocs = {}
+        puzzles = puzzboss_interface.SQL.get_puzzles_for_channels(channels)
+        for id, puzzle in puzzles.items():
+            xyzloc = puzzle["xyzloc"]
+            if not xyzloc:
+                continue
+            if puzzle["status"] in ["Solved"]:
+                continue
+            if xyzloc not in xyzlocs:
+                xyzlocs[xyzloc] = []
+            xyzlocs[xyzloc].append("<#{0}>".format(id))
+        if not xyzlocs:
+            await ctx.send(
+                "There aren't any open puzzles being worked on at a table. "
+                + "Try joining a table and using `!joinus` in a puzzle channel."
+            )
+            return
+        response = "Which puzzles are where:\n\n"
+        for xyzloc, mentions in xyzlocs.items():
+            response += "In **{0}**: {1}\n".format(xyzloc, ", ".join(mentions))
+        await ctx.send(response)
 
     @guild_only()
     @commands.command(aliases=["loc", "whereis"])
     async def location(
-        self, ctx, *channel_mentions: typing.Union[discord.TextChannel, str]
+        self, ctx, *, query: typing.Optional[typing.Union[discord.TextChannel, str]]
     ):
         """Find where discussion of a puzzle is happening.
         Usage:
@@ -93,83 +76,21 @@ class PuzzleStatus(commands.Cog):
             All open puzzles: !location all
                             !whereis everything
         """
-        if len(channel_mentions) == 1 and channel_mentions[0] in ["all", "everything"]:
-            channels = [
-                channel
-                for channel in ctx.guild.text_channels
-                if discord_info.is_puzzle_channel(channel)
-            ]
-            if not channels:
-                await ctx.send("You don't have any puzzles")
-                return
-            xyzlocs = {}
-            puzzles = puzzboss_interface.SQL.get_puzzles_for_channels(channels)
-            for id, puzzle in puzzles.items():
-                xyzloc = puzzle["xyzloc"]
-                if not xyzloc:
-                    continue
-                if puzzle["status"] in ["Solved"]:
-                    continue
-                if xyzloc not in xyzlocs:
-                    xyzlocs[xyzloc] = []
-                xyzlocs[xyzloc].append("<#{0}>".format(id))
-            if not xyzlocs:
-                await ctx.send(
-                    "There aren't any open puzzles being worked on at a table. "
-                    + "Try joining a table and using `!joinus` in a puzzle channel."
-                )
-                return
-            response = "Which puzzles are where:\n\n"
-            for xyzloc, mentions in xyzlocs.items():
-                response += "In **{0}**: {1}\n".format(xyzloc, ", ".join(mentions))
-            await ctx.send(response)
+        if query in ["all", "everything"]:
+            return await self.tables(ctx)
+
+        logging.info("{0.command}: Looking for".format(ctx, query))
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(ctx, query)
+        if not puzzle:
+            logging.info("{0.command}: No puzzle found.".format(ctx))
+            await ctx.send("Sorry, I didn't find a puzzle channel from your query.")
             return
-        logging.info(
-            "{0.command}: Start with {1} channel mentions".format(
-                ctx,
-                len(channel_mentions),
-            )
-        )
-        if not channel_mentions:
-            channel_mentions = [ctx.channel]
-        channels = [
-            channel
-            for channel in ctx.guild.text_channels
-            if discord_info.is_puzzle_channel(channel)
-            and (channel.mention in channel_mentions or channel in channel_mentions)
-        ]
-        logging.info(
-            "{0.command}: Found {1} puzzle channels".format(
-                ctx,
-                len(channels),
-            )
-        )
-        if not channels:
-            await ctx.send(
-                "Sorry, I didn't find any puzzle channels in your command.\n"
-                + "Try linking to puzzle channels by prefixing with #, like "
-                + "#puzzle1"
-            )
-            return
-        puzzles = puzzboss_interface.SQL.get_puzzles_for_channels(channels)
-        logging.info("{0.command}: {1} puzzles found!".format(ctx, len(puzzles)))
-        if not puzzles:
-            await ctx.send(
-                "Sorry, I didn't find any puzzle channels in your command.\n"
-                + "Try linking to puzzle channels by prefixing with #, like "
-                + "#puzzle1"
-            )
-            return
-        response = ""
-        if len(puzzles) > 1:
-            response += "Found {} puzzles:\n\n".format(len(puzzles))
-        for puzzle in puzzles.values():
-            if puzzle["xyzloc"]:
-                line = "**`{name}`** can be found in **{xyzloc}**\n".format(**puzzle)
-            else:
-                line = "**`{name}`** does not have a location set!\n".format(**puzzle)
-            response += line
-        await ctx.send(response)
+        logging.info("{0.command}: Puzzle found!".format(ctx))
+        if puzzle["xyzloc"]:
+            line = "**`{name}`** can be found in **{xyzloc}**".format(**puzzle)
+        else:
+            line = "**`{name}`** does not have a location set!".format(**puzzle)
+        await ctx.send(line)
         return
 
     @guild_only()
