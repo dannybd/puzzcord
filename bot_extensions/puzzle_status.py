@@ -16,7 +16,9 @@ class PuzzleStatus(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=["puz", "puzz", "puzzl"])
-    async def puzzle(self, ctx, *, query: typing.Optional[str]):
+    async def puzzle(
+        self, ctx, *, query: typing.Optional[typing.Union[discord.TextChannel, str]]
+    ):
         """Display current state of a puzzle.
         If no state is provided, we default to the current puzzle channel."""
         if not query:
@@ -26,6 +28,8 @@ class PuzzleStatus(commands.Cog):
                 )
                 return
             puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(ctx.channel)
+        elif isinstance(query, discord.TextChannel):
+            puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(query)
         else:
             try:
                 regex = re.compile(query, re.IGNORECASE)
@@ -79,7 +83,7 @@ class PuzzleStatus(commands.Cog):
 
     @guild_only()
     @commands.command(aliases=["loc", "whereis"])
-    async def location(self, ctx, *channel_mentions: str):
+    async def location(self, ctx, *channel_mentions: typing.Union[discord.TextChannel, str]):
         """Find where discussion of a puzzle is happening.
         Usage:
             Current puzzle:   !location
@@ -125,12 +129,12 @@ class PuzzleStatus(commands.Cog):
             )
         )
         if not channel_mentions:
-            channel_mentions = [ctx.channel.mention]
+            channel_mentions = [ctx.channel]
         channels = [
             channel
             for channel in ctx.guild.text_channels
-            if channel.mention in channel_mentions
-            and discord_info.is_puzzle_channel(channel)
+            if discord_info.is_puzzle_channel(channel)
+            and (channel.mention in channel_mentions or channel in channel_mentions)
         ]
         logging.info(
             "{0.command}: Found {1} puzzle channels".format(
@@ -325,6 +329,8 @@ class PuzzleStatus(commands.Cog):
             "/puzzles/{name}/xyzloc".format(**puzzle),
             {"data": table.name},
         )
+        if discord_info.is_puzzboss(ctx.author):
+            return
         name = puzzboss_interface.SQL.get_solver_name_for_member(ctx.author)
         if not name:
             return

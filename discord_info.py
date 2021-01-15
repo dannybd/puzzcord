@@ -22,6 +22,10 @@ def get_team_members(guild):
     return guild.get_role(HUNT_MEMBER_ROLE).members
 
 
+def is_puzzboss(member):
+    return PUZZBOSS_ROLE in [role.id for role in member.roles]
+
+
 def is_puzzle_channel(channel):
     if channel.type != discord.ChannelType.text:
         return False

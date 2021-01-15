@@ -8,10 +8,10 @@ def build_puzzle_embed(puzzle):
     description = ""
 
     if "xyzloc" in puzzle and puzzle["xyzloc"]:
-        description += "Being worked in: **{xyzloc}**".format(**puzzle)
+        description += "Being worked in: **{xyzloc}**\n".format(**puzzle)
 
     if "comments" in puzzle and puzzle["comments"]:
-        description += "**Comments:** {comments}".format(**puzzle)
+        description += "**Comments:** {comments}\n".format(**puzzle)
 
     embed = discord.Embed(
         color=get_round_embed_color(puzzle["round"]),

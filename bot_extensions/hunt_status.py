@@ -83,7 +83,7 @@ class HuntStatus(commands.Cog):
             if round["Unnecessary"]:
                 value += "⚪️ Unnecessary: **{Unnecessary}**\n".format(**round)
             if round["Solved"]:
-                value += "✅ Solved: **{Solved}**\n".format(**round)
+                value += "🏁 Solved: **{Solved}**\n".format(**round)
             embed.add_field(name=name, value=value, inline=True)
         hunt_begins = datetime.datetime(2021, 1, 15, hour=13, tzinfo=tz)
         hours_in = (now - hunt_begins).total_seconds() / 3600
