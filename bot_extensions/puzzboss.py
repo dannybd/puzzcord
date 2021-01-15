@@ -1,7 +1,7 @@
 """ Puzzboss-only commands """
 import discord
 from discord.ext import commands
-from discord.ext.commands import guild_only, has_any_role
+from discord.ext.commands import guild_only, has_any_role, MemberConverter
 import logging
 import puzzboss_interface
 import re
@@ -191,9 +191,10 @@ class Puzzboss(commands.Cog):
         author = ctx.author
         if puzzboss_role not in author.roles and puzztech_role not in author.roles:
             await ctx.send(
-                "Sorry, {0.mention}, only the current Puzzboss and Puzztechs can run this.".format(
-                    author
-                )
+                (
+                    "Sorry, {0.mention}, only the current "
+                    + "Puzzboss and Puzztechs can run this."
+                ).format(author)
             )
             return
         if puzzboss_role in author.roles:
@@ -282,11 +283,11 @@ class Puzzboss(commands.Cog):
                 """,
             )
             verified_discord_ids = [int(row["discord_id"]) for row in cursor.fetchall()]
-        member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
+        visitor_role = ctx.guild.get_role(VISITOR_ROLE)
         members = [
             "{0.name}#{0.discriminator} ({0.display_name})".format(member)
             for member in ctx.guild.members
-            if member_role in member.roles
+            if visitor_role not in member.roles
             and member.id not in verified_discord_ids
             and not member.bot
         ]
@@ -305,7 +306,9 @@ class Puzzboss(commands.Cog):
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @commands.command(name="verify", hidden=True)
-    async def verify_alias(self, ctx, member: discord.Member, *, username: str):
+    async def verify_alias(
+        self, ctx, member: typing.Union[discord.Member, str], *, username: str
+    ):
         """Verifies a team member with their email
         Usage: !verify @member username[@wind-up-birds.org]
         """
@@ -314,16 +317,42 @@ class Puzzboss(commands.Cog):
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command()
-    async def verify(self, ctx, member: discord.Member, *, username: str):
+    async def verify(
+        self, ctx, member: typing.Union[discord.Member, str], *, username: str
+    ):
         """Verifies a team member with their email
         Usage: !verify @member username[@wind-up-birds.org]
         """
         verifier_role = ctx.guild.get_role(794318951235715113)
         if verifier_role not in ctx.author.roles:
             await ctx.send(
-                "Sorry, only folks with the @{0.name} role can use this command.".format(
-                    verifier_role
-                )
+                (
+                    "Sorry, only folks with the @{0.name} "
+                    + "role can use this command."
+                ).format(verifier_role)
+            )
+            return
+        if not isinstance(member, discord.Member) and " " in username:
+            # Let's perform some surgery, and stitch the actual member name
+            # back together.
+            parts = username.split()
+            username = parts[-1]
+            member = " ".join([member] + parts[:-1])
+            try:
+                converter = MemberConverter()
+                member = await converter.convert(ctx, member)
+            except:
+                pass
+
+        if not isinstance(member, discord.Member):
+            await ctx.send(
+                (
+                    "Sorry, the Discord name has to be _exact_, "
+                    + "otherwise I'll fail. `{}` isn't recognizable to me "
+                    + "as a known Discord name.\n\n"
+                    + "TIP: If their display name has spaces or symbols in it, "
+                    + 'wrap the name in quotes: `!verify "foo bar" FooBar`'
+                ).format(member)
             )
             return
         username = username.replace("@wind-up-birds.org", "")
@@ -343,16 +372,19 @@ class Puzzboss(commands.Cog):
                 """,
                 (username,),
             )
-            solver = cursor.fetchone()
-        logging.info("{0.command}: Found solver {1}".format(ctx, solver["fullname"]))
-        if not solver:
-            await ctx.send(
-                "Error: Couldn't find a {0}@wind-up-birds.org, please try again.".format(
-                    username
+            solvers = cursor.fetchall()
+            if not solvers:
+                await ctx.send(
+                    (
+                        "Error: Couldn't find a {0}@wind-up-birds.org, "
+                        + "please try again."
+                    ).format(username)
                 )
+                return
+            solver = solvers[0]
+            logging.info(
+                "{0.command}: Found solver {1}".format(ctx, solver["fullname"])
             )
-            return
-        with connection.cursor() as cursor:
             cursor.execute(
                 """
                 INSERT INTO discord_users
@@ -378,6 +410,23 @@ class Puzzboss(commands.Cog):
             "**{0.display_name}** is now verified as **{1}**!".format(
                 member, solver["name"]
             )
+        )
+
+    @verify.error
+    @verify_alias.error
+    async def verify_error(self, ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            await ctx.send(
+                "Usage: `!verify [Discord display name] [Puzzleboss username]`\n"
+                + "If the person's display name has spaces or weird symbols "
+                + "in it, try wrapping it in quotes, like\n"
+                + '`!verify "Fancy Name" FancyPerson`'
+            )
+            return
+        await ctx.send(
+            "Error! Something went wrong, please ping @dannybd. "
+            + "In the meantime it should be safe to just add this person "
+            + "to the server by giving them the Team Member role."
         )
 
 
