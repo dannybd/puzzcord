@@ -23,7 +23,7 @@ class Puzzboss(commands.Cog):
 
     @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(name="whois", hidden=True)
+    @commands.command(name="whois", aliases=["finduser"], hidden=True)
     async def whois_alias(
         self,
         ctx,
@@ -168,6 +168,13 @@ class Puzzboss(commands.Cog):
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
+    @commands.command(name="newpuzzboss", aliases=["boss"], hidden=True)
+    async def newpuzzboss_alias(self, ctx, newboss: discord.Member):
+        """[puzzboss only] Designates a new person as Puzzleboss"""
+        return await self.newpuzzboss(ctx, newboss)
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @guild_only()
     @admin.command(aliases=["boss"])
     async def newpuzzboss(self, ctx, newboss: discord.Member):
         """[puzzboss only] Designates a new person as Puzzleboss"""
@@ -200,6 +207,12 @@ class Puzzboss(commands.Cog):
         )
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @commands.command(name="newround", aliases=["nr"], hidden=True)
+    async def newround_alias(self, ctx, *, round_name: str):
+        """[puzzboss only] Creates a new round"""
+        return await self.newround(ctx, round_name=round_name)
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @admin.command(aliases=["nr"])
     async def newround(self, ctx, *, round_name: str):
         """[puzzboss only] Creates a new round"""
@@ -213,6 +226,15 @@ class Puzzboss(commands.Cog):
             await ctx.send("Error. This is likely because the round already exists.")
             return
         await ctx.send("Error. Something weird happened, try the PB UI directly.")
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @guild_only()
+    @commands.command(name="solved", hidden=True)
+    async def solved_alias(
+        self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
+    ):
+        """[puzzboss only] Mark a puzzle as solved and archive its channel"""
+        return await self.solved(ctx, channel=channel, answer=answer)
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
@@ -237,6 +259,13 @@ class Puzzboss(commands.Cog):
         )
         if apply_to_self:
             await ctx.message.delete()
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @guild_only()
+    @commands.command(name="unverified", hidden=True)
+    async def unverified_alias(self, ctx):
+        """Lists not-yet-verified team members"""
+        return await self.unverified(ctx)
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
