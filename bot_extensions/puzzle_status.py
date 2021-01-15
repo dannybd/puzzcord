@@ -174,7 +174,7 @@ class PuzzleStatus(commands.Cog):
         """Update a puzzle's state: needs eyes, critical, wtf, unnecessary
         Note: These all have shortcuts: (!eyes, !critical, etc.)
         """
-        logging.info("{0.command}: Marking a puzzle as solved".format(ctx))
+        logging.info("{0.command}: Marking a puzzle as {1}".format(ctx, markas))
         markas = markas.lower().strip()
         if markas in ["eyes", "needs eyes", "needseyes"]:
             status = "Needs eyes"
@@ -185,7 +185,7 @@ class PuzzleStatus(commands.Cog):
         elif markas in ["unnecessary", "unecessary", "unnecesary"]:
             status = "Unnecessary"
         else:
-            await ctx.send("Usage: `!mark [needs eyes|critical|wtf|unnecessary]")
+            await ctx.send("Usage: `!mark [needs eyes|critical|wtf|unnecessary]`")
             return
 
         if not channel:
