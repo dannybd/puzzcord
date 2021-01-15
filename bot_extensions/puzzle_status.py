@@ -210,7 +210,8 @@ class PuzzleStatus(commands.Cog):
         )
         if response.status != 200:
             await ctx.send(
-                "Sorry, something went wrong. Please use Puzzleboss to select your puzzle."
+                "Sorry, something went wrong. "
+                + "Please use Puzzleboss to select your puzzle."
             )
             return
         logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
@@ -222,6 +223,30 @@ class PuzzleStatus(commands.Cog):
             ).format(ctx.author)
         )
         await message.add_reaction("🧩")
+
+    @commands.command(aliases=["afk", "bed", "break"])
+    async def away(self, ctx):
+        """Lets folks know you're taking a break and not working on anything."""
+        name = puzzboss_interface.SQL.get_solver_name_for_member(ctx.author)
+        if not name:
+            await ctx.send(
+                "Sorry, we can't find your wind-up-birds.org account. Please talk to "
+                + "a @Role Verifier, then try again."
+            )
+            return
+        response = await puzzboss_interface.REST.post(
+            "/solvers/{0}/puzz".format(name),
+            {"data": ""},
+        )
+        if response.status != 200:
+            await ctx.send(
+                "Sorry, something went wrong. "
+                + "Please use Puzzleboss to take a break."
+            )
+            return
+        logging.info("Marked {} as taking a break".format(name))
+        await ctx.message.add_reaction("🛌")
+        await ctx.message.add_reaction("💤")
 
     @guild_only()
     @commands.command()
