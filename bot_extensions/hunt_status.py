@@ -71,7 +71,10 @@ class HuntStatus(commands.Cog):
                 len(members),
             ),
         )
+        solved_round_names = puzzboss_interface.SQL.get_solved_round_names()
         for name, round in rounds.items():
+            if name in solved_round_names:
+                continue
             value = "Out of **{total}** puzzles open:\n".format(**round)
             value += "🟢 New: **{Other}**\n".format(**round)
             if round["Needs eyes"]:
@@ -85,6 +88,16 @@ class HuntStatus(commands.Cog):
             if round["Solved"]:
                 value += "🏁 Solved: **{Solved}**\n".format(**round)
             embed.add_field(name=name, value=value, inline=True)
+
+        embed.add_field(
+            name="Completed ({}):".format(len(solved_round_names)),
+            value="\n".join(
+                "`{}` ({})".format(name, len(rounds[name] if name in rounds else "?"))
+                for name in solved_round_names
+            ),
+            inline=True,
+        )
+
         hunt_begins = datetime.datetime(2021, 1, 15, hour=13, tzinfo=tz)
         hours_in = (now - hunt_begins).total_seconds() / 3600
         embed.set_footer(

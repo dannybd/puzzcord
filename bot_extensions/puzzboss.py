@@ -229,6 +229,38 @@ class Puzzboss(commands.Cog):
         await ctx.send("Error. Something weird happened, try the PB UI directly.")
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @commands.command(name="solvedround", hidden=True)
+    async def solvedround_alias(self, ctx, *, round_name: str):
+        """[puzzboss only] Marks a round as solved"""
+        return await self.solvedround(ctx, round_name=round_name)
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @admin.command()
+    async def solvedround(self, ctx, *, round_name: str):
+        """[puzzboss only] Marks a round as solved"""
+        logging.info(
+            "{0.command}: Marking a round as solved: {1}".format(ctx, round_name)
+        )
+        response = await puzzboss_interface.REST.post(
+            "/rounds/{}/round_uri".format(round_name),
+            {"data": "https://perpendicular.institute/puzzles#solved"},
+        )
+        status = response.status
+        if status == 200:
+            await ctx.send("You solved the meta!! 🎉 🥳")
+            return
+        if status == 500:
+            await ctx.send(
+                (
+                    "Error. This is likely because the round "
+                    + "`{}` doesn't exist with exactly that name. "
+                    + "Please try again."
+                ).format(round_name)
+            )
+            return
+        await ctx.send("Error. Something weird happened, ping @dannybd")
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(
         name="solved", aliases=["solve", "answer", "answered"], hidden=True

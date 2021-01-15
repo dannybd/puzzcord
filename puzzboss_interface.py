@@ -117,6 +117,20 @@ class SQL:
             )
 
     @staticmethod
+    def get_solved_round_names():
+        connection = SQL._get_db_connection()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    name
+                FROM round
+                WHERE round_uri LIKE '%%#solved'
+                """,
+            )
+            return [row["name"] for row in cursor.fetchall()]
+
+    @staticmethod
     def get_all_puzzles():
         connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
