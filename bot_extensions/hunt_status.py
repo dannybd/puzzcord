@@ -18,6 +18,8 @@ class HuntStatus(commands.Cog):
         rounds = {}
         for puzzle in puzzles:
             round = puzzle["round"]
+            if round == "InfiniteCorridor" and puzzle["name"].startswith("Puzzle"):
+                continue
             if round not in rounds:
                 rounds[round] = {
                     "total": 0,
