@@ -1,7 +1,7 @@
 """ Puzzboss-only commands """
 import discord
 from discord.ext import commands
-from discord.ext.commands import guild_only, has_any_role, MemberConverter
+from discord.ext.commands import guild_only, has_any_role, MemberConverter, errors
 import logging
 import puzzboss_interface
 import re
@@ -263,6 +263,31 @@ class Puzzboss(commands.Cog):
         if apply_to_self:
             await ctx.message.delete()
 
+    @solved.error
+    @solved_alias.error
+    async def solved_error(self, ctx, error):
+        puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
+        if isinstance(error, errors.MissingAnyRole):
+            await ctx.send(
+                "This command is available to {0.mention} only.".format(puzzboss_role)
+            )
+            return
+        if isinstance(error, errors.MissingRequiredArgument):
+            await ctx.send(
+                "Usage: `!solved ANSWER`\n"
+                + "If you're calling this from a different channel, "
+                + "add the mention in there, like "
+                + "`!solved #easypuzzle ANSWER`"
+            )
+            return
+        await ctx.send(
+            (
+                "Error! Something went wrong, please ping @dannybd. "
+                + "In the meantime {0.mention} should use the "
+                + "web Puzzleboss interface to mark this as solved."
+            ).format(puzzboss_role)
+        )
+
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(name="unverified", hidden=True)
@@ -417,7 +442,7 @@ class Puzzboss(commands.Cog):
     @verify.error
     @verify_alias.error
     async def verify_error(self, ctx, error):
-        if isinstance(error, commands.errors.MissingRequiredArgument):
+        if isinstance(error, errors.MissingRequiredArgument):
             await ctx.send(
                 "Usage: `!verify [Discord display name] [Puzzleboss username]`\n"
                 + "If the person's display name has spaces or weird symbols "
