@@ -188,23 +188,14 @@ class Puzzboss(commands.Cog):
         if betaboss_role not in newboss.roles and puzztech_role not in newboss.roles:
             await ctx.send("{0.mention} should be a Beta Boss first!".format(newboss))
             return
-        author = ctx.author
-        if puzzboss_role not in author.roles and puzztech_role not in author.roles:
-            await ctx.send(
-                (
-                    "Sorry, {0.mention}, only the current "
-                    + "Puzzboss and Puzztechs can run this."
-                ).format(author)
-            )
-            return
-        if puzzboss_role in author.roles:
-            await author.remove_roles(puzzboss_role)
+        for puzzboss in puzzboss_role.members:
+            await puzzboss.remove_roles(puzzboss_role)
         await newboss.add_roles(puzzboss_role)
         await ctx.send(
             (
                 "{0.mention} has annointed {1.mention} as the new {2.mention}! "
                 + "Use {2.mention} to get their attention."
-            ).format(author, newboss, puzzboss_role)
+            ).format(ctx.author, newboss, puzzboss_role)
         )
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
