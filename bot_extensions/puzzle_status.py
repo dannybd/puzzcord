@@ -27,13 +27,29 @@ class PuzzleStatus(commands.Cog):
         puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(
             ctx, channel_or_query
         )
-        if not puzzle:
+        if puzzle:
+            embed = build_puzzle_embed(puzzle)
+            await ctx.send(embed=embed)
+            return
+        if channel_or_query:
             await ctx.send(
-                "Sorry, I couldn't find a puzzle for that query. Please try again."
+                "Sorry, I couldn't find a puzzle for that query. "
+                + "Please try again.\n"
+                + "Usage: `!"
             )
             return
-        embed = build_puzzle_embed(puzzle)
-        await ctx.send(embed=embed)
+        if not discord_info.is_puzzle_channel(ctx.channel):
+            await ctx.send(
+                (
+                    "`!puzzle` without any arguments tries to show the status "
+                    + "of the puzzle channel you're currently in, "
+                    + "but {0.mention} isn't recognized as a puzzle channel "
+                    + "in Puzzleboss.\n"
+                    + "Either go to that puzzle's channel and run `!puzzle` "
+                    + "there, or run `!puzzle [query]`, with some substring "
+                    + "or regex query for the puzzle's name."
+                ).format(ctx.channel)
+            )
 
     @guild_only()
     @commands.command()
@@ -92,9 +108,8 @@ class PuzzleStatus(commands.Cog):
             ctx, channel_or_query
         )
         if not puzzle:
-            logging.info("{0.command}: No puzzle found.".format(ctx))
-            await ctx.send("Sorry, I didn't find a puzzle channel from your query.")
-            return
+            logging.info("{0.command}: No puzzle found, sending !tables.".format(ctx))
+            return await self.tables(ctx)
         logging.info("{0.command}: Puzzle found!".format(ctx))
         if puzzle["xyzloc"]:
             line = "**`{name}`** can be found in **{xyzloc}**".format(**puzzle)
