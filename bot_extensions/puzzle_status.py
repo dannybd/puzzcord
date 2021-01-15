@@ -259,7 +259,7 @@ class PuzzleStatus(commands.Cog):
         if response.status != 200:
             await ctx.send(
                 "Sorry, something went wrong. "
-                + "Please use Puzzleboss to select your puzzle."
+                + "Please use the Puzzleboss website to select your puzzle."
             )
             return
         logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
@@ -289,7 +289,7 @@ class PuzzleStatus(commands.Cog):
         if response.status != 200:
             await ctx.send(
                 "Sorry, something went wrong. "
-                + "Please use Puzzleboss to take a break."
+                + "Please use the Puzzleboss website to take a break."
             )
             return
         logging.info("Marked {} as taking a break".format(name))

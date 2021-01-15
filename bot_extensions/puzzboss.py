@@ -292,7 +292,11 @@ class Puzzboss(commands.Cog):
         puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
         if isinstance(error, errors.MissingAnyRole):
             await ctx.send(
-                "This command is available to {0.mention} only.".format(puzzboss_role)
+                (
+                    "Only {0.mention} can mark a puzzle as solved. "
+                    + "I've just pinged them; they should be here soon "
+                    + "to confirm. (You don't need to ping them again.)"
+                ).format(puzzboss_role)
             )
             return
         if isinstance(error, errors.MissingRequiredArgument):
