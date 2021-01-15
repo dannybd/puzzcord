@@ -1,5 +1,6 @@
 """Contains bot commands for relaying meta-information about puzzles (which ones need solving; where they're being solved; etc.)"""
 
+import asyncio
 import discord
 from discord.ext import commands
 from discord.ext.commands import guild_only
@@ -60,7 +61,7 @@ class PuzzleStatus(commands.Cog):
             xyzlocs[xyzloc].append("<#{0}>".format(id))
         if not xyzlocs:
             await ctx.send(
-                "There aren't any open puzzles being worked on at a table. "
+                "There aren't any open puzzles being worked on at a table.\n"
                 + "Try joining a table and using `!joinus` in a puzzle channel."
             )
             return
@@ -70,19 +71,18 @@ class PuzzleStatus(commands.Cog):
         await ctx.send(response)
 
     @guild_only()
-    @commands.command(aliases=["whereis", "loc", "where", "wheres"])
-    async def location(
+    @commands.command(aliases=["location", "loc", "where", "wheres"])
+    async def whereis(
         self,
         ctx,
         *,
         channel_or_query: typing.Optional[typing.Union[discord.TextChannel, str]]
     ):
-        """Find where discussion of a puzzle is happening.
+        """[aka !location] Find where discussion of a puzzle is happening.
         Usage:
-            Current puzzle:   !location
-            Other puzzle(s):  !location #puzzle1 #puzzle2
-            All open puzzles: !location all
-                            !whereis everything
+            Current puzzle:   !whereis
+            Other puzzle:  !whereis #puzzle1   OR !whereis puzzl
+            All open puzzles: !whereis everything
         """
         if channel_or_query in ["all", "everything"]:
             return await self.tables(ctx)
@@ -327,6 +327,51 @@ class PuzzleStatus(commands.Cog):
         )
         await ctx.message.add_reaction("👋")
         await ctx.message.add_reaction("🔚")
+
+    @commands.Cog.listener("on_voice_state_update")
+    async def handle_workingon(self, member, before, after):
+        # Only run if they were previously in a channel,
+        if not before.channel:
+            return
+        # and if they changed channels
+        if before.channel == after.channel:
+            return
+
+        table = before.channel
+
+        # Ensure it's a table channel
+        if not table.category:
+            return
+        if not table.category.name.startswith("🧊"):
+            return
+
+        # Still occupied? That's fine then
+        if table.members:
+            return
+
+        try:
+            await self.bot.wait_for(
+                "on_voice_state_update",
+                # TODO: This should have a larger timeout, but for some reason
+                # this isn't firing at all, so for now let's make it immediate
+                timeout=0.0,
+                check=lambda _: bool(table.members),
+            )
+            logging.info(
+                (
+                    "{0.display_name} returned to table {1} "
+                    + " within the grace window"
+                ).format(member, table)
+            )
+            return
+        except asyncio.TimeoutError:
+            names = puzzboss_interface.SQL.get_puzzle_names_at_table(table)
+            for name in names:
+                logging.info("Removing {0} from {1.name}".format(name, table))
+                await puzzboss_interface.REST.post(
+                    "/puzzles/{0}/xyzloc".format(name),
+                    {"data": ""},
+                )
 
 
 def setup(bot):

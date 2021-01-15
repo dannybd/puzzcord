@@ -139,6 +139,20 @@ class SQL:
             return cursor.fetchall()
 
     @staticmethod
+    def get_puzzle_names_at_table(table):
+        connection = SQL._get_db_connection()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT name
+                FROM puzzle_view
+                WHERE xyzloc LIKE %s
+                """,
+                (table.name,),
+            )
+            return [puzzle["name"] for puzzle in cursor.fetchall()]
+
+    @staticmethod
     def get_solver_name_for_member(member):
         connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
