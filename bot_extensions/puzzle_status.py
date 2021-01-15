@@ -16,11 +16,16 @@ class PuzzleStatus(commands.Cog):
 
     @commands.command(aliases=["puz", "puzz", "puzzl"])
     async def puzzle(
-        self, ctx, *, query: typing.Optional[typing.Union[discord.TextChannel, str]]
+        self,
+        ctx,
+        *,
+        channel_or_query: typing.Optional[typing.Union[discord.TextChannel, str]]
     ):
         """Display current state of a puzzle.
-        If no state is provided, we default to the current puzzle channel."""
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(ctx, query)
+        If no channel is provided, we default to the current puzzle channel."""
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(
+            ctx, channel_or_query
+        )
         if not puzzle:
             await ctx.send(
                 "Sorry, I couldn't find a puzzle for that query. Please try again."
@@ -65,9 +70,12 @@ class PuzzleStatus(commands.Cog):
         await ctx.send(response)
 
     @guild_only()
-    @commands.command(aliases=["loc", "whereis"])
+    @commands.command(aliases=["whereis", "loc", "where", "wheres"])
     async def location(
-        self, ctx, *, query: typing.Optional[typing.Union[discord.TextChannel, str]]
+        self,
+        ctx,
+        *,
+        channel_or_query: typing.Optional[typing.Union[discord.TextChannel, str]]
     ):
         """Find where discussion of a puzzle is happening.
         Usage:
@@ -76,11 +84,13 @@ class PuzzleStatus(commands.Cog):
             All open puzzles: !location all
                             !whereis everything
         """
-        if query in ["all", "everything"]:
+        if channel_or_query in ["all", "everything"]:
             return await self.tables(ctx)
 
-        logging.info("{0.command}: Looking for".format(ctx, query))
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(ctx, query)
+        logging.info("{0.command}: Looking for {1}".format(ctx, channel_or_query))
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(
+            ctx, channel_or_query
+        )
         if not puzzle:
             logging.info("{0.command}: No puzzle found.".format(ctx))
             await ctx.send("Sorry, I didn't find a puzzle channel from your query.")
@@ -292,6 +302,31 @@ class PuzzleStatus(commands.Cog):
             )
             return
         logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
+
+    @guild_only()
+    @commands.command()
+    async def leaveus(
+        self,
+        ctx,
+        *,
+        channel_or_query: typing.Optional[typing.Union[discord.TextChannel, str]]
+    ):
+        """Unmark a channel as being worked anywhere.
+        If no channel is provided, we default to the current puzzle channel."""
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(
+            ctx, channel_or_query
+        )
+        if not puzzle:
+            await ctx.send(
+                "Sorry, I couldn't find a puzzle for that query. Please try again."
+            )
+            return
+        await puzzboss_interface.REST.post(
+            "/puzzles/{name}/xyzloc".format(**puzzle),
+            {"data": ""},
+        )
+        await ctx.message.add_reaction("👋")
+        await ctx.message.add_reaction("🔚")
 
 
 def setup(bot):
