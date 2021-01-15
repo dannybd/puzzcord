@@ -41,20 +41,25 @@ async def on_ready():
     logging.info("Connected as {0.user} and ready!".format(bot))
 
 
+class NotInTheWelcomeLobby(commands.CheckFailure):
+    pass
+
+
 @bot.check
 async def members_only(ctx):
     guild = bot.get_guild(GUILD_ID)
     if ctx.guild and ctx.guild != guild:
         return False
 
-    members = get_team_members(guild)
-    if ctx.author not in members:
-        return False
-
     if ctx.channel.id != WELCOME_LOBBY:
         return True
 
-    return ctx.invoked_with in ["huntyet", "isithuntyet"]
+    if ctx.invoked_with in ["huntyet", "isithuntyet", "hooray"]:
+        return True
+
+    msg = "No spoilers! Can't run this in {0.mention}".format(ctx.channel)
+    await ctx.send(msg)
+    raise NotInTheWelcomeLobby(msg)
 
 
 if __name__ == "__main__":
