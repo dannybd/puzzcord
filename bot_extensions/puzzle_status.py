@@ -83,7 +83,9 @@ class PuzzleStatus(commands.Cog):
 
     @guild_only()
     @commands.command(aliases=["loc", "whereis"])
-    async def location(self, ctx, *channel_mentions: typing.Union[discord.TextChannel, str]):
+    async def location(
+        self, ctx, *channel_mentions: typing.Union[discord.TextChannel, str]
+    ):
         """Find where discussion of a puzzle is happening.
         Usage:
             Current puzzle:   !location
