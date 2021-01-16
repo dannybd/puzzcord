@@ -403,13 +403,26 @@ class PuzzleStatus(commands.Cog):
             )
             return
         except asyncio.TimeoutError:
-            names = puzzboss_interface.SQL.get_puzzle_names_at_table(table)
-            for name in names:
+            puzzles = puzzboss_interface.SQL.get_puzzles_at_table(table)
+            for puzzle in puzzles:
+                name = puzzle["name"]
                 logging.info("Removing {0} from {1.name}".format(name, table))
                 await puzzboss_interface.REST.post(
                     "/puzzles/{0}/xyzloc".format(name),
                     {"data": ""},
                 )
+                try:
+                    puzzle_channel = table.guild.get_channel(int(puzzle["channel_id"]))
+                    await puzzle_channel.send(
+                        (
+                            "Everyone left **{0.name}**, so this puzzle is "
+                            + "no longer considered in progress.\n"
+                            + "If you're working on this at a table, "
+                            + "please run the `!joinus` command."
+                        ).format(table)
+                    )
+                except:
+                    continue
 
 
 def setup(bot):

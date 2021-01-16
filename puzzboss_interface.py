@@ -177,18 +177,20 @@ class SQL:
             return cursor.fetchall()
 
     @staticmethod
-    def get_puzzle_names_at_table(table):
+    def get_puzzles_at_table(table):
         connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT name
+                SELECT
+                    name,
+                    slack_channel_id AS channel_id
                 FROM puzzle_view
                 WHERE xyzloc LIKE %s
                 """,
                 (table.name,),
             )
-            return [puzzle["name"] for puzzle in cursor.fetchall()]
+            return cursor.fetchall()
 
     @staticmethod
     def get_solver_name_for_member(member):
