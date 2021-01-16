@@ -155,6 +155,28 @@ class SQL:
             return cursor.fetchall()
 
     @staticmethod
+    def get_hipri_puzzles():
+        connection = SQL._get_db_connection()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    name,
+                    round,
+                    slack_channel_id AS channel_id,
+                    status,
+                    xyzloc,
+                    comments
+                FROM puzzle_view
+                WHERE round <> "mistakes"
+                AND status IN ("Needs eyes", "Critical", "WTF")
+                ORDER BY status, id
+                """,
+            )
+            return cursor.fetchall()
+
+    @staticmethod
     def get_puzzle_names_at_table(table):
         connection = SQL._get_db_connection()
         with connection.cursor() as cursor:

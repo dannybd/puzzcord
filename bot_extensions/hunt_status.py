@@ -94,9 +94,7 @@ class HuntStatus(commands.Cog):
             if name not in rounds:
                 continue
             round = rounds[name]
-            solved_rounds.append(
-                "`{}` ({Solved}/{total})".format(name, **rounds[name])
-            )
+            solved_rounds.append("`{}` ({Solved}/{total})".format(name, **rounds[name]))
         if solved_rounds:
             embed.add_field(
                 name="Completed ({}):".format(len(solved_rounds)),
@@ -112,6 +110,29 @@ class HuntStatus(commands.Cog):
             )
         )
         await ctx.send(embed=embed)
+
+    @commands.guild_only()
+    @commands.command(aliases=["priorities", "urgent", "whatdoido"])
+    async def hipri(self, ctx):
+        """Show hipri puzzles"""
+        puzzles = puzzboss_interface.SQL.get_hipri_puzzles()
+        response = ""
+        prefixes = {
+            "Needs eyes": "🔴",
+            "Critical": "🔥",
+            "WTF": "☣️",
+        }
+        for puzzle in puzzles:
+            response += prefixes[puzzle["status"]]
+            response += " {status}: `{name}` (<#{channel_id}>)".format(**puzzle)
+            if puzzle["xyzloc"]:
+                response += " in **{xyzloc}**".format(**puzzle)
+            if puzzle["comments"]:
+                response += "\n`        Comments: {}`".format(
+                    discord.utils.escape_markdown(puzzle["comments"])
+                )
+            response += "\n"
+        await ctx.send(response)
 
 
 def setup(bot):
