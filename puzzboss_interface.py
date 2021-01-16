@@ -126,6 +126,7 @@ class SQL:
                     name
                 FROM round
                 WHERE round_uri LIKE '%%#solved'
+                AND name <> "mistakes"
                 """,
             )
             return [row["name"] for row in cursor.fetchall()]
@@ -148,6 +149,7 @@ class SQL:
                     xyzloc,
                     comments
                 FROM puzzle_view
+                WHERE round <> "mistakes"
                 """,
             )
             return cursor.fetchall()

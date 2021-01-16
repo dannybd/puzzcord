@@ -18,8 +18,6 @@ class HuntStatus(commands.Cog):
         rounds = {}
         for puzzle in puzzles:
             round = puzzle["round"]
-            if round == "InfiniteCorridor" and puzzle["name"].startswith("Puzzle"):
-                continue
             if round not in rounds:
                 rounds[round] = {
                     "total": 0,
@@ -91,14 +89,20 @@ class HuntStatus(commands.Cog):
                 value += "🏁 Solved: **{Solved}**\n".format(**round)
             embed.add_field(name=name, value=value, inline=True)
 
-        embed.add_field(
-            name="Completed ({}):".format(len(solved_round_names)),
-            value="\n".join(
-                "`{}` ({})".format(name, len(rounds[name] if name in rounds else "?"))
-                for name in solved_round_names
-            ),
-            inline=True,
-        )
+        solved_rounds = []
+        for name in solved_round_names:
+            if name not in rounds:
+                continue
+            round = rounds[name]
+            solved_rounds.append(
+                "`{}` ({Solved}/{total})".format(name, **rounds[name])
+            )
+        if solved_rounds:
+            embed.add_field(
+                name="Completed ({}):".format(len(solved_rounds)),
+                value="\n".join(solved_rounds),
+                inline=True,
+            )
 
         hunt_begins = datetime.datetime(2021, 1, 15, hour=13, tzinfo=tz)
         hours_in = (now - hunt_begins).total_seconds() / 3600
