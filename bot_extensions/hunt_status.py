@@ -116,7 +116,7 @@ class HuntStatus(commands.Cog):
     async def hipri(self, ctx):
         """Show hipri puzzles"""
         puzzles = puzzboss_interface.SQL.get_hipri_puzzles()
-        response = ""
+        response = "**Priority Puzzles ({}):**\n\n".format(len(puzzles))
         prefixes = {
             "Needs eyes": "🔴",
             "Critical": "🔥",
@@ -129,7 +129,9 @@ class HuntStatus(commands.Cog):
                 response += " in **{xyzloc}**".format(**puzzle)
             if puzzle["comments"]:
                 response += "\n`        Comments: {}`".format(
-                    discord.utils.escape_markdown(puzzle["comments"])
+                    discord.utils.escape_markdown(
+                        puzzle["comments"].replace("`", "'")
+                    )
                 )
             response += "\n"
         await ctx.send(response)
