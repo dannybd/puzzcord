@@ -216,7 +216,7 @@ class SolvingTools(commands.Cog):
         )
         await ctx.send(result)
 
-    @commands.command(name="abc", aliases=["123"], hidden=True)
+    @commands.command(name="abc", aliases=["123", "abcd"], hidden=True)
     async def abc_alias(self, ctx, *args: str):
         """Converts letters A-Z to/from numbers 1-26
         Usage: !abc Hello world
@@ -224,7 +224,7 @@ class SolvingTools(commands.Cog):
         """
         return await self.abc(ctx, *args)
 
-    @tools.command(name="abc", aliases=["123"])
+    @tools.command(name="abc", aliases=["123", "abcd"])
     async def abc(self, ctx, *args: str):
         """Converts letters A-Z to/from numbers 1-26
         Usage: !tools abc Hello world
@@ -239,7 +239,7 @@ class SolvingTools(commands.Cog):
 
         await ctx.send(" ".join([convert(i) for i in args]))
 
-    @commands.command(name="morse", hidden=True)
+    @commands.command(name="morse", aliases=["morsecode"], hidden=True)
     async def morse_alias(self, ctx, *, text: str):
         """Convert to/from morse code (/ for word boundaries)
         Usage: !morse hello world
@@ -247,7 +247,7 @@ class SolvingTools(commands.Cog):
         """
         return await self.morse(ctx, text=text)
 
-    @tools.command(name="morse")
+    @tools.command(name="morse", aliases=["morsecode"])
     async def morse(self, ctx, *, text: str):
         """Convert to/from morse code (/ for word boundaries)
         Usage: !tools morse hello world
