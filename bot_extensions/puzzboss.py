@@ -269,7 +269,9 @@ class Puzzboss(commands.Cog):
         self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
     ):
         """[puzzboss only] Mark a puzzle as solved and archive its channel"""
-        logging.info("{0.command}: Marking a puzzle as solved".format(ctx))
+        logging.info(
+            "{0.command}: {0.author.name} is marking a puzzle as solved".format(ctx)
+        )
         apply_to_self = channel is None
         if apply_to_self:
             channel = ctx.channel
