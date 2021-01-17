@@ -34,6 +34,7 @@ class HuntStatus(commands.Cog):
                     "WTF": 0,
                     "Unnecessary": 0,
                     "approx_solvers": 0,
+                    "solver_tables": [],
                     "max_id": 0,
                 }
             rounds[round]["total"] += 1
@@ -45,7 +46,9 @@ class HuntStatus(commands.Cog):
 
             xyzloc = puzzle["xyzloc"]
             if xyzloc in table_sizes and status != "Solved":
-                rounds[round]["approx_solvers"] += table_sizes[xyzloc]
+                if xyzloc not in rounds[round]["solver_tables"]:
+                    rounds[round]["approx_solvers"] += table_sizes[xyzloc]
+                    rounds[round]["solver_tables"].append(xyzloc)
 
             rounds[round]["max_id"] = max(rounds[round]["max_id"], int(puzzle["id"]))
         rounds = dict(
