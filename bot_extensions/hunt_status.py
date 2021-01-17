@@ -102,8 +102,8 @@ class HuntStatus(commands.Cog):
             if round["Solved"]:
                 value += "🏁 Solved: **{Solved}**\n".format(**round)
 
-            if round["approx_solvers"] and ctx.author.id == 276097439365201920:
-                value += "👩‍💻 **`~{approx_solvers}`** solvers".format(**round)
+            if round["approx_solvers"]:
+                value += "👩‍💻 **`≈{approx_solvers}`** solvers".format(**round)
             embed.add_field(name=name.title(), value=value, inline=True)
 
         solved_rounds = []
