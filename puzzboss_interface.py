@@ -184,6 +184,7 @@ class SQL:
                 """
                 SELECT
                     name,
+                    status,
                     slack_channel_id AS channel_id
                 FROM puzzle_view
                 WHERE xyzloc LIKE %s

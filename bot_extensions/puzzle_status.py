@@ -462,6 +462,8 @@ class PuzzleStatus(commands.Cog):
                     "/puzzles/{0}/xyzloc".format(name),
                     {"data": ""},
                 )
+                if puzzle["status"] == "Solved":
+                    continue
                 try:
                     puzzle_channel = table.guild.get_channel(int(puzzle["channel_id"]))
                     await puzzle_channel.send(
