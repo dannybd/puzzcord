@@ -21,7 +21,7 @@ class PuzzleStatus(commands.Cog):
     def cog_unload(self):
         self.table_report.cancel()
 
-    @tasks.loop(seconds=15.0)
+    @tasks.loop(seconds=15.0, reconnect=True)
     async def table_report(self):
         guild = self.bot.get_guild(discord_info.GUILD_ID)
         if not guild:
