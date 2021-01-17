@@ -485,6 +485,65 @@ class Puzzboss(commands.Cog):
             + "to the server by giving them the Team Member role."
         )
 
+    @has_any_role("Puzztech")
+    @guild_only()
+    @commands.command(name="relinkdoc", aliases=["linkdoc"], hidden=True)
+    async def relinkdoc_alias(
+        self,
+        ctx,
+        channel: typing.Optional[discord.TextChannel],
+        *,
+        sheet_hash: str,
+    ):
+        """[puzztech only] Emergency relinking of a puzzle to an existing sheet"""
+        return await self.relinkdoc(ctx, channel=channel, sheet_hash=sheet_hash)
+
+    @has_any_role("Puzztech")
+    @guild_only()
+    @admin.command(name="relinkdoc", aliases=["linkdoc"])
+    async def relinkdoc(
+        self,
+        ctx,
+        channel: typing.Optional[discord.TextChannel],
+        *,
+        sheet_hash: str,
+    ):
+        """[puzztech only] Emergency relinking of a puzzle to an existing sheet"""
+        channel = channel or ctx.channel
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel)
+        await ctx.send(
+            "Relinking sheet `{}` to `{name}`...".format(sheet_hash, **puzzle)
+        )
+        response = await puzzboss_interface.REST.post(
+            "/puzzles/{name}/drive_id".format(**puzzle),
+            {"data": sheet_hash},
+        )
+        if response.status != 200:
+            await ctx.send("Error setting drive_id!")
+            return
+
+        response = await puzzboss_interface.REST.post(
+            "/puzzles/{name}/drive_uri".format(**puzzle),
+            {
+                "data": f"https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk"
+            },
+        )
+        if response.status != 200:
+            await ctx.send("Error setting drive_uri!")
+            return
+
+        response = await puzzboss_interface.REST.post(
+            "/puzzles/{name}/drive_link".format(**puzzle),
+            {
+                "data": f'<a href="https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk">DOC</a>'
+            },
+        )
+        if response.status != 200:
+            await ctx.send("Error setting drive_link!")
+            return
+
+        await ctx.send("Done. Please run: `!puz {name}`".format(**puzzle))
+
 
 def setup(bot):
     cog = Puzzboss(bot)
