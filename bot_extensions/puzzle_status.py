@@ -115,10 +115,10 @@ class PuzzleStatus(commands.Cog):
         )
         for xyzloc, mentions in xyzlocs.items():
             if xyzloc in table_sizes:
-                size = " ({}👩‍💻)".format(table_sizes[xyzloc])
+                prefix = "{:2d}👩‍💻 in".format(table_sizes[xyzloc])
             else:
-                size = ""
-            content += "In **{0}**{1}: {2}\n".format(xyzloc, size, ", ".join(mentions))
+                prefix = "In"
+            content += "{0} **{1}**: {2}\n".format(prefix, xyzloc, ", ".join(mentions))
 
         return content
 
