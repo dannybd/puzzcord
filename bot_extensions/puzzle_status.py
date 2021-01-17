@@ -46,7 +46,7 @@ class PuzzleStatus(commands.Cog):
         """Display current state of a puzzle.
         If no channel is provided, we default to the current puzzle channel."""
         puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(
-            ctx, channel_or_query
+            ctx, channel_or_query, bot=self.bot
         )
         if puzzle:
             embed = build_puzzle_embed(puzzle)
@@ -87,7 +87,7 @@ class PuzzleStatus(commands.Cog):
         ]
         table_sizes = {table.name: len(table.members) for table in tables}
         xyzlocs = {table.name: [] for table in tables}
-        puzzles = puzzboss_interface.SQL.get_all_puzzles()
+        puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
         for puzzle in puzzles:
             xyzloc = puzzle["xyzloc"]
             if not xyzloc:
@@ -141,7 +141,7 @@ class PuzzleStatus(commands.Cog):
 
         logging.info("{0.command}: Looking for {1}".format(ctx, channel_or_query))
         puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(
-            ctx, channel_or_query
+            ctx, channel_or_query, bot=self.bot
         )
         if not puzzle:
             logging.info("{0.command}: No puzzle found, sending !tables.".format(ctx))
@@ -166,7 +166,7 @@ class PuzzleStatus(commands.Cog):
         """Update a puzzle's comments in Puzzleboss
         These are visible on the Puzzleboss site, and when people run !puzzle"""
         channel = channel or ctx.channel
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel)
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
         if not puzzle:
             await ctx.send(
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
@@ -216,7 +216,7 @@ class PuzzleStatus(commands.Cog):
             return
 
         channel = channel or ctx.channel
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel)
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
         if not puzzle:
             await ctx.send(
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
@@ -276,10 +276,10 @@ class PuzzleStatus(commands.Cog):
             return
         if not discord_info.is_puzzle_channel(channel):
             return
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel)
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
         if not puzzle:
             return
-        name = puzzboss_interface.SQL.get_solver_name_for_member(member)
+        name = puzzboss_interface.SQL.get_solver_name_for_member(member, bot=self.bot)
         if not name:
             return
         await puzzboss_interface.REST.post(
@@ -295,8 +295,12 @@ class PuzzleStatus(commands.Cog):
         if not discord_info.is_puzzle_channel(ctx.channel):
             await ctx.send("Sorry, the !here command only works in puzzle channels.")
             return
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(ctx.channel)
-        name = puzzboss_interface.SQL.get_solver_name_for_member(ctx.author)
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
+            ctx.channel, bot=self.bot
+        )
+        name = puzzboss_interface.SQL.get_solver_name_for_member(
+            ctx.author, bot=self.bot
+        )
         if not name:
             await ctx.send(
                 "Sorry, we can't find your wind-up-birds.org account. Please talk to "
@@ -326,7 +330,9 @@ class PuzzleStatus(commands.Cog):
     @commands.command(aliases=["afk", "bed", "break"])
     async def away(self, ctx):
         """Lets folks know you're taking a break and not working on anything."""
-        name = puzzboss_interface.SQL.get_solver_name_for_member(ctx.author)
+        name = puzzboss_interface.SQL.get_solver_name_for_member(
+            ctx.author, bot=self.bot
+        )
         if not name:
             await ctx.send(
                 "Sorry, we can't find your wind-up-birds.org account. Please talk to "
@@ -365,7 +371,9 @@ class PuzzleStatus(commands.Cog):
                 + "before you can use the !joinus command."
             )
             return
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(ctx.channel)
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
+            ctx.channel, bot=self.bot
+        )
         if not puzzle:
             await ctx.send(
                 "Sorry, I can't find this channel in the "
@@ -378,7 +386,9 @@ class PuzzleStatus(commands.Cog):
         )
         if discord_info.is_puzzboss(ctx.author):
             return
-        name = puzzboss_interface.SQL.get_solver_name_for_member(ctx.author)
+        name = puzzboss_interface.SQL.get_solver_name_for_member(
+            ctx.author, bot=self.bot
+        )
         if not name:
             return
         response = await puzzboss_interface.REST.post(
@@ -403,7 +413,7 @@ class PuzzleStatus(commands.Cog):
         """Unmark a channel as being worked anywhere.
         If no channel is provided, we default to the current puzzle channel."""
         puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(
-            ctx, channel_or_query
+            ctx, channel_or_query, bot=self.bot
         )
         if not puzzle:
             await ctx.send(
@@ -454,7 +464,7 @@ class PuzzleStatus(commands.Cog):
             )
             return
         except asyncio.TimeoutError:
-            puzzles = puzzboss_interface.SQL.get_puzzles_at_table(table)
+            puzzles = puzzboss_interface.SQL.get_puzzles_at_table(table, bot=self.bot)
             for puzzle in puzzles:
                 name = puzzle["name"]
                 logging.info("Removing {0} from {1.name}".format(name, table))

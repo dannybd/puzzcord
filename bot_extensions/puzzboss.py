@@ -275,7 +275,7 @@ class Puzzboss(commands.Cog):
         apply_to_self = channel is None
         if apply_to_self:
             channel = ctx.channel
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel)
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
         if not puzzle:
             await ctx.send(
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
@@ -510,7 +510,7 @@ class Puzzboss(commands.Cog):
     ):
         """[puzztech only] Emergency relinking of a puzzle to an existing sheet"""
         channel = channel or ctx.channel
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel)
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
         await ctx.send(
             "Relinking sheet `{}` to `{name}`...".format(sheet_hash, **puzzle)
         )

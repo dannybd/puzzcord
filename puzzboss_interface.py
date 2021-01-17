@@ -27,7 +27,15 @@ class REST:
 
 class SQL:
     @staticmethod
-    def _get_db_connection():
+    def _get_db_connection(bot=None):
+        if bot and bot.connection:
+            logging.info(
+                "[SQL] Found bot {0.user} with an existing connection".format(bot)
+            )
+            bot.connection.ping(reconnect=True)
+            return bot.connection
+
+        logging.info("[SQL] No bot found, creating new connection")
         creds = config["puzzledb"]
         return pymysql.connect(
             host=creds["host"],
@@ -39,13 +47,13 @@ class SQL:
         )
 
     @staticmethod
-    def get_puzzle_for_channel(channel):
-        rows = SQL.get_puzzles_for_channels([channel])
+    def get_puzzle_for_channel(channel, bot=None):
+        rows = SQL.get_puzzles_for_channels([channel], bot=bot)
         return rows[channel.id] if channel.id in rows else None
 
     @staticmethod
-    def get_puzzles_for_channels(channels):
-        connection = SQL._get_db_connection()
+    def get_puzzles_for_channels(channels, bot=None):
+        connection = SQL._get_db_connection(bot=bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -69,15 +77,15 @@ class SQL:
             return {int(row["channel_id"]): row for row in cursor.fetchall()}
 
     @staticmethod
-    def get_puzzle_for_channel_fuzzy(ctx, channel_or_query):
+    def get_puzzle_for_channel_fuzzy(ctx, channel_or_query, bot=None):
         if not channel_or_query:
             if not is_puzzle_channel(ctx.channel):
                 return None
-            return SQL.get_puzzle_for_channel(ctx.channel)
+            return SQL.get_puzzle_for_channel(ctx.channel, bot=bot)
 
         if isinstance(channel_or_query, discord.TextChannel):
             channel = channel_or_query
-            return SQL.get_puzzle_for_channel(channel)
+            return SQL.get_puzzle_for_channel(channel, bot=bot)
 
         query = channel_or_query
         try:
@@ -93,7 +101,7 @@ class SQL:
                 return True
             return regex.search(name) is not None
 
-        connection = SQL._get_db_connection()
+        connection = SQL._get_db_connection(bot=bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -117,8 +125,8 @@ class SQL:
             )
 
     @staticmethod
-    def get_solved_round_names():
-        connection = SQL._get_db_connection()
+    def get_solved_round_names(bot=None):
+        connection = SQL._get_db_connection(bot=bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -132,8 +140,8 @@ class SQL:
             return [row["name"] for row in cursor.fetchall()]
 
     @staticmethod
-    def get_all_puzzles():
-        connection = SQL._get_db_connection()
+    def get_all_puzzles(bot=None):
+        connection = SQL._get_db_connection(bot=bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -155,8 +163,8 @@ class SQL:
             return cursor.fetchall()
 
     @staticmethod
-    def get_hipri_puzzles():
-        connection = SQL._get_db_connection()
+    def get_hipri_puzzles(bot=None):
+        connection = SQL._get_db_connection(bot=bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -177,8 +185,8 @@ class SQL:
             return cursor.fetchall()
 
     @staticmethod
-    def get_puzzles_at_table(table):
-        connection = SQL._get_db_connection()
+    def get_puzzles_at_table(table, bot=None):
+        connection = SQL._get_db_connection(bot=bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -194,8 +202,8 @@ class SQL:
             return cursor.fetchall()
 
     @staticmethod
-    def get_solver_name_for_member(member):
-        connection = SQL._get_db_connection()
+    def get_solver_name_for_member(member, bot=None):
+        connection = SQL._get_db_connection(bot=bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """

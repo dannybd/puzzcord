@@ -20,7 +20,7 @@ class HuntStatus(commands.Cog):
             if table.category and table.category.name.startswith("🧊")
         ]
         table_sizes = {table.name: len(table.members) for table in tables}
-        puzzles = puzzboss_interface.SQL.get_all_puzzles()
+        puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
         rounds = {}
         for puzzle in puzzles:
             round = puzzle["round"]
@@ -94,7 +94,7 @@ class HuntStatus(commands.Cog):
             ),
         )
 
-        solved_round_names = puzzboss_interface.SQL.get_solved_round_names()
+        solved_round_names = puzzboss_interface.SQL.get_solved_round_names(bot=self.bot)
 
         for name, round in rounds.items():
             if name in solved_round_names:
@@ -148,7 +148,7 @@ class HuntStatus(commands.Cog):
     async def hipri(self, ctx):
         """Show hipri puzzles"""
         puzzles = sorted(
-            puzzboss_interface.SQL.get_hipri_puzzles(),
+            puzzboss_interface.SQL.get_hipri_puzzles(bot=self.bot),
             key=lambda puzzle: (puzzle["status"], puzzle["id"]),
         )
         response = "**Priority Puzzles ({}):**\n".format(len(puzzles))
