@@ -76,7 +76,7 @@ def build_puzzle_embed(puzzle):
     embed.add_field(
         name="Discord Channel", value="<#{channel_id}>".format(**puzzle), inline=True
     )
-    embed.add_field(name="Round", value=puzzle["round"], inline=True)
+    embed.add_field(name="Round", value=puzzle["round"].title(), inline=True)
     # spacer field to make it 2x2
     embed.add_field(name="\u200B", value="\u200B", inline=True)
     return embed

@@ -87,7 +87,7 @@ class HuntStatus(commands.Cog):
                 value += "⚪️ Unnecessary: **{Unnecessary}**\n".format(**round)
             if round["Solved"]:
                 value += "🏁 Solved: **{Solved}**\n".format(**round)
-            embed.add_field(name=name, value=value, inline=True)
+            embed.add_field(name=name.title(), value=value, inline=True)
 
         solved_rounds = []
         for name in solved_round_names:
