@@ -170,7 +170,7 @@ class SQL:
                     comments
                 FROM puzzle_view
                 WHERE round <> "mistakes"
-                AND status IN ("Needs eyes", "Critical", "WTF")
+                AND status IN ("Critical", "Needs eyes", "WTF")
                 ORDER BY status, id
                 """,
             )

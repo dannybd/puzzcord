@@ -112,25 +112,32 @@ class HuntStatus(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.guild_only()
-    @commands.command(aliases=["priorities", "urgent", "whatdoido"])
+    @commands.command(aliases=["priorities", "urgent", "whatdoido", "highpri", "hifi"])
     async def hipri(self, ctx):
         """Show hipri puzzles"""
-        puzzles = puzzboss_interface.SQL.get_hipri_puzzles()
-        response = "**Priority Puzzles ({}):**\n\n".format(len(puzzles))
+        puzzles = sorted(
+            puzzboss_interface.SQL.get_hipri_puzzles(),
+            key=lambda puzzle: (puzzle["status"], puzzle["id"]),
+        )
+        response = "**Priority Puzzles ({}):**\n".format(len(puzzles))
         prefixes = {
-            "Needs eyes": "🔴",
             "Critical": "🔥",
+            "Needs eyes": "🔴",
             "WTF": "☣️",
         }
+        status = None
         for puzzle in puzzles:
-            response += prefixes[puzzle["status"]]
+            if status != puzzle["status"]:
+                response += "\n"
+            status = puzzle["status"]
+            response += prefixes[status]
             response += " {status}: `{name}` (<#{channel_id}>)".format(**puzzle)
             if puzzle["xyzloc"]:
                 response += " in **{xyzloc}**".format(**puzzle)
             if puzzle["comments"]:
-                response += "\n`        Comments: {}`".format(
-                    discord.utils.escape_markdown(puzzle["comments"].replace("`", "'"))
-                )
+                comments = puzzle["comments"].replace("`", "'")[:200]
+                comments = discord.utils.escape_markdown(comments)
+                response += "\n`        Comments: {}`".format(comments)
             response += "\n"
         await ctx.send(response)
 

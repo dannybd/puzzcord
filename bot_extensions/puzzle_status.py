@@ -35,7 +35,7 @@ class PuzzleStatus(commands.Cog):
             await ctx.send(
                 "Sorry, I couldn't find a puzzle for that query. "
                 + "Please try again.\n"
-                + "Usage: `!"
+                + "Usage: `!puzzle [query]`"
             )
             return
         if not discord_info.is_puzzle_channel(ctx.channel):
