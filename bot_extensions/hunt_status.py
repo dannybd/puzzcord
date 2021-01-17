@@ -129,9 +129,7 @@ class HuntStatus(commands.Cog):
                 response += " in **{xyzloc}**".format(**puzzle)
             if puzzle["comments"]:
                 response += "\n`        Comments: {}`".format(
-                    discord.utils.escape_markdown(
-                        puzzle["comments"].replace("`", "'")
-                    )
+                    discord.utils.escape_markdown(puzzle["comments"].replace("`", "'"))
                 )
             response += "\n"
         await ctx.send(response)

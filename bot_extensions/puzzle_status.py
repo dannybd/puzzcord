@@ -139,6 +139,21 @@ class PuzzleStatus(commands.Cog):
         response = await puzzboss_interface.REST.post(
             "/puzzles/{name}/comments".format(**puzzle), {"data": comments or ""}
         )
+        if len(comments) > 200:
+            await ctx.message.add_reaction("📕")
+            await ctx.message.add_reaction("✍️")
+            await ctx.channel.send(
+                (
+                    "Hey {0.mention}, I've set that as the puzzle note, "
+                    + "but please consider re-adding it in a shorter (<200 char) "
+                    + "form. Notes of that length tend to be less helpful, "
+                    + "and make things like `!hipri` and `!puzzle` much harder "
+                    + "to read.\n"
+                    + "You should give all the context you want in the channel "
+                    + "instead. Thanks!"
+                ).format(ctx.author)
+            )
+            return
         await ctx.message.add_reaction("📃")
         await ctx.message.add_reaction("✍️")
 

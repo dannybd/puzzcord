@@ -254,7 +254,7 @@ class Puzzboss(commands.Cog):
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(
-        name="solved", aliases=["solve", "answer", "answered"], hidden=True
+        name="solved", aliases=["solve", "answer", "answered", "SOLVED"], hidden=True
     )
     async def solved_alias(
         self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
@@ -264,7 +264,7 @@ class Puzzboss(commands.Cog):
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @admin.command(aliases=["solve", "answer", "answered"])
+    @admin.command(aliases=["solve", "answer", "answered", "SOLVED"])
     async def solved(
         self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
     ):
