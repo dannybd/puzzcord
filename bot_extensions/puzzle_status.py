@@ -1,19 +1,40 @@
 """Contains bot commands for relaying meta-information about puzzles (which ones need solving; where they're being solved; etc.)"""
 
 import asyncio
+import datetime
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands import guild_only
 import puzzboss_interface
 import discord_info
 import logging
 import typing
 from common import build_puzzle_embed
+from pytz import timezone
 
 
 class PuzzleStatus(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.table_report.start()
+
+    def cog_unload(self):
+        self.table_report.cancel()
+
+    @tasks.loop(seconds=15.0)
+    async def table_report(self):
+        guild = self.bot.get_guild(discord_info.GUILD_ID)
+        if not guild:
+            return
+        channel = guild.get_channel(discord_info.TABLE_REPORT_CHANNEL)
+        messages = await channel.history(limit=1).flatten()
+        message = messages[0] if messages else None
+        if not message or message.author != guild.me:
+            message = await channel.send("Fetching table status...")
+
+        content = self._tables(guild)
+        content += "\n\nThis info auto-updates every 15 seconds."
+        await message.edit(content=content, suppress=True)
 
     @commands.command(aliases=["puz", "puzz", "puzzl"])
     async def puzzle(
@@ -56,17 +77,18 @@ class PuzzleStatus(commands.Cog):
     async def tables(self, ctx):
         """What is happening at each table?
         Equivalent to calling `!location all` or `!whereis everything`"""
-        channels = [
-            channel
-            for channel in ctx.guild.text_channels
-            if discord_info.is_puzzle_channel(channel)
+        await ctx.send(self._tables(ctx.guild))
+
+    def _tables(self, guild):
+        tables = [
+            table
+            for table in guild.voice_channels
+            if table.category and table.category.name.startswith("🧊")
         ]
-        if not channels:
-            await ctx.send("You don't have any puzzles")
-            return
-        xyzlocs = {}
-        puzzles = puzzboss_interface.SQL.get_puzzles_for_channels(channels)
-        for id, puzzle in puzzles.items():
+        table_sizes = {table.name: len(table.members) for table in tables}
+        xyzlocs = {table.name: [] for table in tables}
+        puzzles = puzzboss_interface.SQL.get_all_puzzles()
+        for puzzle in puzzles:
             xyzloc = puzzle["xyzloc"]
             if not xyzloc:
                 continue
@@ -74,17 +96,31 @@ class PuzzleStatus(commands.Cog):
                 continue
             if xyzloc not in xyzlocs:
                 xyzlocs[xyzloc] = []
-            xyzlocs[xyzloc].append("<#{0}>".format(id))
+            xyzlocs[xyzloc].append("<#{channel_id}>".format(**puzzle))
+
+        # Filter out empty tables
+        xyzlocs = {k: v for k, v in xyzlocs.items() if v}
         if not xyzlocs:
-            await ctx.send(
-                "There aren't any open puzzles being worked on at a table.\n"
-                + "Try joining a table and using `!joinus` in a puzzle channel."
+            return (
+                "There aren't any open puzzles being worked on at "
+                + "any of the tables!\n"
+                + "Try joining a table and using "
+                + "`!joinus` in a puzzle channel."
             )
-            return
-        response = "Which puzzles are where:\n\n"
+
+        tz = timezone("US/Eastern")
+        now = datetime.datetime.now(tz)
+        content = "Which puzzles are where (as of {}):\n\n".format(
+            now.strftime("%A at %I:%M:%S%p %Z")
+        )
         for xyzloc, mentions in xyzlocs.items():
-            response += "In **{0}**: {1}\n".format(xyzloc, ", ".join(mentions))
-        await ctx.send(response)
+            if xyzloc in table_sizes:
+                size = " ({}👩‍💻)".format(table_sizes[xyzloc])
+            else:
+                size = ""
+            content += "In **{0}**{1}: {2}\n".format(xyzloc, size, ", ".join(mentions))
+
+        return content
 
     @guild_only()
     @commands.command(aliases=["location", "loc", "where", "wheres"])
