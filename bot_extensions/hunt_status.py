@@ -35,6 +35,8 @@ class HuntStatus(commands.Cog):
                     "Unnecessary": 0,
                     "approx_solvers": 0,
                     "solver_tables": [],
+                    "num_metas": 0,
+                    "num_metas_solved": 0,
                     "max_id": 0,
                 }
             rounds[round]["total"] += 1
@@ -49,6 +51,11 @@ class HuntStatus(commands.Cog):
                 if xyzloc not in rounds[round]["solver_tables"]:
                     rounds[round]["approx_solvers"] += table_sizes[xyzloc]
                     rounds[round]["solver_tables"].append(xyzloc)
+
+            if puzzle["name"].lower().endswith("meta"):
+                rounds[round]["num_metas"] += 1
+                if status == "Solved":
+                    rounds[round]["num_metas_solved"] += 1
 
             rounds[round]["max_id"] = max(rounds[round]["max_id"], int(puzzle["id"]))
         rounds = dict(
@@ -93,7 +100,9 @@ class HuntStatus(commands.Cog):
             if name in solved_round_names:
                 continue
             value = "Out of **{total}** puzzles open:\n".format(**round)
-            value += "🟢 New: **{Other}**\n".format(**round)
+
+            if round["Other"]:
+                value += "🟢 New: **{Other}**\n".format(**round)
             if round["Needs eyes"]:
                 value += "🔴 Needs eyes: **{}**\n".format(round["Needs eyes"])
             if round["Critical"]:
@@ -102,9 +111,12 @@ class HuntStatus(commands.Cog):
                 value += "☣️ WTF: **{WTF}**\n".format(**round)
             if round["Unnecessary"]:
                 value += "⚪️ Unnecessary: **{Unnecessary}**\n".format(**round)
+            if round["num_metas"]:
+                value += (
+                    "🎖 Metas: **{num_metas_solved}/{num_metas} solved**\n"
+                ).format(**round)
             if round["Solved"]:
                 value += "🏁 Solved: **{Solved}**\n".format(**round)
-
             if round["approx_solvers"]:
                 value += "👩‍💻 **`≈{approx_solvers}`** solvers".format(**round)
             embed.add_field(name=name.title(), value=value, inline=True)
