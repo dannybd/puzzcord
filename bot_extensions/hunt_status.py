@@ -14,6 +14,12 @@ class HuntStatus(commands.Cog):
     @commands.command(aliases=["hunt"])
     async def status(self, ctx):
         """Hunt status update"""
+        tables = [
+            table
+            for table in ctx.guild.voice_channels
+            if table.category and table.category.name.startswith("🧊")
+        ]
+        table_sizes = {table.name: len(table.members) for table in tables}
         puzzles = puzzboss_interface.SQL.get_all_puzzles()
         rounds = {}
         for puzzle in puzzles:
@@ -27,6 +33,7 @@ class HuntStatus(commands.Cog):
                     "Critical": 0,
                     "WTF": 0,
                     "Unnecessary": 0,
+                    "approx_solvers": 0,
                     "max_id": 0,
                 }
             rounds[round]["total"] += 1
@@ -35,6 +42,11 @@ class HuntStatus(commands.Cog):
                 rounds[round][status] += 1
             else:
                 rounds[round]["Other"] += 1
+
+            xyzloc = puzzle["xyzloc"]
+            if xyzloc in table_sizes and status != "Solved":
+                rounds[round]["approx_solvers"] += table_sizes[xyzloc]
+
             rounds[round]["max_id"] = max(rounds[round]["max_id"], int(puzzle["id"]))
         rounds = dict(
             sorted(
@@ -71,7 +83,9 @@ class HuntStatus(commands.Cog):
                 len(members),
             ),
         )
+
         solved_round_names = puzzboss_interface.SQL.get_solved_round_names()
+
         for name, round in rounds.items():
             if name in solved_round_names:
                 continue
@@ -87,6 +101,9 @@ class HuntStatus(commands.Cog):
                 value += "⚪️ Unnecessary: **{Unnecessary}**\n".format(**round)
             if round["Solved"]:
                 value += "🏁 Solved: **{Solved}**\n".format(**round)
+
+            if round["approx_solvers"] and ctx.author.id == 276097439365201920:
+                value += "👩‍💻 **`~{approx_solvers}`** solvers".format(**round)
             embed.add_field(name=name.title(), value=value, inline=True)
 
         solved_rounds = []
