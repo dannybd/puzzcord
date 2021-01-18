@@ -44,6 +44,7 @@ class SQL:
             password=creds["passwd"],
             db=creds["db"],
             cursorclass=pymysql.cursors.DictCursor,
+            autocommit=True,
         )
 
     @staticmethod
