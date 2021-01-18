@@ -29,9 +29,6 @@ class SQL:
     @staticmethod
     def _get_db_connection(bot=None):
         if bot and bot.connection:
-            logging.info(
-                "[SQL] Found bot {0.user} with an existing connection".format(bot)
-            )
             bot.connection.ping(reconnect=True)
             return bot.connection
 
