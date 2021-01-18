@@ -74,7 +74,7 @@ class Puzzboss(commands.Cog):
                 return True
             return False
 
-        connection = puzzboss_interface.SQL._get_db_connection()
+        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -130,7 +130,7 @@ class Puzzboss(commands.Cog):
         ).format(member)
         if member.bot:
             return f"{member_tag} is a bot, like me :)"
-        connection = puzzboss_interface.SQL._get_db_connection()
+        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -329,7 +329,7 @@ class Puzzboss(commands.Cog):
     @admin.command()
     async def unverified(self, ctx):
         """Lists not-yet-verified team members"""
-        connection = puzzboss_interface.SQL._get_db_connection()
+        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -417,7 +417,7 @@ class Puzzboss(commands.Cog):
                 ctx, member, username
             )
         )
-        connection = puzzboss_interface.SQL._get_db_connection()
+        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """
