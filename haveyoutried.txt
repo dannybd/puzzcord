@@ -1,0 +1,157 @@
+reading the title and the blurb?
+googling unusual phrases or words?
+free-associating and incoherent connections?
+checking through the reference collection or reference links?
+just sitting down and working on the puzzle, fool?
+looking for hidden acronyms?
+googling the title or trying to figure out the title's meaning?
+following any sets of instructions carefully and methodically?
+making sure you have everything you need before leaving HQ?
+alphabetizing?
+using the leftover letters to spell something?
+anagramming?
+looking at letter frequencies?
+Caesar-shifts or other ciphers?
+translating numbers to letters?
+treating the letters as a code (eg DNA)?
+translating into call letters?
+using product codes (UPCs)?
+song lyrics?
+cryptic crossword clues?
+grouping the words into sets (e.g. by common letter, part of speech, number of letters, dots)?
+forming a word chain or word square or other shape?
+sequencing them by small spelling changes or other transformations?
+searching for words in common with several clues?
+taking the $n$-th letter of the $n$-th answer?
+relating the letters to the keyboard layout?
+a pun?
+pronouncing the words out loud?
+finding a "missing" word or letter?
+seeing if it's in a foreign language?
+looking for words hidden in other words or phrases?
+looking for the "odd one out?"
+looking at the unused letters?
+Reading out loud quickly to check for anguished english? (http://www.mit.edu/~puzzle/02/round3/02/Solution.txt)
+Roman Numerals
+Repeating previous steps on the answer/clue phrase?
+graphing them?
+graphing it parametrically?
+checking to see if your numbers are in the right base (including hex)?
+shifting from numbers to letters?
+using it as a phone number?
+converting it to phonespell?
+using it as an IP address?
+codes like semaphore, Morse, etc?
+baseball or other sports statistics?
+matching numbers to MIT buildings?
+matching numbers to MIT courses?
+treating numbers as dates?
+treating numbers as atomic weights, numbers, etc.?
+treating numbers as latitude/longitude or GPS coordinates?
+treating numbers as radio stations?
+treating numbers as ASCII numbers?
+treating numbers as PLU numbers?
+treating numbers as ISBN numbers?
+treating numbers as airline flight numbers?
+treating numbers as zipcodes?
+seeing if there are any strange sequences?
+seeing if prime numbers are involved?
+seeing if fundamental constants are involved?
+asking what other numbers are close to the one you have?
+is it tracking numbers?
+factorizing?
+is there an enumeration for the cluephrase hidden in the puzzle?
+using the date or age?
+seeing if it's in another language?
+identifying the location of the picture?
+grouping by color, shape, number of lines, etc.?
+treating them like a rebus?
+looking for content tags?
+looking at the file names?
+seeing the pictures are of places at MIT or MIT-related?
+translating colors to hex, PANTONE, etc?
+interpreting them as maps?
+checking if photos have been manipulated? What is missing?
+asking the room if they recognize the image as anything?
+name that tune?
+name that artist?
+identifying the words in the song?
+looking for clues hidden in the scene?
+searching for content tags?
+looking at the file names?
+organizing by genre, number of Oscars, or some other criteria?
+finding associated data with the picture (e.g. music or actors for stills from films)?
+looking for a famous connection for a not-famous clue (e.g. b-sides, actors, earlier band names)?
+overlaying multiple images in Gimp/Paint Shop Pro/Photoshop?
+cutting it out?
+looking at it in a mirror?
+squinting at it from far away?
+tilting it?
+looking at it upside down?
+looking through it?
+rewriting it neatly?
+rewriting it on graph paper?
+saying it out loud to someone else?
+reading it backwards?
+putting yourself in the constructor's shoes?
+making it 3D?
+cutting it up?
+folding it?
+connecting the dots?
+is it a song/poem/book/movie/TV show?
+is it from a magazine?
+Braille?
+Morse code?
+seeing if it's a card game, board game, or role-playing game?
+sports (baseball, horseracing, chessboxing...)?
+overlaying it on a map of MIT?
+overlaying it on a map of Cambridge/Boston?
+overlaying it on a map of the stars?
+is it a runaround?
+getting on the T?
+checking it for pop culture references
+using the Library of Congress or Dewey decimal system?
+asking whether it has anything to do personally with the constructing team?
+solving it as a chemistry/physics/math problem?
+seeing if it's horribly obfuscated code in an obscure language?
+are sets missing an element?
+do the clue answers yield more clues of the same type?
+do you have to put together or disentangle the clues?
+do you have to order trigrams?
+does the puzzle have two (or more) solutions?
+have you found any similarities/commonalities?
+why are clues grouped the way they are?
+does it refer to a website?
+is it a japanese logic puzzle?
+how it differs from normal crosswords/paint-by-numbers/word-finds etc?
+what the theme is (for crosswords)?
+what the gimmick is (double-letter squares, drop all "e"'s)?
+backsolving?
+trusting your instincts?
+trusting someone else's instincts?
+asking "what's weird about this?"
+taking a step back?
+asking for fresh brains?
+checking your work?
+asking someone else to check your work?
+explaining your work to someone else?
+doing what you've already done again to the output?
+consulting the list of expertise?
+leaving the room?
+asking people if it looks like anything they recognize?
+thinking about what's missing?
+asking yourself whether you've used all the information?
+keeping even a strange-looking result?
+brute force?
+not thinking about it?
+splitting up tasks to solve in a group?
+talking to a hunt veteran?
+talking to a hunt newbie?
+asking "what's the pattern"?
+rereading the instructions?
+seeing if any one element of the puzzle is "special"?
+putting all the words into google?
+you find a phrase akin to "red herring," "poisson rouge," "try again," "not this way, you idiot," etc.
+the coincidences/connections you find involve only 1% of the clues.
+you have a filled in crossword grid but no idea what to do.
+you haven't actually tried working on the puzzle, fool.

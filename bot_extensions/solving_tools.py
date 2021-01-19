@@ -61,6 +61,25 @@ class SolvingTools(commands.Cog):
         await ctx.send("Run `!help tools` to see everything I support.", embed=embed)
         # TODO: Show something more useful here, like links to tools
 
+    @commands.command(name="stuck", aliases=["haveyoutried", "whatnow"], hidden=True)
+    async def stuck_alias(self, ctx):
+        """Suggests some tips from the Have You Tried? list"""
+        return await self.stuck(ctx)
+
+    @tools.command(name="stuck", aliases=["haveyoutried", "whatnow"])
+    async def stuck(self, ctx):
+        """Suggests some tips from the Have You Tried? list"""
+        with open("haveyoutried.txt") as f:
+            tips = [f"...{tip}" for tip in f.readlines()]
+        random.shuffle(tips)
+
+        content = "**Have You Tried...**\n{}".format("".join(tips[:6]))
+        embed = discord.Embed(
+            title="Have You Tried?",
+            url="https://wind-up-birds.org/wiki/index.php/Have_You_Tried",
+        )
+        await ctx.send(content=content, embed=embed)
+
     @commands.command(name="rot", aliases=["rotn"], hidden=True)
     async def rot_alias(self, ctx, *, msg: str):
         """Rotates a message through all rot N and displays the permutations
