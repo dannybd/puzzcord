@@ -96,25 +96,35 @@ class HuntStatus(commands.Cog):
                 rounds[round] = []
             rounds[round].append(link(puzzle["puzzle_uri"], puzzle["name"]))
 
+        descriptions = []
         description = "Here are **{}** you worked on:\n\n".format(
             plural(len(puzzles), "puzzle")
         )
         for round, puzzles in rounds.items():
+            if len(description) >= 1000:
+                description += "\n(continued...)"
+                descriptions.append(description)
+                description = ""
             description += "**{}:** {}\n".format(round.title(), ", ".join(puzzles))
         description += (
             "\nThanks for a great Hunt; it's been a lot of fun "
             + "making this happen. Now go write some feedback! 💌"
         )
+        descriptions.append(description)
 
         embed = discord.Embed(
             title="🧩 Your ~~Spotify~~ Mystery Hunt Wrapped 🎁",
-            description=description,
+            description=descriptions[0],
         )
         embed.set_thumbnail(url="https://i.imgur.com/STfQk4R.jpeg")
         embed.set_footer(
             text="based on approximate data, assembled hastily with love by danny"
         )
         await ctx.send(content="{0.mention}:".format(author), embed=embed)
+        if len(descriptions) == 1:
+            return
+        for description in descriptions[1:]:
+            await ctx.send(embed=discord.Embed(description=description))
 
     @commands.command(aliases=["hunt"])
     async def status(self, ctx):
