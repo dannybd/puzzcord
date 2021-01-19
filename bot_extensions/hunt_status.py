@@ -11,6 +11,111 @@ class HuntStatus(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(aliases=["wrapped"])
+    async def wrapup(self, ctx):
+        """What puzzles you worked on, with links so you can go leave feedback"""
+        author = ctx.author
+        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    solver_name as name
+                FROM discord_users
+                WHERE discord_id = %s
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                (str(author.id),),
+            )
+            solvers = cursor.fetchall()
+            if not solvers:
+                await ctx.send(
+                    (
+                        "Sorry, {0.mention}, I couldn't find your wind-up-birds "
+                        + "account! Did you register? *Did you even hunt with us?*"
+                    ).format(author)
+                )
+                return
+            solver_name = solvers[0]["name"]
+            cursor.execute(
+                """
+                SELECT
+                    *
+                FROM solver_view
+                WHERE name = %s
+                """,
+                (solver_name,),
+            )
+            solvers = cursor.fetchall()
+            if not solvers or not solvers[0] or not solvers[0]["puzzles"]:
+                await ctx.send(
+                    (
+                        "Sorry, {0.mention}, I couldn't find your wind-up-birds "
+                        + "account! Did you register? *Did you even hunt with us?*"
+                    ).format(author)
+                )
+                return
+            puzzles = solvers[0]["puzzles"].split(",")
+            if not puzzles:
+                await ctx.send(
+                    (
+                        "Sorry, {0.mention}, I couldn't find any puzzles recorded "
+                        + "to your wind-up-birds account. "
+                        + "Maybe try using the `!here` and `!joinus` commands "
+                        + "next year 😛"
+                    ).format(author)
+                )
+                return
+            cursor.execute(
+                """
+                SELECT
+                    name,
+                    round,
+                    puzzle_uri
+                FROM puzzle_view
+                WHERE name IN ({})
+                ORDER BY id
+                """.format(
+                    ",".join(["%s"] * len(puzzles))
+                ),
+                tuple(puzzles),
+            )
+            puzzles = cursor.fetchall()
+
+        def plural(num, noun):
+            return "{} {}{}".format(num, noun, "" if num == 1 else "s")
+
+        def link(uri, label):
+            return f"[`{label}`]({uri})"
+
+        rounds = {}
+        for puzzle in puzzles:
+            round = puzzle["round"]
+            if round not in rounds:
+                rounds[round] = []
+            rounds[round].append(link(puzzle["puzzle_uri"], puzzle["name"]))
+
+        description = "Here are **{}** you worked on:\n\n".format(
+            plural(len(puzzles), "puzzle")
+        )
+        for round, puzzles in rounds.items():
+            description += "**{}:** {}\n".format(round.title(), ", ".join(puzzles))
+        description += (
+            "\nThanks for a great Hunt; it's been a lot of fun "
+            + "making this happen. Now go write some feedback! 💌"
+        )
+
+        embed = discord.Embed(
+            title="🧩 Your ~~Spotify~~ Mystery Hunt Wrapped 🎁",
+            description=description,
+        )
+        embed.set_thumbnail(url="https://i.imgur.com/STfQk4R.jpeg")
+        embed.set_footer(
+            text="based on approximate data, assembled hastily with love by danny"
+        )
+        await ctx.send(content="{0.mention}:".format(author), embed=embed)
+
     @commands.command(aliases=["hunt"])
     async def status(self, ctx):
         """Hunt status update"""
