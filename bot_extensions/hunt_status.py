@@ -240,10 +240,13 @@ class HuntStatus(commands.Cog):
             )
 
         hunt_begins = datetime.datetime(2021, 1, 15, hour=13, tzinfo=tz)
-        hours_in = (now - hunt_begins).total_seconds() / 3600
+        hunt_ends = datetime.datetime(2021, 1, 18, hour=10, tzinfo=tz)
+        hours_in = (min(now, hunt_ends) - hunt_begins).total_seconds() / 3600
         embed.set_footer(
-            text="T{0:+.1f} hours {1} Hunt".format(
-                hours_in, "into" if hours_in >= 0 else "until"
+            text="T{0:+.1f} hours {1} Hunt{2}".format(
+                hours_in,
+                "into" if hours_in >= 0 else "until",
+                " [FINAL]" if now > hunt_ends else "",
             )
         )
         await ctx.send(embed=embed)
