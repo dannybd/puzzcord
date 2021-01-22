@@ -14,7 +14,7 @@ class Toys(commands.Cog):
     @commands.command(aliases=["huntyet"], hidden=True)
     async def isithuntyet(self, ctx):
         """Is it hunt yet?"""
-        timeleft = datetime.datetime.fromtimestamp(1610730000) - datetime.datetime.now()
+        timeleft = datetime.datetime.fromtimestamp(1642179600) - datetime.datetime.now()
         if timeleft.days < 0:
             await ctx.send("Yes! 🎉")
             return
