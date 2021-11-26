@@ -4,8 +4,8 @@ from discord.ext import commands
 import string
 import aiohttp
 import random
-import bot_extensions.util.urlhandler as urlhandler
-import bot_extensions.util.tables as tables
+import extensions.util.urlhandler as urlhandler
+import extensions.util.tables as tables
 
 from bs4 import BeautifulSoup
 

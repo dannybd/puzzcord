@@ -85,7 +85,7 @@ async def members_only(ctx):
 
 
 logging.info("Loading extensions...")
-for extension in glob.glob("bot_extensions/*.py"):
+for extension in glob.glob("extensions/*.py"):
     try:
         ext = extension[:-3]
         ext = ext.replace("/", ".")
