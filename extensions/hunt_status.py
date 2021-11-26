@@ -91,10 +91,10 @@ class HuntStatus(commands.Cog):
 
         rounds = {}
         for puzzle in puzzles:
-            round = puzzle["round"]
-            if round not in rounds:
-                rounds[round] = []
-            rounds[round].append(link(puzzle["puzzle_uri"], puzzle["name"]))
+            round_name = puzzle["round_name"]
+            if round_name not in rounds:
+                rounds[round_name] = []
+            rounds[round_name].append(link(puzzle["puzzle_uri"], puzzle["name"]))
 
         descriptions = []
         description = "Here are **{}** you worked on:\n\n".format(
@@ -138,9 +138,9 @@ class HuntStatus(commands.Cog):
         puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
         rounds = {}
         for puzzle in puzzles:
-            round = puzzle["round"]
-            if round not in rounds:
-                rounds[round] = {
+            round_name = puzzle["round_name"]
+            if round_name not in rounds:
+                rounds[round_name] = {
                     "total": 0,
                     "Solved": 0,
                     "Other": 0,
@@ -154,25 +154,27 @@ class HuntStatus(commands.Cog):
                     "num_metas_solved": 0,
                     "max_id": 0,
                 }
-            rounds[round]["total"] += 1
+            rounds[round_name]["total"] += 1
             status = puzzle["status"]
-            if status in rounds[round]:
-                rounds[round][status] += 1
+            if status in rounds[round_name]:
+                rounds[round_name][status] += 1
             else:
-                rounds[round]["Other"] += 1
+                rounds[round_name]["Other"] += 1
 
             xyzloc = puzzle["xyzloc"]
             if xyzloc in table_sizes and status != "Solved":
-                if xyzloc not in rounds[round]["solver_tables"]:
-                    rounds[round]["approx_solvers"] += table_sizes[xyzloc]
-                    rounds[round]["solver_tables"].append(xyzloc)
+                if xyzloc not in rounds[round_name]["solver_tables"]:
+                    rounds[round_name]["approx_solvers"] += table_sizes[xyzloc]
+                    rounds[round_name]["solver_tables"].append(xyzloc)
 
             if puzzle["name"].lower().endswith("meta"):
-                rounds[round]["num_metas"] += 1
+                rounds[round_name]["num_metas"] += 1
                 if status == "Solved":
-                    rounds[round]["num_metas_solved"] += 1
+                    rounds[round_name]["num_metas_solved"] += 1
 
-            rounds[round]["max_id"] = max(rounds[round]["max_id"], int(puzzle["id"]))
+            rounds[round_name]["max_id"] = max(
+                rounds[round_name]["max_id"], int(puzzle["id"])
+            )
         rounds = dict(
             sorted(
                 rounds.items(),

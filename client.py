@@ -141,7 +141,7 @@ async def on_error(*args, **kwargs):
 
 async def gen_announce_new(puzzle_name):
     puzzle, channel = get_puzzle_and_channel(puzzle_name)
-    round_category = await gen_or_create_round_category(puzzle["round"])
+    round_category = await gen_or_create_round_category(puzzle["round_name"])
     await channel.edit(
         category=round_category,
         position=0,
@@ -299,7 +299,7 @@ async def gen_archive_channel(puzzle, channel):
         return
 
     solved_category = await gen_or_create_round_category(
-        round_name=puzzle["round"],
+        round_name=puzzle["round_name"],
         is_solved=True,
     )
     await channel.edit(
@@ -334,7 +334,7 @@ async def gen_stats():
         )
         rounds = {}
         for puzzle in cursor.fetchall():
-            round_name = puzzle["round"]
+            round_name = puzzle["round_name"]
             if round_name not in rounds:
                 rounds[round_name] = []
             rounds[round_name].append(puzzle)

@@ -57,16 +57,16 @@ class SQL:
                 """
                 SELECT
                     name,
-                    round,
+                    roundname AS round_name,
                     puzzle_uri,
                     drive_uri,
-                    slack_channel_id AS channel_id,
+                    chat_channel_id AS channel_id,
                     status,
                     answer,
                     xyzloc,
                     comments
                 FROM puzzle_view
-                WHERE slack_channel_id IN ({})
+                WHERE chat_channel_id IN ({})
                 """.format(
                     ",".join(["%s"] * len(channels))
                 ),
@@ -105,10 +105,10 @@ class SQL:
                 """
                 SELECT
                     name,
-                    round,
+                    roundname AS round_name,
                     puzzle_uri,
                     drive_uri,
-                    slack_channel_id AS channel_id,
+                    chat_channel_id AS channel_id,
                     status,
                     answer,
                     xyzloc,
@@ -146,16 +146,16 @@ class SQL:
                 SELECT
                     id,
                     name,
-                    round,
+                    roundname AS round_name,
                     puzzle_uri,
                     drive_uri,
-                    slack_channel_id AS channel_id,
+                    chat_channel_id AS channel_id,
                     status,
                     answer,
                     xyzloc,
                     comments
                 FROM puzzle_view
-                WHERE round <> "mistakes"
+                WHERE roundname <> "mistakes"
                 """,
             )
             return cursor.fetchall()
@@ -169,13 +169,13 @@ class SQL:
                 SELECT
                     id,
                     name,
-                    round,
-                    slack_channel_id AS channel_id,
+                    roundname AS round_name,
+                    chat_channel_id AS channel_id,
                     status,
                     xyzloc,
                     comments
                 FROM puzzle_view
-                WHERE round <> "mistakes"
+                WHERE roundname <> "mistakes"
                 AND status IN ("Critical", "Needs eyes", "WTF")
                 ORDER BY status, id
                 """,
@@ -191,7 +191,7 @@ class SQL:
                 SELECT
                     name,
                     status,
-                    slack_channel_id AS channel_id
+                    chat_channel_id AS channel_id
                 FROM puzzle_view
                 WHERE xyzloc LIKE %s
                 """,
