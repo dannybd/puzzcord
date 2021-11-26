@@ -12,7 +12,7 @@ from discord_info import is_puzzle_channel
 class REST:
     @staticmethod
     async def post(path, data=None):
-        url = "https://wind-up-birds.org/puzzleboss/bin/pbrest.pl" + path
+        url = config["puzzledb"]["rest_url"] + path
         if data:
             data = json.dumps(data)
         async with aiohttp.ClientSession() as session:
