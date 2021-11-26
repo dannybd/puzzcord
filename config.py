@@ -1,4 +1,4 @@
-import configparser
+import json
 
-config = configparser.ConfigParser()
-config.read("config.ini")
+with open("config.json", "r") as f:
+  config = json.load(f)

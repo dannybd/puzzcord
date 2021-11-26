@@ -11,10 +11,8 @@ import pymysql
 import sys
 
 from common import *
+from config import config
 from datetime import datetime, timedelta
-
-config = configparser.ConfigParser()
-config.read("config.ini")
 
 nest_asyncio.apply()
 
@@ -36,7 +34,7 @@ async def on_ready():
         coro = asyncio.start_server(
             gen_handle_server_request,
             host=config["asyncio_server"]["host"],
-            port=config["asyncio_server"].getint("port"),
+            port=config["asyncio_server"]["port"],
             loop=loop,
         )
         server = loop.run_until_complete(coro)
