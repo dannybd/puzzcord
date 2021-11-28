@@ -63,7 +63,7 @@ class Puzzboss(commands.Cog):
             regex = re.compile(r"^$")
         query = query.lower()
 
-        def solver_matches(name, fullname):
+        def solver_matches(name, fullname, discord_name):
             if query in name.lower():
                 return True
             if regex.search(name):
@@ -71,6 +71,12 @@ class Puzzboss(commands.Cog):
             if query in fullname.lower():
                 return True
             if regex.search(fullname):
+                return True
+            if not discord_name:
+                return False
+            if query in discord_name.lower():
+                return True
+            if regex.search(discord_name):
                 return True
             return False
 
@@ -80,30 +86,19 @@ class Puzzboss(commands.Cog):
                 """
                 SELECT
                     name,
-                    fullname
-                FROM solver
+                    fullname,
+                    chat_name AS discord_name
+                FROM solver_view
                 ORDER BY name
                 """,
             )
             solvers = cursor.fetchall()
-            cursor.execute(
-                """
-                SELECT
-                    solver_name as solver,
-                    discord_name as discord
-                FROM discord_users
-                ORDER BY id
-                """,
-            )
-            discord_users = {row["solver"]: row["discord"] for row in cursor.fetchall()}
         results = []
         for solver in solvers:
             if solver_matches(**solver):
                 solver_tag = "`{name} ({fullname})`".format(**solver)
-                if solver["name"] in discord_users:
-                    solver_tag += " [Discord user `{}`]".format(
-                        discord_users[solver["name"]]
-                    )
+                if solver["discord_name"]:
+                    solver_tag += " [Discord user `{}`]".format(solver["discord_name"])
                 results.append(solver_tag)
 
         if not results:
@@ -135,31 +130,17 @@ class Puzzboss(commands.Cog):
             cursor.execute(
                 """
                 SELECT
-                    solver_name
-                FROM discord_users
-                WHERE discord_id = %s
-                ORDER BY update_time DESC
+                    name,
+                    fullname
+                FROM solver_view
+                WHERE chat_uid = %s
+                ORDER BY id DESC
                 LIMIT 1
                 """,
                 (member.id,),
             )
-            discord_user = cursor.fetchone()
-            not_found = f"{member_tag} does not seem to be verified yet!"
-            if not discord_user:
-                return not_found
-            name = discord_user["solver_name"]
-            cursor.execute(
-                """
-                SELECT
-                    name,
-                    fullname
-                FROM solver
-                WHERE name = %s
-                LIMIT 1
-                """,
-                (name,),
-            )
             solver = cursor.fetchone()
+            not_found = f"{member_tag} does not seem to be verified yet!"
             if not solver:
                 return not_found
             return ("{0} is Puzzleboss user `{1} ({2})`").format(
@@ -334,11 +315,11 @@ class Puzzboss(commands.Cog):
             cursor.execute(
                 """
                 SELECT
-                    DISTINCT discord_id
-                FROM discord_users
+                    DISTINCT chat_uid
+                FROM solver_view
                 """,
             )
-            verified_discord_ids = [int(row["discord_id"]) for row in cursor.fetchall()]
+            verified_discord_ids = [int(row["chat_uid"]) for row in cursor.fetchall()]
         visitor_role = ctx.guild.get_role(VISITOR_ROLE)
         members = [
             "{0.name}#{0.discriminator} ({0.display_name})".format(member)
@@ -421,15 +402,18 @@ class Puzzboss(commands.Cog):
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT id, name, fullname
-                FROM solver
+                SELECT
+                    id,
+                    name,
+                    fullname
+                FROM solver_view
                 WHERE name LIKE %s
                 LIMIT 1
                 """,
                 (username,),
             )
-            solvers = cursor.fetchall()
-            if not solvers:
+            solver = cursor.fetchone()
+            if not solver:
                 await ctx.send(
                     (
                         "Error: Couldn't find a {0}@wind-up-birds.org, "
@@ -437,22 +421,20 @@ class Puzzboss(commands.Cog):
                     ).format(username)
                 )
                 return
-            solver = solvers[0]
             logging.info(
                 "{0.command}: Found solver {1}".format(ctx, solver["fullname"])
             )
+            print(solver["id"])
             cursor.execute(
                 """
-                INSERT INTO discord_users
-                    (solver_id, solver_name, discord_id, discord_name)
-                VALUES
-                    (%s, %s, %s, %s)
+                UPDATE solver_view
+                SET chat_uid = %s, chat_name = %s
+                WHERE id = %s
                 """,
                 (
-                    solver["id"],
-                    solver["name"],
                     str(member.id),
                     "{0.name}#{0.discriminator}".format(member),
+                    solver["id"],
                 ),
             )
             logging.info("{0.command}: Committing row".format(ctx))
@@ -484,6 +466,7 @@ class Puzzboss(commands.Cog):
             + "In the meantime it should be safe to just add this person "
             + "to the server by giving them the Team Member role."
         )
+        raise error
 
     @has_any_role("Puzztech")
     @guild_only()

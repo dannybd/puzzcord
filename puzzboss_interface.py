@@ -130,7 +130,7 @@ class SQL:
                 """
                 SELECT
                     name
-                FROM round
+                FROM round_view
                 WHERE round_uri LIKE '%%#solved'
                 AND name <> "mistakes"
                 """,
@@ -200,16 +200,19 @@ class SQL:
             return cursor.fetchall()
 
     @staticmethod
-    def get_solver_name_for_member(member, bot=None):
+    def get_solver_from_member(member, bot=None):
         connection = SQL._get_db_connection(bot=bot)
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT solver_name
-                FROM discord_users
-                WHERE discord_id = %s
+                SELECT
+                    id,
+                    name
+                FROM solver_view
+                WHERE chat_uid = %s
+                LIMIT 1
                 """,
                 (str(member.id),),
             )
             row = cursor.fetchone()
-        return row["solver_name"] if row else None
+        return row if row else None

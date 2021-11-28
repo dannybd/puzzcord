@@ -279,14 +279,16 @@ class PuzzleStatus(commands.Cog):
         puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
         if not puzzle:
             return
-        name = puzzboss_interface.SQL.get_solver_name_for_member(member, bot=self.bot)
-        if not name:
+        solver = puzzboss_interface.SQL.get_solver_from_member(member, bot=self.bot)
+        if not solver:
             return
         await puzzboss_interface.REST.post(
-            "/solvers/{0}/puzz".format(name),
+            "/solvers/{0}/puzz".format(solver["id"]),
             {"data": puzzle["name"]},
         )
-        logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
+        logging.info(
+            "Marked {} as working on {}".format(solver["name"], puzzle["name"])
+        )
 
     @guild_only()
     @commands.command()
@@ -298,17 +300,15 @@ class PuzzleStatus(commands.Cog):
         puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
             ctx.channel, bot=self.bot
         )
-        name = puzzboss_interface.SQL.get_solver_name_for_member(
-            ctx.author, bot=self.bot
-        )
-        if not name:
+        solver = puzzboss_interface.SQL.get_solver_from_member(ctx.author, bot=self.bot)
+        if not solver:
             await ctx.send(
                 "Sorry, we can't find your wind-up-birds.org account. Please talk to "
                 + "a @Role Verifier, then try again."
             )
             return
         response = await puzzboss_interface.REST.post(
-            "/solvers/{0}/puzz".format(name),
+            "/solvers/{0}/puzz".format(solver["id"]),
             {"data": puzzle["name"]},
         )
         if response.status != 200:
@@ -317,7 +317,9 @@ class PuzzleStatus(commands.Cog):
                 + "Please use the Puzzleboss website to select your puzzle."
             )
             return
-        logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
+        logging.info(
+            "Marked {} as working on {}".format(solver["name"], puzzle["name"])
+        )
         message = await ctx.send(
             (
                 "Thank you, {0.mention}, for marking yourself as working on this puzzle.\n"
@@ -330,17 +332,15 @@ class PuzzleStatus(commands.Cog):
     @commands.command(aliases=["afk", "bed", "break"])
     async def away(self, ctx):
         """Lets folks know you're taking a break and not working on anything."""
-        name = puzzboss_interface.SQL.get_solver_name_for_member(
-            ctx.author, bot=self.bot
-        )
-        if not name:
+        solver = puzzboss_interface.SQL.get_solver_from_member(ctx.author, bot=self.bot)
+        if not solver:
             await ctx.send(
                 "Sorry, we can't find your wind-up-birds.org account. Please talk to "
                 + "a @Role Verifier, then try again."
             )
             return
         response = await puzzboss_interface.REST.post(
-            "/solvers/{0}/puzz".format(name),
+            "/solvers/{0}/puzz".format(solver["id"]),
             {"data": ""},
         )
         if response.status != 200:
@@ -349,7 +349,7 @@ class PuzzleStatus(commands.Cog):
                 + "Please use the Puzzleboss website to take a break."
             )
             return
-        logging.info("Marked {} as taking a break".format(name))
+        logging.info("Marked {} as taking a break".format(solver["name"]))
         await ctx.message.add_reaction("🛌")
         await ctx.message.add_reaction("💤")
 
@@ -386,21 +386,23 @@ class PuzzleStatus(commands.Cog):
         )
         if discord_info.is_puzzboss(ctx.author):
             return
-        name = puzzboss_interface.SQL.get_solver_name_for_member(
-            ctx.author, bot=self.bot
-        )
-        if not name:
+        solver = puzzboss_interface.SQL.get_solver_from_member(ctx.author, bot=self.bot)
+        if not solver:
             return
         response = await puzzboss_interface.REST.post(
-            "/solvers/{0}/puzz".format(name),
+            "/solvers/{0}/puzz".format(solver["id"]),
             {"data": puzzle["name"]},
         )
         if response.status != 200:
             logging.error(
-                "Failed to mark {} as working on {}".format(name, puzzle["name"])
+                "Failed to mark {} as working on {}".format(
+                    solver["name"], puzzle["name"]
+                )
             )
             return
-        logging.info("Marked {} as working on {}".format(name, puzzle["name"]))
+        logging.info(
+            "Marked {} as working on {}".format(solver["name"], puzzle["name"])
+        )
 
     @guild_only()
     @commands.command()

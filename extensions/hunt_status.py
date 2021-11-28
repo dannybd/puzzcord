@@ -20,16 +20,16 @@ class HuntStatus(commands.Cog):
             cursor.execute(
                 """
                 SELECT
-                    solver_name as name
-                FROM discord_users
-                WHERE discord_id = %s
+                    puzzles
+                FROM solver_view
+                WHERE chat_uid = %s
                 ORDER BY id DESC
                 LIMIT 1
                 """,
                 (str(author.id),),
             )
-            solvers = cursor.fetchall()
-            if not solvers:
+            solver = cursor.fetchone()
+            if not solver:
                 await ctx.send(
                     (
                         "Sorry, {0.mention}, I couldn't find your wind-up-birds "
@@ -37,26 +37,7 @@ class HuntStatus(commands.Cog):
                     ).format(author)
                 )
                 return
-            solver_name = solvers[0]["name"]
-            cursor.execute(
-                """
-                SELECT
-                    *
-                FROM solver_view
-                WHERE name = %s
-                """,
-                (solver_name,),
-            )
-            solvers = cursor.fetchall()
-            if not solvers or not solvers[0] or not solvers[0]["puzzles"]:
-                await ctx.send(
-                    (
-                        "Sorry, {0.mention}, I couldn't find your wind-up-birds "
-                        + "account! Did you register? *Did you even hunt with us?*"
-                    ).format(author)
-                )
-                return
-            puzzles = solvers[0]["puzzles"].split(",")
+            puzzles = (solver["puzzles"] or "").split(",")
             if not puzzles:
                 await ctx.send(
                     (
@@ -71,10 +52,10 @@ class HuntStatus(commands.Cog):
                 """
                 SELECT
                     name,
-                    round,
+                    roundname AS round_name,
                     puzzle_uri
                 FROM puzzle_view
-                WHERE name IN ({})
+                WHERE id IN ({})
                 ORDER BY id
                 """.format(
                     ",".join(["%s"] * len(puzzles))
@@ -100,12 +81,12 @@ class HuntStatus(commands.Cog):
         description = "Here are **{}** you worked on:\n\n".format(
             plural(len(puzzles), "puzzle")
         )
-        for round, puzzles in rounds.items():
+        for round_name, puzzles in rounds.items():
             if len(description) >= 1000:
                 description += "\n(continued...)"
                 descriptions.append(description)
                 description = ""
-            description += "**{}:** {}\n".format(round.title(), ", ".join(puzzles))
+            description += "**{}:** {}\n".format(round_name.title(), ", ".join(puzzles))
         description += (
             "\nThanks for a great Hunt; it's been a lot of fun "
             + "making this happen. Now go write some feedback! 💌"
@@ -116,6 +97,7 @@ class HuntStatus(commands.Cog):
             title="🧩 Your ~~Spotify~~ Mystery Hunt Wrapped 🎁",
             description=descriptions[0],
         )
+        # TODO: Update to 2022
         embed.set_thumbnail(url="https://i.imgur.com/STfQk4R.jpeg")
         embed.set_footer(
             text="based on approximate data, assembled hastily with love by danny"
