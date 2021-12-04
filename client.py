@@ -326,7 +326,7 @@ async def gen_stats():
             SELECT
                 id,
                 name,
-                round,
+                roundname AS round_name,
                 status
             FROM puzzle_view
             ORDER BY id
@@ -395,7 +395,7 @@ async def gen_cleanup(justification):
         cursor.execute(
             """
             SELECT
-               slack_channel_id AS channel_id
+               chat_channel_id AS channel_id
             FROM puzzle_view
             """,
         )
@@ -469,9 +469,9 @@ def _get_puzzle_from_db(puzzle_name):
             """
             SELECT
                 name,
-                round,
+                roundname AS round_name,
                 puzzle_uri,
-                slack_channel_id AS channel_id,
+                chat_channel_id AS channel_id,
                 status,
                 answer,
                 xyzloc,
