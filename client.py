@@ -491,7 +491,7 @@ def get_db_connection():
     creds = config["puzzledb"]
     return pymysql.connect(
         host=creds["host"],
-        port=creds.getint("port"),
+        port=creds["port"],
         user=creds["user"].lower(),
         password=creds["passwd"],
         db=creds["db"],
