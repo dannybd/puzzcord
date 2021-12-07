@@ -56,6 +56,7 @@ class SQL:
             cursor.execute(
                 """
                 SELECT
+                    id,
                     name,
                     roundname AS round_name,
                     puzzle_uri,
@@ -104,6 +105,7 @@ class SQL:
             cursor.execute(
                 """
                 SELECT
+                    id,
                     name,
                     roundname AS round_name,
                     puzzle_uri,
@@ -129,6 +131,7 @@ class SQL:
             cursor.execute(
                 """
                 SELECT
+                    id,
                     name
                 FROM round_view
                 WHERE round_uri LIKE '%%#solved'
@@ -189,6 +192,7 @@ class SQL:
             cursor.execute(
                 """
                 SELECT
+                    id,
                     name,
                     status,
                     chat_channel_id AS channel_id

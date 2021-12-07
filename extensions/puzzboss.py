@@ -264,7 +264,7 @@ class Puzzboss(commands.Cog):
             await ctx.message.delete()
             return
         response = await puzzboss_interface.REST.post(
-            "/puzzles/{name}/answer".format(**puzzle), {"data": answer.upper()}
+            "/puzzles/{id}/answer".format(**puzzle), {"answer": answer.upper()}
         )
         if apply_to_self:
             await ctx.message.delete()
@@ -498,7 +498,7 @@ class Puzzboss(commands.Cog):
             "Relinking sheet `{}` to `{name}`...".format(sheet_hash, **puzzle)
         )
         response = await puzzboss_interface.REST.post(
-            "/puzzles/{name}/drive_id".format(**puzzle),
+            "/puzzles/{id}/drive_id".format(**puzzle),
             {"data": sheet_hash},
         )
         if response.status != 200:
@@ -506,7 +506,7 @@ class Puzzboss(commands.Cog):
             return
 
         response = await puzzboss_interface.REST.post(
-            "/puzzles/{name}/drive_uri".format(**puzzle),
+            "/puzzles/{id}/drive_uri".format(**puzzle),
             {
                 "data": f"https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk"
             },
@@ -516,7 +516,7 @@ class Puzzboss(commands.Cog):
             return
 
         response = await puzzboss_interface.REST.post(
-            "/puzzles/{name}/drive_link".format(**puzzle),
+            "/puzzles/{id}/drive_link".format(**puzzle),
             {
                 "data": f'<a href="https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk">DOC</a>'
             },
