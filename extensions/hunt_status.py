@@ -55,7 +55,7 @@ class HuntStatus(commands.Cog):
                     roundname AS round_name,
                     puzzle_uri
                 FROM puzzle_view
-                WHERE id IN ({})
+                WHERE name IN ({})
                 ORDER BY id
                 """.format(
                     ",".join(["%s"] * len(puzzles))

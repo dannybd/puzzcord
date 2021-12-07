@@ -13,10 +13,8 @@ class REST:
     @staticmethod
     async def post(path, data=None):
         url = config["puzzledb"]["rest_url"] + path
-        if data:
-            data = json.dumps(data)
         async with aiohttp.ClientSession() as session:
-            async with session.post(url, data=data) as response:
+            async with session.post(url, json=data) as response:
                 logging.info(
                     "POST to {} ; Data = {} ; Response status = {}".format(
                         path, data, response.status
@@ -56,6 +54,7 @@ class SQL:
             cursor.execute(
                 """
                 SELECT
+                    id,
                     name,
                     roundname AS round_name,
                     puzzle_uri,
@@ -104,6 +103,7 @@ class SQL:
             cursor.execute(
                 """
                 SELECT
+                    id,
                     name,
                     roundname AS round_name,
                     puzzle_uri,
@@ -129,6 +129,7 @@ class SQL:
             cursor.execute(
                 """
                 SELECT
+                    id,
                     name
                 FROM round_view
                 WHERE round_uri LIKE '%%#solved'
@@ -189,6 +190,7 @@ class SQL:
             cursor.execute(
                 """
                 SELECT
+                    id,
                     name,
                     status,
                     chat_channel_id AS channel_id

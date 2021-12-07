@@ -173,7 +173,7 @@ class PuzzleStatus(commands.Cog):
             )
             return
         response = await puzzboss_interface.REST.post(
-            "/puzzles/{name}/comments".format(**puzzle), {"data": comments or ""}
+            "/puzzles/{id}/comments".format(**puzzle), {"comments": comments or ""}
         )
         if len(comments) > 200:
             await ctx.message.add_reaction("📕")
@@ -223,7 +223,7 @@ class PuzzleStatus(commands.Cog):
             )
             return
         response = await puzzboss_interface.REST.post(
-            "/puzzles/{name}/status".format(**puzzle), {"data": status}
+            "/puzzles/{id}/status".format(**puzzle), {"status": status}
         )
 
     @commands.command(hidden=True)
@@ -284,7 +284,7 @@ class PuzzleStatus(commands.Cog):
             return
         await puzzboss_interface.REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
-            {"data": puzzle["name"]},
+            {"puzz": puzzle["id"]},
         )
         logging.info(
             "Marked {} as working on {}".format(solver["name"], puzzle["name"])
@@ -309,7 +309,7 @@ class PuzzleStatus(commands.Cog):
             return
         response = await puzzboss_interface.REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
-            {"data": puzzle["name"]},
+            {"puzz": puzzle["id"]},
         )
         if response.status != 200:
             await ctx.send(
@@ -341,7 +341,7 @@ class PuzzleStatus(commands.Cog):
             return
         response = await puzzboss_interface.REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
-            {"data": ""},
+            {"puzz": ""},
         )
         if response.status != 200:
             await ctx.send(
@@ -381,8 +381,8 @@ class PuzzleStatus(commands.Cog):
             )
             return
         await puzzboss_interface.REST.post(
-            "/puzzles/{name}/xyzloc".format(**puzzle),
-            {"data": table.name},
+            "/puzzles/{id}/xyzloc".format(**puzzle),
+            {"xyzloc": table.name},
         )
         if discord_info.is_puzzboss(ctx.author):
             return
@@ -391,7 +391,7 @@ class PuzzleStatus(commands.Cog):
             return
         response = await puzzboss_interface.REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
-            {"data": puzzle["name"]},
+            {"puzz": puzzle["id"]},
         )
         if response.status != 200:
             logging.error(
@@ -423,8 +423,8 @@ class PuzzleStatus(commands.Cog):
             )
             return
         await puzzboss_interface.REST.post(
-            "/puzzles/{name}/xyzloc".format(**puzzle),
-            {"data": ""},
+            "/puzzles/{id}/xyzloc".format(**puzzle),
+            {"xyzloc": ""},
         )
         await ctx.message.add_reaction("👋")
         await ctx.message.add_reaction("🔚")
@@ -471,8 +471,8 @@ class PuzzleStatus(commands.Cog):
                 name = puzzle["name"]
                 logging.info("Removing {0} from {1.name}".format(name, table))
                 await puzzboss_interface.REST.post(
-                    "/puzzles/{0}/xyzloc".format(name),
-                    {"data": ""},
+                    "/puzzles/{0}/xyzloc".format(puzzle["id"]),
+                    {"xyzloc": ""},
                 )
                 if puzzle["status"] == "Solved":
                     continue
