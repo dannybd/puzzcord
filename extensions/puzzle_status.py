@@ -284,7 +284,7 @@ class PuzzleStatus(commands.Cog):
             return
         await puzzboss_interface.REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
-            {"puzz": puzzle["name"]},
+            {"puzz": puzzle["id"]},
         )
         logging.info(
             "Marked {} as working on {}".format(solver["name"], puzzle["name"])
@@ -309,7 +309,7 @@ class PuzzleStatus(commands.Cog):
             return
         response = await puzzboss_interface.REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
-            {"puzz": puzzle["name"]},
+            {"puzz": puzzle["id"]},
         )
         if response.status != 200:
             await ctx.send(
@@ -391,7 +391,7 @@ class PuzzleStatus(commands.Cog):
             return
         response = await puzzboss_interface.REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
-            {"puzz": puzzle["name"]},
+            {"puzz": puzzle["id"]},
         )
         if response.status != 200:
             logging.error(
