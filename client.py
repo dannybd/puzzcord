@@ -65,7 +65,7 @@ async def gen_handle_server_request(reader, writer):
         if message:
             logging.info("Recv: %r" % message)
             command, *args = message.split()
-            response = await gen_run(command, args)
+            response = await gen_run(command, args) + "\n"
     except Exception as e:
         logging.error(e, exc_info=e)
     finally:
@@ -156,6 +156,7 @@ async def gen_announce_new(puzzle_name):
         + "that you're working on this puzzle."
     )
     await here.add_reaction("🧩")
+    return "Puzzle created"
 
 
 async def gen_announce_solve(puzzle_name):
@@ -171,6 +172,7 @@ async def gen_announce_solve(puzzle_name):
         + "Way to go team! 🎉"
     ).format(**puzzle)
     await status_channel.send(content=content)
+    return "Solve announced"
 
 
 async def gen_announce_attention(puzzle_name):
@@ -229,9 +231,9 @@ async def gen_announce_attention(puzzle_name):
                 + "(Channel last auto-updated at {1.created_at})"
             ).format(channel, recent_channel_update_by_bot)
         )
-        return
+        return "Warning: too recent update"
     await channel.edit(name=channel_name_prefix + puzzle["name"])
-
+    return "Puzzle change announced"
 
 async def gen_announce_round(round_name):
     await gen_or_create_round_category(round_name)
@@ -241,6 +243,7 @@ async def gen_announce_round(round_name):
         title="Round: _`{0}`_".format(round_name),
     )
     await status_channel.send(content=content, embed=embed)
+    return "Round announced"
 
 
 async def gen_or_create_round_category(round_name, is_solved=False):
