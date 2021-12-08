@@ -190,7 +190,7 @@ class Puzzboss(commands.Cog):
     async def newround(self, ctx, *, round_name: str):
         """[puzzboss only] Creates a new round"""
         logging.info("{0.command}: Creating a new round: {1}".format(ctx, round_name))
-        response = await puzzboss_interface.REST.post("/rounds/" + round_name)
+        response = await puzzboss_interface.REST.post("/rounds/", {"name" : "{0}".format(round_name)})
         status = response.status
         if status == 200:
             await ctx.send("Round created!")
@@ -317,6 +317,7 @@ class Puzzboss(commands.Cog):
                 SELECT
                     DISTINCT chat_uid
                 FROM solver_view
+                WHERE chat_uid IS NOT NULL
                 """,
             )
             verified_discord_ids = [int(row["chat_uid"]) for row in cursor.fetchall()]
