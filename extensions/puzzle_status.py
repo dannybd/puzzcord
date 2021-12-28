@@ -430,7 +430,7 @@ class PuzzleStatus(commands.Cog):
         await ctx.message.add_reaction("🔚")
 
     @commands.Cog.listener("on_voice_state_update")
-    async def handle_workingon(self, member, before, after):
+    async def handle_vc_emptying(self, member, before, after):
         # Only run if they were previously in a channel,
         if not before.channel:
             return
