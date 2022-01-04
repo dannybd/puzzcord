@@ -295,12 +295,12 @@ class SolvingTools(commands.Cog):
 
     @commands.command(name="braille", hidden=True)
     async def braille_alias(self, ctx):
-        """ Print the braille alphabet """
+        """Print the braille alphabet"""
         return await self.braille(ctx)
 
     @tools.command(name="braille")
     async def braille(self, ctx):
-        """ Print the braille alphabet """
+        """Print the braille alphabet"""
         braille_chars = "'⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵"
         alpha_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         await ctx.send(

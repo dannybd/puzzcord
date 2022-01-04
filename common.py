@@ -8,7 +8,9 @@ def build_puzzle_embed(puzzle):
     description = ""
 
     if "xyzloc" in puzzle and puzzle["xyzloc"]:
-        description += "Being worked in: **{xyzloc}**\n".format(**puzzle)
+        description += "Being worked in: **{}**\n".format(
+            xyzloc_mention(puzzle["xyzloc"])
+        )
 
     if "comments" in puzzle and puzzle["comments"]:
         description += "**Comments:** {comments}\n".format(**puzzle)
@@ -86,3 +88,8 @@ def get_round_embed_color(round):
     hash = md5(round.encode("utf-8")).hexdigest()
     hue = int(hash, 16) / 16 ** len(hash)
     return discord.Color.from_hsv(hue, 0.655, 1)
+
+
+def xyzloc_mention(guild, xyzloc):
+    channel = discord.utils.get(guild.voice_channels, name=xyzloc)
+    return channel.mention if channel else xyzloc

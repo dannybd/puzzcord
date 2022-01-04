@@ -235,6 +235,7 @@ async def gen_announce_attention(puzzle_name):
     await channel.edit(name=channel_name_prefix + puzzle["name"])
     return "Puzzle change announced"
 
+
 async def gen_announce_round(round_name):
     await gen_or_create_round_category(round_name)
     content = "🆕🔄 **New Round added! _`{0}`_**".format(round_name)

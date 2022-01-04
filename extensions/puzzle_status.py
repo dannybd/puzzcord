@@ -9,7 +9,7 @@ import puzzboss_interface
 import discord_info
 import logging
 import typing
-from common import build_puzzle_embed
+from common import build_puzzle_embed, xyzloc_mention
 from pytz import timezone
 
 
@@ -118,7 +118,11 @@ class PuzzleStatus(commands.Cog):
                 prefix = "`{:2d}`👩‍💻 in".format(table_sizes[xyzloc])
             else:
                 prefix = "In"
-            content += "{0} **{1}**: {2}\n".format(prefix, xyzloc, ", ".join(mentions))
+            content += "{0} **{1}**: {2}\n".format(
+                prefix,
+                xyzloc_mention(xyzloc),
+                ", ".join(mentions),
+            )
 
         return content
 
@@ -148,7 +152,9 @@ class PuzzleStatus(commands.Cog):
             return await self.tables(ctx)
         logging.info("{0.command}: Puzzle found!".format(ctx))
         if puzzle["xyzloc"]:
-            line = "**`{name}`** can be found in **{xyzloc}**".format(**puzzle)
+            line = "**`{0}`** can be found in **{1}**".format(
+                puzzle["name"], xyzloc_mention(puzzle["xyzloc"])
+            )
         else:
             line = "**`{name}`** does not have a location set!".format(**puzzle)
         await ctx.send(line)
