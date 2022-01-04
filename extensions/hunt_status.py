@@ -268,7 +268,9 @@ class HuntStatus(commands.Cog):
             response += prefixes[status]
             response += " {status}: `{name}` (<#{channel_id}>)".format(**puzzle)
             if puzzle["xyzloc"]:
-                response += " in **{}**".format(xyzloc_mention(puzzle["xyzloc"]))
+                response += " in **{}**".format(
+                    xyzloc_mention(ctx.guild, puzzle["xyzloc"])
+                )
             if puzzle["comments"]:
                 comments = puzzle["comments"].replace("`", "'")[:200]
                 comments = discord.utils.escape_markdown(comments)

@@ -49,7 +49,7 @@ class PuzzleStatus(commands.Cog):
             ctx, channel_or_query, bot=self.bot
         )
         if puzzle:
-            embed = build_puzzle_embed(puzzle)
+            embed = build_puzzle_embed(puzzle, ctx.guild)
             await ctx.send(embed=embed)
             return
         if channel_or_query:
@@ -120,7 +120,7 @@ class PuzzleStatus(commands.Cog):
                 prefix = "In"
             content += "{0} **{1}**: {2}\n".format(
                 prefix,
-                xyzloc_mention(xyzloc),
+                xyzloc_mention(guild, xyzloc),
                 ", ".join(mentions),
             )
 
@@ -153,7 +153,7 @@ class PuzzleStatus(commands.Cog):
         logging.info("{0.command}: Puzzle found!".format(ctx))
         if puzzle["xyzloc"]:
             line = "**`{0}`** can be found in **{1}**".format(
-                puzzle["name"], xyzloc_mention(puzzle["xyzloc"])
+                puzzle["name"], xyzloc_mention(ctx.guild, puzzle["xyzloc"])
             )
         else:
             line = "**`{name}`** does not have a location set!".format(**puzzle)
@@ -360,7 +360,7 @@ class PuzzleStatus(commands.Cog):
         await ctx.message.add_reaction("💤")
 
     @guild_only()
-    @commands.command(aliases=["join"])
+    @commands.command(aliases=["join", "joinme"])
     async def joinus(self, ctx):
         """Invite folks to work on the puzzle on your voice channel.
         If you have joined one of the table voice channels, you can use

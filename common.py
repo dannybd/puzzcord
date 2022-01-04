@@ -3,13 +3,13 @@ import discord
 from hashlib import md5
 
 
-def build_puzzle_embed(puzzle):
+def build_puzzle_embed(puzzle, guild):
 
     description = ""
 
     if "xyzloc" in puzzle and puzzle["xyzloc"]:
         description += "Being worked in: **{}**\n".format(
-            xyzloc_mention(puzzle["xyzloc"])
+            xyzloc_mention(guild, puzzle["xyzloc"])
         )
 
     if "comments" in puzzle and puzzle["comments"]:

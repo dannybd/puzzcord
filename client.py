@@ -147,7 +147,7 @@ async def gen_announce_new(puzzle_name):
         position=0,
     )
     content = "**🚨 New Puzzle 🚨 _`{name}`_ ADDED!**".format(**puzzle)
-    embed = build_puzzle_embed(puzzle)
+    embed = build_puzzle_embed(puzzle, channel.guild)
     message = await channel.send(content=content, embed=embed)
     await message.pin()
     await status_channel.send(content=content, embed=embed)
@@ -187,12 +187,12 @@ async def gen_announce_attention(puzzle_name):
     if status == "Needs eyes":
         channel_name_prefix = "🔴 "
         content = "**❗️ Puzzle _`{name}`_ NEEDS EYES! 👀**".format(**puzzle)
-        embed = build_puzzle_embed(puzzle)
+        embed = build_puzzle_embed(puzzle, channel.guild)
 
     if status == "Critical":
         channel_name_prefix = "🔥 "
         content = "**🚨 Puzzle _`{name}`_ IS CRITICAL! ⚠️**".format(**puzzle)
-        embed = build_puzzle_embed(puzzle)
+        embed = build_puzzle_embed(puzzle, channel.guild)
 
     if status == "Unnecessary":
         channel_name_prefix = "⚪️ "
