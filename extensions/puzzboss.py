@@ -51,9 +51,8 @@ Learn more here: https://wind-up-birds.org/wiki/index.php/Hunting_in_Discord:_A_
 Thanks, and happy hunting! 🕵️‍♀️🧩
         """
         )
-        await ctx.message.add_reaction("👋")
         await ctx.send(
-            "Welcome aboard, {}! Check your DMs for instructions on how to set up your account to hunt wiht us 🙂".format(
+            "Welcome aboard, {}! Check your DMs for instructions on how to set up your account to hunt with us 🙂".format(
                 member.mention
             )
         )
