@@ -37,7 +37,7 @@ class Puzzboss(commands.Cog):
             """
 Welcome to **Setec Astronomy Total Landscaping! 🏡** Here's how to get started.
 
-1. Make an account (https://wind-up-birds.org/account), accessing that page with username `fastasyisland` and password `bookstore`. (This account lets our team coordinate who is solving what, generate common spreadsheets, and more.)
+1. Make a Puzzleboss account (https://wind-up-birds.org/account), accessing that page with username `fastasyisland` and password `bookstore`. (This account lets our team coordinate who is solving what, generate common spreadsheets, and more.)
 2. Ping @Role Verifier on the Discord server with your wind-up-birds.org username, so we can link the two 🔗
 
 **How the Discord server works:**
@@ -50,6 +50,11 @@ Learn more here: https://wind-up-birds.org/wiki/index.php/Hunting_in_Discord:_A_
 
 Thanks, and happy hunting! 🕵️‍♀️🧩
         """
+        )
+        await ctx.message.reply(
+            "Welcome aboard, {}! Check your DMs for instructions on how to set up your account to hunt wiht us 🙂".format(
+                member.mention
+            )
         )
 
     # @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")

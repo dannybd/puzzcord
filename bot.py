@@ -76,7 +76,14 @@ async def members_only(ctx):
     if ctx.channel.id != WELCOME_LOBBY:
         return True
 
-    if ctx.invoked_with in ["huntyet", "isithuntyet", "hooray"]:
+    ALLOWED_LOBBY_COMMANDS = [
+        "huntyet",
+        "isithuntyet",
+        "hooray",
+        "onboard",
+        "admin onboard",
+    ]
+    if ctx.invoked_with in ALLOWED_LOBBY_COMMANDS:
         return True
 
     msg = "No spoilers! Can't run this in {0.mention}".format(ctx.channel)
