@@ -21,6 +21,37 @@ class Puzzboss(commands.Cog):
             return
         await ctx.send("Sneaky things happen here 👀")
 
+    @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
+    @guild_only()
+    @commands.command(name="onboard", hidden=True)
+    async def onboard_alias(self, ctx, member: discord.Member):
+        """Sends a onboarding message to a new member"""
+        return await self.onboard(ctx, member=member)
+
+    @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
+    @guild_only()
+    @admin.command(name="onboard")
+    async def onboard(self, ctx, member: discord.Member):
+        """Sends a onboarding message to a new member"""
+        await member.send(
+            """
+Welcome to **Setec Astronomy Total Landscaping! 🏡** Here's how to get started.
+
+1. Make an account (https://wind-up-birds.org/account), accessing that page with username `fastasyisland` and password `bookstore`. (This account lets our team coordinate who is solving what, generate common spreadsheets, and more.)
+2. Ping @Role Verifier on the Discord server with your wind-up-birds.org username, so we can link the two 🔗
+
+**How the Discord server works:**
+* We make text channels for each puzzle 🧩
+* We have voice channel "tables" where people can work together 🗣
+* We've got a trusty bot, puzzbot (that's me!), which helps us connect puzzle channels to the table VCs where people are solving 🤖
+* puzzbot's got a lot of commands, but you don't have to learn any more than maybe 3 of them to participate 🙂
+
+Learn more here: https://wind-up-birds.org/wiki/index.php/Hunting_in_Discord:_A_Guide
+
+Thanks, and happy hunting! 🕵️‍♀️🧩
+        """
+        )
+
     # @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(name="whois", aliases=["finduser"], hidden=True)
