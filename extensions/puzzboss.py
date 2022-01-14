@@ -21,7 +21,7 @@ class Puzzboss(commands.Cog):
             return
         await ctx.send("Sneaky things happen here 👀")
 
-    @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
+    # @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(name="whois", aliases=["finduser"], hidden=True)
     async def whois_alias(
