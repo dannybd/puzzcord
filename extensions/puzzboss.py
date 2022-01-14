@@ -51,7 +51,8 @@ Learn more here: https://wind-up-birds.org/wiki/index.php/Hunting_in_Discord:_A_
 Thanks, and happy hunting! 🕵️‍♀️🧩
         """
         )
-        await ctx.message.reply(
+        await ctx.message.add_reaction("👋")
+        await ctx.send(
             "Welcome aboard, {}! Check your DMs for instructions on how to set up your account to hunt wiht us 🙂".format(
                 member.mention
             )
@@ -139,7 +140,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
 
         if not results:
             if query in ["john galt", "johngalt"]:
-                await ctx.message.reply(
+                await ctx.send(
                     """
 ```
 PART I
@@ -170,7 +171,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 len(results), "\n".join(results)
             )
         try:
-            await ctx.message.reply(response)
+            await ctx.send(response)
         except:
             response = f"{discord_result}\n\nChecking Puzzleboss accounts... Error! 😔\n"
             response += (
