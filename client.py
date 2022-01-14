@@ -293,7 +293,8 @@ async def gen_message_channel(channel_id, content):
     channel = get_channelx(channel_id)
     if " is being worked on at " in content:
         first, table = content.split(" is being worked on at ")
-        if not table:
+        table = table.strip()
+        if not table or table == "":
             return
         content = "{} is being worked on at {}".format(
             first, xyzloc_mention(channel.guild, table)
