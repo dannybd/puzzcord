@@ -83,7 +83,7 @@ class PuzzleStatus(commands.Cog):
         tables = [
             table
             for table in guild.voice_channels
-            if table.category and table.category.name.startswith("🧊")
+            if table.category and table.category.name.startswith("🪴")
         ]
         table_sizes = {table.name: len(table.members) for table in tables}
         xyzlocs = {table.name: [] for table in tables}
@@ -449,7 +449,7 @@ class PuzzleStatus(commands.Cog):
         # Ensure it's a table channel
         if not table.category:
             return
-        if not table.category.name.startswith("🧊"):
+        if not table.category.name.startswith("🪴"):
             return
 
         # Still occupied? That's fine then

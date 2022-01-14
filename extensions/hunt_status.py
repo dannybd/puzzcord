@@ -115,7 +115,7 @@ class HuntStatus(commands.Cog):
         tables = [
             table
             for table in ctx.guild.voice_channels
-            if table.category and table.category.name.startswith("🧊")
+            if table.category and table.category.name.startswith("🪴")
         ]
         table_sizes = {table.name: len(table.members) for table in tables}
         puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
