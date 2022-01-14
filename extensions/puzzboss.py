@@ -138,6 +138,30 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
                 results.append(solver_tag)
 
         if not results:
+            if query in ["john galt", "johngalt"]:
+                await ctx.message.reply(
+                    """
+```
+PART I
+
+NON-CONTRADICTION
+
+CHAPTER I
+THE THEME
+
+"Who is John Galt?"
+The light was ebbing, and Eddie Willers could not distinguish the bum's face. The bum had said it simply, without expression. But from the sunset far at the end of the street, yellow glints caught his eyes, and the eyes looked straight at Eddie Willers, mocking and still-as if the question had been addressed to the causeless uneasiness within him.
+"Why did you say that?" asked Eddie Willers, his voice tense.
+The bum leaned against the side of the doorway; a wedge of broken glass behind him reflected the metal yellow of the sky.
+"Why does it bother you?" he asked.
+"It doesn't," snapped Eddie Willers.
+He reached hastily into his pocket. The bum had stopped him and asked for a dime, then had gone on talking, as if to kill that moment and postpone the problem of the next. Pleas for dimes were so frequent in the streets these days that it was not necessary to listen to explanations, and he had no desire to hear the details of this bum's particular despair.
+"Go get your cup of coffee," he said, handing the dime to the shadow that had no face.
+"Thank you, sir," said the voice, without interest, and the face leaned forward for a moment. The face was wind-browned, cut by lines of weariness and cynical resignation; the eyes were intelligent. Eddie Willers walked on, wondering why he always felt it at this time of day, this sense of dread without reason. No, he thought, not dread, there's nothing to fear: just an immense, diffused apprehension, with no source or object. He had become accustomed to the feeling, but he could find no explanation for it; yet the bum had spoken as if he knew that Eddie felt it, as if he thought that one should feel it, and more: as if he knew the reason.
+```
+                    """
+                )
+                return
             response += "0 results found in Puzzleboss for that query."
         elif len(results) == 1:
             response += "1 match found:\n\n{}".format(results[0])
@@ -146,7 +170,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
                 len(results), "\n".join(results)
             )
         try:
-            await ctx.send(response)
+            await ctx.message.reply(response)
         except:
             response = f"{discord_result}\n\nChecking Puzzleboss accounts... Error! 😔\n"
             response += (
