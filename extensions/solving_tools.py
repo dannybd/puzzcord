@@ -61,6 +61,27 @@ class SolvingTools(commands.Cog):
         await ctx.send("Run `!help tools` to see everything I support.", embed=embed)
         # TODO: Show something more useful here, like links to tools
 
+    @commands.command(name="wb", aliases=["whiteboard"], hidden=True)
+    async def wb_alias(self, ctx):
+        """Creates a new whiteboard for you to use, each time you call it"""
+        return await self.wb(ctx)
+
+    @tools.command(name="wb", aliases=["whiteboard"])
+    async def wb(self, ctx):
+        """Creates a new whiteboard for you to use, each time you call it"""
+        url = "https://cocreate.mehtank.com/api/roomNew"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                result = await response.json()
+                whiteboard_url = result["url"]
+                await ctx.send(
+                    (
+                        "🎨 Generated a whiteboard for you: 🎨\n**{}**\n\n"
+                        + "Direct everyone here! Re-running `!wb` will "
+                        + "generate new whiteboards."
+                    ).format(whiteboard_url),
+                )
+
     @commands.command(name="stuck", aliases=["haveyoutried", "whatnow"], hidden=True)
     async def stuck_alias(self, ctx):
         """Suggests some tips from the Have You Tried? list"""

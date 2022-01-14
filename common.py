@@ -67,12 +67,7 @@ def build_puzzle_embed(puzzle, guild):
         value=link_to("Spreadsheet 📃", puzzle["drive_uri"]),
         inline=True,
     )
-    whiteboard_uri = (
-        "https://cocreate.mehtank.com/api/slug?slug=wchyyom21-{name}".format(**puzzle)
-    )
-    embed.add_field(
-        name="Whiteboard", value=link_to("Whiteboard 🎨", whiteboard_uri), inline=True
-    )
+    embed.add_field(name="Whiteboard", value="[run !wb]", inline=True)
     # spacer field to make it 2x2
     embed.add_field(name="\u200B", value="\u200B", inline=True)
     embed.add_field(
