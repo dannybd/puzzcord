@@ -79,7 +79,7 @@ class PuzzleStatus(commands.Cog):
         Equivalent to calling `!location all` or `!whereis everything`"""
         table_channel = ctx.guild.get_channel(discord_info.TABLE_REPORT_CHANNEL)
         await ctx.send(
-            "{}\n\n_(Note: Check {} for a live-updating version.)_".format(
+            "{0}\n\n_(Note: Check {1} for a live-updating version.)_".format(
                 self._tables(ctx.guild), table_channel.mention
             )
         )
