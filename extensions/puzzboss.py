@@ -344,6 +344,49 @@ class Puzzboss(commands.Cog):
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
+    @commands.command(name="unmatched", hidden=True)
+    async def unmatched_alias(self, ctx):
+        """Unmatched Puzzleboss accounts w/o Discord accounts yet"""
+        return await self.unmatched(ctx)
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @guild_only()
+    @admin.command()
+    async def unmatched(self, ctx):
+        """Unmatched Puzzleboss accounts w/o Discord accounts yet"""
+        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    name,
+                    fullname
+                FROM solver_view
+                WHERE
+                    chat_uid IS NULL
+                    AND name <> 'puzzleboss'
+                ORDER BY name
+                """,
+            )
+            unmatched_users = cursor.fetchall()
+
+        if not unmatched_users:
+            await ctx.send("Looks like all PB accounts are matched, nice!")
+            return
+
+        await ctx.send(
+            f"Puzzleboss accounts without matching Discord accounts ({len(unmatched_users)}):\n```"
+            + "\n".join(
+                [
+                    user["name"] + " (" + user["fullname"] + ")"
+                    for user in unmatched_users
+                ]
+            )
+            + "\n```"
+        )
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @guild_only()
     @commands.command(name="unverified", hidden=True)
     async def unverified_alias(self, ctx):
         """Lists not-yet-verified team members"""
