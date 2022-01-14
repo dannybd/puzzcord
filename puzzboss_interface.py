@@ -112,7 +112,8 @@ class SQL:
                     status,
                     answer,
                     xyzloc,
-                    comments
+                    comments,
+                    cursolvers
                 FROM puzzle_view
                 """,
             )

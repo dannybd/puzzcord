@@ -76,6 +76,11 @@ def build_puzzle_embed(puzzle, guild):
     embed.add_field(name="Round", value=puzzle["round_name"].title(), inline=True)
     # spacer field to make it 2x2
     embed.add_field(name="\u200B", value="\u200B", inline=True)
+    if "cursolvers" in puzzle and puzzle["cursolvers"]:
+        embed.add_field(
+            name="Current Solvers:",
+            value=puzzle["cursolvers"].replace(",", ", "),
+        )
     return embed
 
 
