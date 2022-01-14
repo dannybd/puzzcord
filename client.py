@@ -459,9 +459,6 @@ def get_puzzle_and_channel(puzzle_name):
     puzzle = _get_puzzle_from_db(puzzle_name)
     if puzzle is None:
         raise Exception('Puzzle "{0}" not found'.format(puzzle_name))
-    puzzle["drive_uri"] = (
-        "https://wind-up-birds.org/puzzleboss/bin/doc.pl?pid={name}"
-    ).format(**puzzle)
     return (puzzle, client.get_channel(int(puzzle["channel_id"])))
 
 
@@ -476,6 +473,7 @@ def _get_puzzle_from_db(puzzle_name):
                 roundname AS round_name,
                 puzzle_uri,
                 chat_channel_id AS channel_id,
+                drive_uri,
                 status,
                 answer,
                 xyzloc,
