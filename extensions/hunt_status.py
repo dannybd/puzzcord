@@ -183,14 +183,14 @@ class HuntStatus(commands.Cog):
             description=(
                 "🔄 Rounds: **{} opened**\n"
                 + "🧩 Puzzles: **{} solved** out of **{} open**\n"
-                + "👥 Hunters: **{} online** out of **{} total**\n"
+                + "👥 Hunters: **{} online**\n"
                 + "\n**Rounds:**"
             ).format(
                 len(rounds),
                 len(solved),
                 len(puzzles),
                 len(online_members),
-                len(members),
+                # len(members),
             ),
         )
 
