@@ -77,7 +77,12 @@ class PuzzleStatus(commands.Cog):
     async def tables(self, ctx):
         """What is happening at each table?
         Equivalent to calling `!location all` or `!whereis everything`"""
-        await ctx.send(self._tables(ctx.guild))
+        table_channel = guild.get_channel(discord_info.TABLE_REPORT_CHANNEL)
+        await ctx.send(
+            "{}\n\n_(Note: Check {} for a live-updating version.".format(
+                self._tables(ctx.guild), table_channel.mention
+            )
+        )
 
     def _tables(self, guild):
         tables = [
