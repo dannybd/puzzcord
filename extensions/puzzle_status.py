@@ -371,15 +371,21 @@ class PuzzleStatus(commands.Cog):
             await ctx.send("Sorry, the !joinus command only works in puzzle channels.")
             return
         table = discord_info.get_table(ctx.author)
-        if not table:
-            await ctx.send(
-                "Sorry, you need to join one of the table voice chats "
-                + "before you can use the !joinus command."
-            )
-            return
         puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
             ctx.channel, bot=self.bot
         )
+        if not table:
+            xyz = ""
+            if puzzle["xyzloc"]:
+                xyz = "\n\nFolks are already working on this puzzle in {}!".format(
+                    xyzloc_mention(ctz.guild, puzzle["xyzloc"])
+                )
+            await ctx.send(
+                "Sorry, you need to join one of the table voice chats "
+                + "before you can use the !joinus command."
+                + xyz
+            )
+            return
         if not puzzle:
             await ctx.send(
                 "Sorry, I can't find this channel in the "

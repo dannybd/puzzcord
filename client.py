@@ -296,8 +296,7 @@ async def gen_message_channel(channel_id, content):
         if not table:
             return
         content = "{} is being worked on at {}".format(
-            first,
-            xyzloc_mention(channel.guild, table)
+            first, xyzloc_mention(channel.guild, table)
         )
     message = await channel.send(content=content)
     logging.info("Message sent to {0.name}".format(channel))
