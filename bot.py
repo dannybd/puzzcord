@@ -82,6 +82,8 @@ async def members_only(ctx):
         "hooray",
         "onboard",
         "admin onboard",
+        "verify",
+        "admin verify",
     ]
     if ctx.invoked_with in ALLOWED_LOBBY_COMMANDS:
         return True
