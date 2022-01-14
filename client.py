@@ -291,6 +291,14 @@ async def gen_create_channel(name, topic):
 
 async def gen_message_channel(channel_id, content):
     channel = get_channelx(channel_id)
+    if " is being worked on at " in content:
+        first, table = content.split(" is being worked on at ")
+        if not table:
+            return
+        content = "{} is being worked on at {}".format(
+            first,
+            xyzloc_mention(channel.guild, table)
+        )
     message = await channel.send(content=content)
     logging.info("Message sent to {0.name}".format(channel))
     return message
