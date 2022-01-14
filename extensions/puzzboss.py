@@ -324,25 +324,53 @@ class Puzzboss(commands.Cog):
             )
             verified_discord_ids = [int(row["chat_uid"]) for row in cursor.fetchall()]
         visitor_role = ctx.guild.get_role(VISITOR_ROLE)
-        members = [
-            "{0.name}#{0.discriminator} ({0.display_name})".format(member)
+        unverified_users = [
+            member
             for member in ctx.guild.members
             if visitor_role not in member.roles
             and member.id not in verified_discord_ids
             and not member.bot
         ]
-        if not members:
+        unverified_users = sorted(unverified_users, key=lambda member: member.joined_at)
+        if not unverified_users:
             await ctx.send(
                 "Looks like all team members are verified, nice!\n\n"
                 + "(If this is unexpected, try adding the Team Member "
                 + "role to someone first.)"
             )
             return
-        await ctx.send(
-            "Folks needing verification ({0}):\n\n{1}".format(
-                len(members), "\n".join(members)
+        member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
+        unverified_other = [
+            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {0.name}#{0.discriminator} ({0.display_name})".format(
+                member
             )
-        )
+            for member in unverified_users
+            if member_role not in member.roles
+        ]
+        if unverified_other:
+            unverified_other = (
+                "Folks needing verification ({0}):\n```\n{1}\n```\n".format(
+                    len(unverified_other), "\n".join(unverified_other)
+                )
+            )
+        else:
+            unverified_other = ""
+
+        unverified_members = [
+            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {0.name}#{0.discriminator} ({0.display_name})".format(
+                member
+            )
+            for member in unverified_users
+            if member_role in member.roles
+        ]
+        if unverified_members:
+            unverified_members = "Folks needing verification, but already have the Member role ({0}):\n```\n{1}\n```".format(
+                len(unverified_members), "\n".join(unverified_members)
+            )
+        else:
+            unverified_members = ""
+
+        await ctx.send(unverified_other + unverified_members)
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @commands.command(name="verify", hidden=True)
