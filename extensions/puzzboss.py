@@ -302,6 +302,48 @@ class Puzzboss(commands.Cog):
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
+    @commands.command(name="duplicates", hidden=True)
+    async def duplicates_alias(self, ctx):
+        """Try to find duplicate guild members"""
+        return await self.duplicates(ctx)
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @guild_only()
+    @admin.command()
+    async def duplicates(self, ctx):
+        """Try to find duplicate guild members"""
+        visitor_role = ctx.guild.get_role(VISITOR_ROLE)
+        members = [
+            member
+            for member in ctx.guild.members
+            if not member.bot and visitor_role not in member.roles
+        ]
+        member_names = [member.name for member in members]
+
+        dupe_members = [
+            member for member in members if member_names.count(member.name) > 1
+        ]
+        dupe_members = sorted(dupe_members, key=lambda member: member.name)
+        if not dupe_members:
+            await ctx.send("Looks like all obvious duplicates have been cleared!")
+            return
+
+        member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
+        lines = [
+            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {0.name}#{0.discriminator} ({0.display_name}){1}".format(
+                member, "  [Team Member]" if member_role in member.roles else ""
+            )
+            for member in dupe_members
+        ]
+        await ctx.send(
+            f"Potential dupe members ({len(lines)}):\n"
+            + "```\n"
+            + "\n".join(lines)
+            + "\n```"
+        )
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @guild_only()
     @commands.command(name="unverified", hidden=True)
     async def unverified_alias(self, ctx):
         """Lists not-yet-verified team members"""
