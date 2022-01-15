@@ -425,7 +425,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 WHERE
                     chat_uid IS NULL
                     AND name <> 'puzzleboss'
-                ORDER BY name
+                ORDER BY id DESC
                 """,
             )
             unmatched_users = cursor.fetchall()
