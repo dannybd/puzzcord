@@ -389,12 +389,15 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                UPDATE puzzle_view
+                UPDATE puzzle
                 SET answer = '', status = 'Being worked'
                 WHERE id = %s AND name = %s
                 """,
                 (puzzle["id"], puzzle["name"]),
             )
+            logging.info("{0.command}: Committing row".format(ctx))
+            connection.commit()
+            logging.info("{0.command}: Committed row successfully!".format(ctx))
 
         category_name = "🧩 {0}".format(round_name)
         existing_categories = [
