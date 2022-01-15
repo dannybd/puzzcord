@@ -393,7 +393,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             cursor.execute(
                 """
                 UPDATE puzzle_view
-                SET answer = '', chat_name = 'Being worked'
+                SET answer = '', status = 'Being worked'
                 WHERE id = %s
                 """,
                 (puzzle["id"],),
