@@ -237,7 +237,7 @@ class PuzzleStatus(commands.Cog):
             "/puzzles/{id}/status".format(**puzzle), {"status": status}
         )
 
-    @commands.command(hidden=True)
+    @commands.command(aliases=["needseyes"], hidden=True)
     async def eyes(self, ctx, channel: typing.Optional[discord.TextChannel]):
         """Update a puzzle's state to Needs Eyes"""
         return await self.mark(ctx, channel, markas="eyes")
