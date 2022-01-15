@@ -291,10 +291,11 @@ async def gen_create_channel(name, topic):
 
 async def gen_message_channel(channel_id, content):
     channel = get_channelx(channel_id)
-    if " is being worked on at " in content:
-        first, table = content.split(" is being worked on at ")
+    if " is being worked on at" in content:
+        first, table = content.split(" is being worked on at")
         table = table.strip()
         if not table or table == "":
+            logging.info("Silenced empty xyz msg sent to {0.name}".format(channel))
             return
         content = "{} is being worked on at {}".format(
             first, xyzloc_mention(channel.guild, table)
