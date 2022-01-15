@@ -362,6 +362,65 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
+    @commands.command(name="unsolved", aliases=["unsolve"], hidden=True)
+    async def unsolved_alias(
+        self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
+    ):
+        """[puzzboss only] Fix a puzzle accidentally marked as solved"""
+        return await self.unsolved(ctx, channel=channel, answer=answer)
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @guild_only()
+    @admin.command(aliases=["unsolve"])
+    async def unsolved(
+        self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
+    ):
+        """[puzzboss only] Fix a puzzle accidentally marked as solved"""
+        logging.info(
+            "{0.command}: {0.author.name} is marking a puzzle as unsolved".format(ctx)
+        )
+        apply_to_self = channel is None
+        if apply_to_self:
+            channel = ctx.channel
+        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
+        if not puzzle:
+            await ctx.send(
+                "Error: Could not find a puzzle for channel {0.mention}".format(channel)
+            )
+            return
+        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE puzzle_view
+                SET answer = '', chat_name = 'Being worked'
+                WHERE id = %s
+                """,
+                (puzzle["id"],),
+            )
+
+        category_name = "🧩 {0}".format(round_name)
+        existing_categories = [
+            c for c in guild.categories if c.name == puzzle["round_name"]
+        ]
+        category = discord.utils.find(
+            lambda category: len(category.channels) < 50,
+            existing_categories,
+        )
+        if not category:
+            await ctx.send("ERROR: Could not move channel automatically.")
+            return
+
+        await channel.edit(
+            category=category,
+            position=0,
+            reason='Puzzle "{0.name}" NOT solved, unarchiving!'.format(channel),
+        )
+
+        await ctx.send("Whoops! Moved this back.")
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @guild_only()
     @commands.command(name="duplicates", hidden=True)
     async def duplicates_alias(self, ctx):
         """Try to find duplicate guild members"""
