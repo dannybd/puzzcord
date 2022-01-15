@@ -391,7 +391,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 """
                 UPDATE puzzle_view
                 SET answer = '', status = 'Being worked'
-                WHERE id = %d AND name = %s
+                WHERE id = %s AND name = %s
                 """,
                 (puzzle["id"], puzzle["name"]),
             )
