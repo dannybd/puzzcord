@@ -399,9 +399,10 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             connection.commit()
             logging.info("{0.command}: Committed row successfully!".format(ctx))
 
+        round_name = puzzle["round_name"]
         category_name = "🧩 {0}".format(round_name)
         existing_categories = [
-            c for c in ctx.guild.categories if c.name == puzzle["round_name"]
+            c for c in ctx.guild.categories if c.name == round_name
         ]
         category = discord.utils.find(
             lambda category: len(category.channels) < 50,
