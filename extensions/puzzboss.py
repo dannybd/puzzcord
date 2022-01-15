@@ -364,16 +364,16 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     @guild_only()
     @commands.command(name="unsolved", aliases=["unsolve"], hidden=True)
     async def unsolved_alias(
-        self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
+        self, ctx, channel: typing.Optional[discord.TextChannel]
     ):
         """[puzzboss only] Fix a puzzle accidentally marked as solved"""
-        return await self.unsolved(ctx, channel=channel, answer=answer)
+        return await self.unsolved(ctx, channel=channel)
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command(aliases=["unsolve"])
     async def unsolved(
-        self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
+        self, ctx, channel: typing.Optional[discord.TextChannel]
     ):
         """[puzzboss only] Fix a puzzle accidentally marked as solved"""
         logging.info(
