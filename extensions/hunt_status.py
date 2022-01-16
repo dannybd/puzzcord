@@ -98,8 +98,8 @@ class HuntStatus(commands.Cog):
             title="🧩 Your ~~Spotify~~ Mystery Hunt Wrapped 🎁",
             description=descriptions[0],
         )
-        # TODO: Update to 2022
-        embed.set_thumbnail(url="https://i.imgur.com/STfQk4R.jpeg")
+        # TODO: Update to 2023
+        embed.set_thumbnail(url="https://i.imgur.com/PeOw6YY.jpg")
         embed.set_footer(
             text="based on approximate data, assembled hastily with love by danny"
         )
