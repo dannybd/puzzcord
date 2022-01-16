@@ -318,35 +318,6 @@ class PuzzleStatus(commands.Cog):
                 + "a @Role Verifier, then try again."
             )
             return
-        if puzzle["status"] == "Solved":
-            puzzles = solver["puzzles"].split(",") if solver["puzzles"] else []
-            if puzzle["name"] in puzzles:
-                await ctx.send("You are already marked as on this puzzle!")
-                return
-            puzzles.append(puzzle["name"])
-            puzzles = ",".join(puzzles)
-            response = await puzzboss_interface.REST.post(
-                "/solvers/{0}/puzzles".format(solver["id"]),
-                {"puzzles": puzzles},
-            )
-            if response.status != 200:
-                await ctx.send(
-                    "Sorry, something went wrong. "
-                    + "Please use the Puzzleboss website to select your puzzle."
-                )
-                return
-            logging.info(
-                "Marked {} as working on {} post-solve".format(
-                    solver["name"], puzzle["name"]
-                )
-            )
-            message = await ctx.send(
-                (
-                    "Thank you, {0.mention}, for marking yourself as having worked on this puzzle.\n"
-                ).format(ctx.author)
-            )
-            return
-
         response = await puzzboss_interface.REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
             {"puzz": puzzle["id"]},
