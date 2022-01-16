@@ -210,7 +210,8 @@ class SQL:
                 """
                 SELECT
                     id,
-                    name
+                    name,
+                    puzzles
                 FROM solver_view
                 WHERE chat_uid = %s
                 LIMIT 1
