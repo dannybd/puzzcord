@@ -38,6 +38,12 @@ class Toys(commands.Cog):
             return
         content = message.content.lower()
         channel = message.channel
+        if content == "!julia":
+            await channel.send(
+                "Have you tried reading the first letters of everything? "
+                + "Yes? Okay, try it again."
+            )
+            return
         if "50/50" in content:
             await channel.send("Roll up your sleeves!")
             return
