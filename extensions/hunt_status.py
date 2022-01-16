@@ -235,7 +235,7 @@ class HuntStatus(commands.Cog):
             )
 
         hunt_begins = datetime.datetime(2022, 1, 14, hour=13, tzinfo=tz)
-        hunt_ends = datetime.datetime(2022, 1, 17, hour=10, tzinfo=tz)
+        hunt_ends = datetime.datetime(2022, 1, 16, hour=18, tzinfo=tz)
         hours_in = (min(now, hunt_ends) - hunt_begins).total_seconds() / 3600
         embed.set_footer(
             text="T{0:+.1f} hours {1} Hunt{2}".format(
