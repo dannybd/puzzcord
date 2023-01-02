@@ -1,7 +1,7 @@
 {
   "puzzledb": {
     "rest_url": "http://localhost:5000",
-    "host": "mysql.wind-up-birds.org",
+    "host": "mysql.importanthuntpoll.org",
     "port": 3306,
     "user": "<<USER>>",
     "passwd": "<<PASS>>",

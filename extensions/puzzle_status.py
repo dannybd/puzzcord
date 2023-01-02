@@ -314,7 +314,7 @@ class PuzzleStatus(commands.Cog):
         solver = puzzboss_interface.SQL.get_solver_from_member(ctx.author, bot=self.bot)
         if not solver:
             await ctx.send(
-                "Sorry, we can't find your wind-up-birds.org account. Please talk to "
+                "Sorry, we can't find your importanthuntpoll.org account. Please talk to "
                 + "a @Role Verifier, then try again."
             )
             return
@@ -346,7 +346,7 @@ class PuzzleStatus(commands.Cog):
         solver = puzzboss_interface.SQL.get_solver_from_member(ctx.author, bot=self.bot)
         if not solver:
             await ctx.send(
-                "Sorry, we can't find your wind-up-birds.org account. Please talk to "
+                "Sorry, we can't find your importanthuntpoll.org account. Please talk to "
                 + "a @Role Verifier, then try again."
             )
             return

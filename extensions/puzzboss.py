@@ -37,8 +37,8 @@ class Puzzboss(commands.Cog):
             """
 Welcome to **Setec Astronomy Total Landscaping! 🏡** Here's how to get started.
 
-1. Make a Puzzleboss account (https://wind-up-birds.org/account), accessing that page with username `fastasyisland` and password `bookstore`. (This account lets our team coordinate who is solving what, generate common spreadsheets, and more.)
-2. Ping @Role Verifier on the Discord server with your wind-up-birds.org username, so we can link the two 🔗
+1. Make a Puzzleboss account (https://importanthuntpoll.org/account), accessing that page with username `fastasyisland` and password `bookstore`. (This account lets our team coordinate who is solving what, generate common spreadsheets, and more.)
+2. Ping @Role Verifier on the Discord server with your importanthuntpoll.org username, so we can link the two 🔗
 
 **How the Discord server works:**
 * We make text channels for each puzzle 🧩
@@ -46,7 +46,7 @@ Welcome to **Setec Astronomy Total Landscaping! 🏡** Here's how to get started
 * We've got a trusty bot, puzzbot (that's me!), which helps us connect puzzle channels to the table VCs where people are solving 🤖
 * puzzbot's got a lot of commands, but you don't have to learn any more than maybe 3 of them to participate 🙂
 
-Learn more here: https://wind-up-birds.org/wiki/index.php/Hunting_in_Discord:_A_Guide
+Learn more here: https://importanthuntpoll.org/wiki/index.php/Hunting_in_Discord:_A_Guide
 
 Thanks, and happy hunting! 🕵️‍♀️🧩
         """
@@ -582,7 +582,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         self, ctx, member: typing.Union[discord.Member, str], *, username: str
     ):
         """Verifies a team member with their email
-        Usage: !verify @member username[@wind-up-birds.org]
+        Usage: !verify @member username[@importanthuntpoll.org]
         """
         return await self.verify(ctx, member, username=username)
 
@@ -593,7 +593,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         self, ctx, member: typing.Union[discord.Member, str], *, username: str
     ):
         """Verifies a team member with their email
-        Usage: !verify @member username[@wind-up-birds.org]
+        Usage: !verify @member username[@importanthuntpoll.org]
         """
         verifier_role = ctx.guild.get_role(794318951235715113)
         if verifier_role not in ctx.author.roles:
@@ -627,7 +627,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 ).format(member)
             )
             return
-        username = username.replace("@wind-up-birds.org", "")
+        username = username.replace("@importanthuntpoll.org", "")
         logging.info(
             "{0.command}: Marking user {1.display_name} as PB user {2}".format(
                 ctx, member, username
@@ -651,7 +651,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             if not solver:
                 await ctx.send(
                     (
-                        "Error: Couldn't find a {0}@wind-up-birds.org, "
+                        "Error: Couldn't find a {0}@importanthuntpoll.org, "
                         + "please try again."
                     ).format(username)
                 )

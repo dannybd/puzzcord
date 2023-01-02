@@ -33,7 +33,7 @@ class HuntStatus(commands.Cog):
             if not solver:
                 await ctx.send(
                     (
-                        "Sorry, {0.mention}, I couldn't find your wind-up-birds "
+                        "Sorry, {0.mention}, I couldn't find your importanthuntpoll "
                         + "account! Did you register? *Did you even hunt with us?*"
                     ).format(author)
                 )
@@ -43,7 +43,7 @@ class HuntStatus(commands.Cog):
                 await ctx.send(
                     (
                         "Sorry, {0.mention}, I couldn't find any puzzles recorded "
-                        + "to your wind-up-birds account. "
+                        + "to your importanthuntpoll account. "
                         + "Maybe try using the `!here` and `!joinus` commands "
                         + "next year 😛"
                     ).format(author)
