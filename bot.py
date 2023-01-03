@@ -49,6 +49,7 @@ class PuzzcordBot(commands.Bot):
         super().__init__(*args, **kwargs)
 
         self.connection = puzzboss_interface.SQL._get_db_connection()
+        self.hunt_team = config["hunt_team"]
 
 
 bot = PuzzcordBot(

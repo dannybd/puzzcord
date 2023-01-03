@@ -17,6 +17,7 @@ class HuntStatus(commands.Cog):
         """What puzzles you worked on, with links so you can go leave feedback"""
         author = ctx.author
         connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        domain = self.bot.hunt_team["domain"]
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -33,9 +34,9 @@ class HuntStatus(commands.Cog):
             if not solver:
                 await ctx.send(
                     (
-                        "Sorry, {0.mention}, I couldn't find your importanthuntpoll "
+                        "Sorry, {0.mention}, I couldn't find your {1} "
                         + "account! Did you register? *Did you even hunt with us?*"
-                    ).format(author)
+                    ).format(author, domain)
                 )
                 return
             puzzles = (solver["puzzles"] or "").split(",")
@@ -43,10 +44,10 @@ class HuntStatus(commands.Cog):
                 await ctx.send(
                     (
                         "Sorry, {0.mention}, I couldn't find any puzzles recorded "
-                        + "to your importanthuntpoll account. "
+                        + "to your {1} account. "
                         + "Maybe try using the `!here` and `!joinus` commands "
                         + "next year 😛"
-                    ).format(author)
+                    ).format(author, domain)
                 )
                 return
             cursor.execute(

@@ -41,7 +41,7 @@ class PuzzleStatus(commands.Cog):
         self,
         ctx,
         *,
-        channel_or_query: typing.Optional[typing.Union[discord.TextChannel, str]]
+        channel_or_query: typing.Optional[typing.Union[discord.TextChannel, str]],
     ):
         """Display current state of a puzzle.
         If no channel is provided, we default to the current puzzle channel."""
@@ -137,7 +137,7 @@ class PuzzleStatus(commands.Cog):
         self,
         ctx,
         *,
-        channel_or_query: typing.Optional[typing.Union[discord.TextChannel, str]]
+        channel_or_query: typing.Optional[typing.Union[discord.TextChannel, str]],
     ):
         """[aka !location] Find where discussion of a puzzle is happening.
         Usage:
@@ -172,7 +172,7 @@ class PuzzleStatus(commands.Cog):
         ctx,
         channel: typing.Optional[discord.TextChannel],
         *,
-        comments: typing.Optional[str]
+        comments: typing.Optional[str],
     ):
         """Update a puzzle's comments in Puzzleboss
         These are visible on the Puzzleboss site, and when people run !puzzle"""
@@ -312,9 +312,10 @@ class PuzzleStatus(commands.Cog):
             ctx.channel, bot=self.bot
         )
         solver = puzzboss_interface.SQL.get_solver_from_member(ctx.author, bot=self.bot)
+        domain = self.bot.hunt_team["domain"]
         if not solver:
             await ctx.send(
-                "Sorry, we can't find your importanthuntpoll.org account. Please talk to "
+                f"Sorry, we can't find your {domain} account. Please talk to "
                 + "a @Role Verifier, then try again."
             )
             return
@@ -346,7 +347,7 @@ class PuzzleStatus(commands.Cog):
         solver = puzzboss_interface.SQL.get_solver_from_member(ctx.author, bot=self.bot)
         if not solver:
             await ctx.send(
-                "Sorry, we can't find your importanthuntpoll.org account. Please talk to "
+                f"Sorry, we can't find your {domain} account. Please talk to "
                 + "a @Role Verifier, then try again."
             )
             return
@@ -427,7 +428,7 @@ class PuzzleStatus(commands.Cog):
         self,
         ctx,
         *,
-        channel_or_query: typing.Optional[typing.Union[discord.TextChannel, str]]
+        channel_or_query: typing.Optional[typing.Union[discord.TextChannel, str]],
     ):
         """Unmark a channel as being worked anywhere.
         If no channel is provided, we default to the current puzzle channel."""

@@ -10,6 +10,12 @@
   "discord": {
     "botsecret": "<<BOTSECRET>>"
   },
+  "hunt_team": {
+    "domain": "importanthuntpoll.org",
+    "name": "<<The entire text of TEAM NAME>>"
+    "registration_username": "<<USERNAME>>",
+    "registration_password": "<<PASSWORD>>"
+  },
   "asyncio_server": {
     "host": "0.0.0.0",
     "port": 3141
