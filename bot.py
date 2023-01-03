@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+import asyncio
 import datetime
 import discord
 import json
@@ -34,7 +35,7 @@ if loglevel == "INFO":
     logging.getLogger("discord").setLevel(logging.WARNING)
 
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.members = True
 intents.presences = True
 
@@ -93,16 +94,23 @@ async def members_only(ctx):
     raise NotInTheWelcomeLobby(msg)
 
 
-logging.info("Loading extensions...")
-for extension in glob.glob("extensions/*.py"):
-    try:
-        ext = extension[:-3]
-        ext = ext.replace("/", ".")
-        logging.info("Loading {}".format(ext))
-        bot.load_extension(ext)
-    except Exception as e:
-        exc = "{}: {}".format(type(e).__name__, traceback.format_exc())
-        logging.warning("Failed to load extension {}\n{}".format(extension, exc))
-logging.info("Starting!")
-bot.run(config["discord"]["botsecret"])
-logging.info("Done, closing out")
+async def main():
+    async with bot:
+        logging.info("Loading extensions...")
+        for extension in glob.glob("extensions/*.py"):
+            try:
+                ext = extension[:-3]
+                ext = ext.replace("/", ".")
+                logging.info("Loading {}".format(ext))
+                await bot.load_extension(ext)
+            except Exception as e:
+                exc = "{}: {}".format(type(e).__name__, traceback.format_exc())
+                logging.warning(
+                    "Failed to load extension {}\n{}".format(extension, exc)
+                )
+        logging.info("Starting!")
+        await bot.start(config["discord"]["botsecret"])
+        logging.info("Done, closing out")
+
+
+asyncio.run(main())

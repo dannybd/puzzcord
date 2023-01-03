@@ -27,7 +27,7 @@ class PuzzleStatus(commands.Cog):
         if not guild:
             return
         channel = guild.get_channel(discord_info.TABLE_REPORT_CHANNEL)
-        messages = await channel.history(limit=1).flatten()
+        messages = [message async for message in channel.history(limit=1)]
         message = messages[0] if messages else None
         if not message or message.author != guild.me:
             message = await channel.send("Fetching table status...")
@@ -507,6 +507,6 @@ class PuzzleStatus(commands.Cog):
                     continue
 
 
-def setup(bot):
+async def setup(bot):
     cog = PuzzleStatus(bot)
-    bot.add_cog(cog)
+    await bot.add_cog(cog)

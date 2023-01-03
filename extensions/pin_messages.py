@@ -38,6 +38,6 @@ class PinMessages(commands.Cog):
             return
 
 
-def setup(bot):
+async def setup(bot):
     cog = PinMessages(bot)
-    bot.add_cog(cog)
+    await bot.add_cog(cog)

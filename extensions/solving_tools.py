@@ -331,6 +331,6 @@ class SolvingTools(commands.Cog):
         )
 
 
-def setup(bot):
+async def setup(bot):
     cog = SolvingTools(bot)
-    bot.add_cog(cog)
+    await bot.add_cog(cog)

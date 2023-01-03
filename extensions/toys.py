@@ -65,6 +65,6 @@ class Toys(commands.Cog):
         await ctx.send("🥳🎉🎊✨")
 
 
-def setup(bot):
+async def setup(bot):
     cog = Toys(bot)
-    bot.add_cog(cog)
+    await bot.add_cog(cog)

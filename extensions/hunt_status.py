@@ -279,6 +279,6 @@ class HuntStatus(commands.Cog):
         await ctx.send(response)
 
 
-def setup(bot):
+async def setup(bot):
     cog = HuntStatus(bot)
-    bot.add_cog(cog)
+    await bot.add_cog(cog)

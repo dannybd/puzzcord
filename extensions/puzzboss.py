@@ -763,6 +763,6 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         await ctx.send("Done. Please run: `!puz {name}`".format(**puzzle))
 
 
-def setup(bot):
+async def setup(bot):
     cog = Puzzboss(bot)
-    bot.add_cog(cog)
+    await bot.add_cog(cog)
