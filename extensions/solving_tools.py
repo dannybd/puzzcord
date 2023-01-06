@@ -59,6 +59,11 @@ class SolvingTools(commands.Cog):
             value="[Link](http://nutrimatic.org/) (also see `!tools nu`)",
             inline=True,
         )
+        embed.add_field(
+            name="Qat word multi-matcher",
+            value="[Link](https://www.quinapalus.com/qat.html) (also see `!tools qat`)",
+            inline=True,
+        )
         await ctx.send("Run `!help tools` to see everything I support.", embed=embed)
         # TODO: Show something more useful here, like links to tools
 
@@ -257,6 +262,36 @@ class SolvingTools(commands.Cog):
             "```\n" + "\n".join([i.text for i in soup.find_all("span")][:10]) + "```"
         )
         await ctx.send(result)
+
+    @commands.command(name="qat", hidden=True)
+    async def qat_alias(self, ctx, *, query: str):
+        """Queries Qat, a multi-pattern word searcher
+        Qat lets you search for words matching a given pattern.
+
+        See https://www.quinapalus.com/qat.html for syntax.
+        """
+        return await self.qat(ctx, query=query)
+
+    @tools.command(name="qat")
+    async def qat(self, ctx, *, query: str):
+        """Queries Qat, a multi-pattern word searcher
+        Qat lets you search for words matching a given pattern.
+
+        See https://www.quinapalus.com/qat.html for syntax.
+        """
+        url = "https://www.quinapalus.com/cgi-bin/qat"
+        params = {"pat": query.replace('"', "")}
+        response = await urlhandler.get(url, params=params)
+        soup = BeautifulSoup(response, "html.parser")
+        form = soup.find("form", {"action": "qat"})
+        result = (
+            "".join(
+                el.text for el in form.next_siblings if el.name not in ["i", "small"]
+            )
+            .strip()
+            .replace("\xa0", "")
+        )
+        await ctx.send("```\n" + result + "\n```")
 
     @commands.command(name="abc", aliases=["123", "abcd"], hidden=True)
     async def abc_alias(self, ctx, *args: str):
