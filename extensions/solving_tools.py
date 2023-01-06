@@ -258,10 +258,16 @@ class SolvingTools(commands.Cog):
         params = {"q": query}
         response = await urlhandler.get(url, params=params)
         soup = BeautifulSoup(response, "html.parser")
-        result = (
-            "```\n" + "\n".join([i.text for i in soup.find_all("span")][:10]) + "```"
-        )
-        await ctx.send(result)
+        result = "\n".join([i.text for i in soup.find_all("span")][:10])
+        result = f"`!nut {query}` yields:\n```\n{result}```"
+        try:
+            await ctx.send(result)
+        except:
+            await ctx.send(
+                "Sorry, response was too long for Discord. "
+                + "Try a shorter string or go directly to the tool online here:\n"
+                + urlhandler.build(url, params=params)
+            )
 
     @commands.command(name="qat", hidden=True)
     async def qat_alias(self, ctx, *, query: str):
@@ -291,7 +297,15 @@ class SolvingTools(commands.Cog):
             .strip()
             .replace("\xa0", "")
         )
-        await ctx.send("```\n" + result + "\n```")
+        result = f"`!qat {query}` yields:\n```\n{result}\n```"
+        try:
+            await ctx.send(result)
+        except:
+            await ctx.send(
+                "Sorry, response was too long for Discord. "
+                + "Try a shorter string or go directly to the tool online here:\n"
+                + urlhandler.build(url, params=params)
+            )
 
     @commands.command(name="abc", aliases=["123", "abcd"], hidden=True)
     async def abc_alias(self, ctx, *args: str):
