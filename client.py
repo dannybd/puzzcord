@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 
 nest_asyncio.apply()
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.members = True
 client = discord.Client(intents=intents)
 
@@ -510,7 +510,7 @@ def get_db_connection():
     )
 
 
-if __name__ == "__main__":
+async def main():
     # Define logging levels
     loglevel = os.environ.get("LOGLEVEL", "INFO").upper()
     logging.basicConfig(
@@ -525,5 +525,10 @@ if __name__ == "__main__":
         logging.getLogger("discord").setLevel(logging.WARNING)
 
     logging.info("Starting!")
-    client.run(config["discord"]["botsecret"])
+    async with client:
+        await client.start(config["discord"]["botsecret"])
     logging.info("Done, closing out")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
