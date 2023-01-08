@@ -665,7 +665,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             print(solver["id"])
             cursor.execute(
                 """
-                UPDATE solver_view
+                UPDATE solver
                 SET chat_uid = %s, chat_name = %s
                 WHERE id = %s
                 """,
