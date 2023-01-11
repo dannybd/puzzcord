@@ -13,8 +13,12 @@ class Toys(commands.Cog):
     @commands.command(aliases=["huntyet"], hidden=True)
     async def isithuntyet(self, ctx):
         """Is it hunt yet?"""
-        timeleft = self.bot.hunt_begins - self.bot.now()
+        now = self.bot.now()
+        timeleft = self.bot.hunt_begins - now
         if timeleft.days < 0:
+            if now > self.bot.hunt_ends:
+                await ctx.send("Nope 😢 see y'all next year")
+                return
             await ctx.send("Yes! 🎉")
             return
 
