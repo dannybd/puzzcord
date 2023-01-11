@@ -14,6 +14,10 @@ class HuntStatus(commands.Cog):
     @commands.command(aliases=["wrapped"])
     async def wrapup(self, ctx):
         """What puzzles you worked on, with links so you can go leave feedback"""
+        if self.bot.now() < self.bot.hunt_ends:
+            await ctx.send("Shhh, not yet :)")
+            return
+
         author = ctx.author
         connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
         domain = self.bot.hunt_team["domain"]
