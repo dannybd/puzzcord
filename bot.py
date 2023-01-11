@@ -20,6 +20,7 @@ from discord.ext import commands
 from discord.ext.commands import guild_only
 from config import config
 from discord_info import GUILD_ID, WELCOME_LOBBY, get_team_members
+from pytz import timezone
 
 # Define logging levels
 loglevel = os.environ.get("LOGLEVEL", "INFO").upper()
@@ -50,6 +51,13 @@ class PuzzcordBot(commands.Bot):
 
         self.connection = puzzboss_interface.SQL._get_db_connection()
         self.hunt_team = config["hunt_team"]
+        self.tz = timezone("US/Eastern")
+        # TODO: Update for 2024
+        self.hunt_begins = datetime.datetime(2023, 1, 13, hour=13, tzinfo=self.tz)
+        self.hunt_ends = datetime.datetime(2023, 1, 15, hour=18, tzinfo=self.tz)
+
+    def now(self):
+        return datetime.datetime.now(self.tz)
 
 
 bot = PuzzcordBot(

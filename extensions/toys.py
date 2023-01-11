@@ -4,7 +4,6 @@
 import discord
 from discord.ext import commands
 from discord.ext.commands import guild_only
-import datetime
 
 
 class Toys(commands.Cog):
@@ -14,7 +13,7 @@ class Toys(commands.Cog):
     @commands.command(aliases=["huntyet"], hidden=True)
     async def isithuntyet(self, ctx):
         """Is it hunt yet?"""
-        timeleft = datetime.datetime.fromtimestamp(1642179600) - datetime.datetime.now()
+        timeleft = self.bot.hunt_begins - self.bot.now()
         if timeleft.days < 0:
             await ctx.send("Yes! 🎉")
             return

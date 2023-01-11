@@ -4,7 +4,6 @@ from discord.ext import commands
 import puzzboss_interface
 import discord_info
 from common import xyzloc_mention
-from pytz import timezone
 import datetime
 
 
@@ -99,8 +98,8 @@ class HuntStatus(commands.Cog):
             title="🧩 Your ~~Spotify~~ Mystery Hunt Wrapped 🎁",
             description=descriptions[0],
         )
-        # TODO: Update to 2023
-        embed.set_thumbnail(url="https://i.imgur.com/PeOw6YY.jpg")
+        # TODO: Update for 2024
+        embed.set_thumbnail(url="https://i.imgur.com/dnWoHz7.jpeg")
         embed.set_footer(
             text="based on approximate data, assembled hastily with love by danny"
         )
@@ -170,8 +169,6 @@ class HuntStatus(commands.Cog):
             for puzzle in puzzles
             if puzzle["status"] == "Solved" and puzzle["answer"]
         ]
-        tz = timezone("US/Eastern")
-        now = datetime.datetime.now(tz)
 
         guild = ctx.guild if ctx.guild else self.bot.get_guild(discord_info.GUILD_ID)
         members = discord_info.get_team_members(guild)
@@ -180,7 +177,7 @@ class HuntStatus(commands.Cog):
         ]
         embed = discord.Embed(
             title="Hunt Status 📈📊",
-            timestamp=datetime.datetime.now(),
+            timestamp=self.bot.now(),
             description=(
                 "🔄 Rounds: **{} opened**\n"
                 + "🧩 Puzzles: **{} solved** out of **{} open**\n"
@@ -235,8 +232,9 @@ class HuntStatus(commands.Cog):
                 inline=True,
             )
 
-        hunt_begins = datetime.datetime(2023, 1, 13, hour=13, tzinfo=tz)
-        hunt_ends = datetime.datetime(2023, 1, 15, hour=18, tzinfo=tz)
+        now = self.bot.now()
+        hunt_begins = self.bot.hunt_begins
+        hunt_ends = self.bot.hunt_ends
         hours_in = (min(now, hunt_ends) - hunt_begins).total_seconds() / 3600
         embed.set_footer(
             text="T{0:+.1f} hours {1} Hunt{2}".format(
