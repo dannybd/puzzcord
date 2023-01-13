@@ -40,10 +40,6 @@ intents = discord.Intents.all()
 intents.members = True
 intents.presences = True
 
-default_help = commands.DefaultHelpCommand(
-    no_category="Other Commands",
-)
-
 
 class PuzzcordBot(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -63,7 +59,7 @@ class PuzzcordBot(commands.Bot):
 bot = PuzzcordBot(
     command_prefix="!",
     description="Controlling Puzzleboss via Discord",
-    help_command=default_help,
+    help_command=None,
     intents=intents,
 )
 

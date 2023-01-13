@@ -6,6 +6,7 @@ import discord_info
 import logging
 from common import xyzloc_mention
 import datetime
+import typing
 
 
 class HuntStatus(commands.Cog):
@@ -27,6 +28,76 @@ class HuntStatus(commands.Cog):
         ]
         logging.info(
             f"<<<METRICS>>> {self.bot.now()}: {len(online_members)}/{len(members)} members online"
+        )
+
+    @commands.command()
+    async def help(self, ctx, category: typing.Optional[str]):
+        if category == "tools":
+            await ctx.send(
+                """
+```
+!tools
+
+Assorted puzzle-solving tools and utilities. (These all work as !tools abc or just !abc.)
+
+Commands:
+  abc        Converts letters A-Z to/from numbers 1-26
+  braille    Print the braille alphabet
+  morse      Convert to/from morse code (/ for word boundaries)
+  nutrimatic Queries nutrimatic.org
+  qat        Queries Qat, a multi-pattern word searcher
+  roll       Rolls a dice in NdN format.
+  rot        Rotates a message through all rot N and displays the permutations
+  stuck      Suggests some tips from the Have You Tried? list
+```
+"""
+            )
+            return
+        domain = self.bot.hunt_team["domain"]
+        if category == "admin":
+            await ctx.send(
+                f"""
+See Admin commands here: https://{domain}/wiki/index.php/Hunting_in_Discord:_A_Guide#Puzzboss_Extras
+"""
+            )
+            return
+        await ctx.send(
+            f"""
+```
+Get the state of things:
+  !hunt     Hunt status update
+  !puzzle   Current state of a puzzle
+  !tables   Which tables are tackling which puzzles?
+            [NOTE: This live-updates in the #🪴-tables channel]
+
+  !whereis  Where is discussion of a specific puzzle?
+
+As you work on puzzles (use in puzzle channels):
+  !joinus   Invite folks to work on the puzzle at your table
+  !here     Indicate which puzzle you're working on
+            [NOTE: Please use this! It's especially important in a hybrid hunt.]
+
+  !mark     Update a puzzle's status: needs eyes, critical, wtf, unnecessary
+            Note, these work too: !eyes !critical !wtf !unnecessary
+
+  !note     Update a puzzle's comments field in Puzzleboss
+
+Help with puzzle solving (use anywhere, including DMs):
+  !tools    [category] Assorted puzzle-solving tools and utilities
+
+When you're stepping away:
+  !leaveus  Unmark a puzzle as being worked anywhere at any table.
+  !away     Lets us know you're taking a break and not working on anything.
+
+Other commands:
+  !huntyet  Is it hunt yet?
+  !help     Shows this info (but formatted far less well.
+```
+
+See all commands here: https://{domain}/wiki/index.php/Hunting_in_Discord:_A_Guide
+
+Thanks, and happy hunting! 🕵️‍♀️🧩
+"""
         )
 
     @commands.command(aliases=["wrapped"])
