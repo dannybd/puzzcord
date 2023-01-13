@@ -1,8 +1,9 @@
 """ Get an overview of the entire hunt status """
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import puzzboss_interface
 import discord_info
+import logging
 from common import xyzloc_mention
 import datetime
 
@@ -10,6 +11,23 @@ import datetime
 class HuntStatus(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.log_metrics.start()
+
+    def cog_unload(self):
+        self.log_metrics.cancel()
+
+    @tasks.loop(seconds=15.0, reconnect=True)
+    async def log_metrics(self):
+        guild = self.bot.get_guild(discord_info.GUILD_ID)
+        if not guild:
+            return
+        members = discord_info.get_team_members(guild)
+        online_members = [
+            member for member in members if member.status != discord.Status.offline
+        ]
+        logging.info(
+            f"<<<METRICS>>> {self.bot.now()}: {len(online_members)}/{len(members)} members online"
+        )
 
     @commands.command(aliases=["wrapped"])
     async def wrapup(self, ctx):
