@@ -94,7 +94,7 @@ class SolvingTools(commands.Cog):
     @tools.command(name="julia", hidden=True)
     async def julia(self, ctx):
         """Suggests the Julia Strategy to Puzzlesolving"""
-        await channel.send(
+        await ctx.send(
             f"Have you tried reading the first letters of everything? "
             f"Yes? Okay, try it again."
         )
