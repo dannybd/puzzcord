@@ -17,7 +17,7 @@ class HuntStatus(commands.Cog):
     def cog_unload(self):
         self.log_metrics.cancel()
 
-    @tasks.loop(seconds=15.0, reconnect=True)
+    @tasks.loop(seconds=60.0, reconnect=True)
     async def log_metrics(self):
         guild = self.bot.get_guild(discord_info.GUILD_ID)
         if not guild:
@@ -26,8 +26,16 @@ class HuntStatus(commands.Cog):
         online_members = [
             member for member in members if member.status != discord.Status.offline
         ]
+        puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
+        solved = [
+            puzzle
+            for puzzle in puzzles
+            if puzzle["status"] == "Solved" and puzzle["answer"]
+        ]
         logging.info(
-            f"<<<METRICS>>> {self.bot.now()}: {len(online_members)}/{len(members)} members online"
+            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
+            f"{len(online_members)}/{len(members)} members online; "
+            f"{len(solved)}/{len(puzzles)} puzzles solved"
         )
 
     @commands.command()
