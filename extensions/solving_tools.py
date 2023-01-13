@@ -88,12 +88,12 @@ class SolvingTools(commands.Cog):
                     ).format(whiteboard_url),
                 )
 
-    @commands.command(name="stuck", aliases=["haveyoutried", "whatnow"], hidden=True)
+    @commands.command(name="stuck", aliases=["haveyoutried"], hidden=True)
     async def stuck_alias(self, ctx):
         """Suggests some tips from the Have You Tried? list"""
         return await self.stuck(ctx)
 
-    @tools.command(name="stuck", aliases=["haveyoutried", "whatnow"])
+    @tools.command(name="stuck", aliases=["haveyoutried"])
     async def stuck(self, ctx):
         """Suggests some tips from the Have You Tried? list"""
         with open("haveyoutried.txt") as f:
@@ -101,20 +101,34 @@ class SolvingTools(commands.Cog):
         random.shuffle(tips)
 
         content = "**Have You Tried...**\n{}".format("".join(tips[:6]))
+        domain = self.bot.hunt_team["domain"]
         embed = discord.Embed(
             title="Have You Tried?",
             url=f"https://{domain}/wiki/index.php/Have_You_Tried",
         )
         await ctx.send(content=content, embed=embed)
 
-    @commands.command(name="rot", aliases=["rotn"], hidden=True)
+    @commands.command(name="julia", hidden=True)
+    async def julia_alias(self, ctx):
+        """Suggests the Julia Strategy to Puzzlesolving"""
+        return await self.julia(ctx)
+
+    @tools.command(name="julia", hidden=True)
+    async def julia(self, ctx):
+        """Suggests the Julia Strategy to Puzzlesolving"""
+        await channel.send(
+            f"Have you tried reading the first letters of everything? "
+            f"Yes? Okay, try it again."
+        )
+
+    @commands.command(name="rot", hidden=True)
     async def rot_alias(self, ctx, *, msg: str):
         """Rotates a message through all rot N and displays the permutations
         Limited to the first 60 chars due to Discord message size limits.
         To rotate for a specific rotN, use something like `!rot13 foobar`"""
         return await self.rot(ctx, msg=msg)
 
-    @tools.command(name="rot", aliases=["rotn"])
+    @tools.command(name="rot")
     async def rot(self, ctx, *, msg: str):
         """Rotates a message through all rot N and displays the permutations
         Limited to the first 60 chars due to Discord message size limits.
@@ -219,9 +233,7 @@ class SolvingTools(commands.Cog):
             return "google-books-common-words.txt"
         return None
 
-    @commands.command(
-        name="nutrimatic", aliases=["nu", "nut", "nutr", "nutri", "newt"], hidden=True
-    )
+    @commands.command(name="nutrimatic", aliases=["nut"], hidden=True)
     async def nutrimatic_alias(self, ctx, *, query: str):
         """Queries nutrimatic.org
         Matches patterns against a dictionary of words and phrases mined from Wikipedia. Text is normalized to lowercase letters, numbers and spaces. More common results are returned first.
@@ -238,7 +250,7 @@ class SolvingTools(commands.Cog):
         """
         return await self.nutrimatic(ctx, query=query)
 
-    @tools.command(name="nutrimatic", aliases=["nu", "nut", "nutr", "nutri", "newt"])
+    @tools.command(name="nutrimatic", aliases=["nut"])
     async def nutrimatic(self, ctx, *, query: str):
         """Queries nutrimatic.org
         Matches patterns against a dictionary of words and phrases mined from Wikipedia. Text is normalized to lowercase letters, numbers and spaces. More common results are returned first.
@@ -307,7 +319,7 @@ class SolvingTools(commands.Cog):
                 + urlhandler.build(url, params=params)
             )
 
-    @commands.command(name="abc", aliases=["123", "abcd"], hidden=True)
+    @commands.command(name="abc", hidden=True)
     async def abc_alias(self, ctx, *args: str):
         """Converts letters A-Z to/from numbers 1-26
         Usage: !abc Hello world
@@ -315,7 +327,7 @@ class SolvingTools(commands.Cog):
         """
         return await self.abc(ctx, *args)
 
-    @tools.command(name="abc", aliases=["123", "abcd"])
+    @tools.command(name="abc")
     async def abc(self, ctx, *args: str):
         """Converts letters A-Z to/from numbers 1-26
         Usage: !tools abc Hello world
@@ -330,7 +342,7 @@ class SolvingTools(commands.Cog):
 
         await ctx.send(" ".join([convert(i) for i in args]))
 
-    @commands.command(name="morse", aliases=["morsecode"], hidden=True)
+    @commands.command(name="morse", hidden=True)
     async def morse_alias(self, ctx, *, text: str):
         """Convert to/from morse code (/ for word boundaries)
         Usage: !morse hello world
@@ -338,7 +350,7 @@ class SolvingTools(commands.Cog):
         """
         return await self.morse(ctx, text=text)
 
-    @tools.command(name="morse", aliases=["morsecode"])
+    @tools.command(name="morse")
     async def morse(self, ctx, *, text: str):
         """Convert to/from morse code (/ for word boundaries)
         Usage: !tools morse hello world

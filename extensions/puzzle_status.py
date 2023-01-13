@@ -36,7 +36,7 @@ class PuzzleStatus(commands.Cog):
         content += "\n\nThis info auto-updates every 15 seconds."
         await message.edit(content=content, suppress=True)
 
-    @commands.command(aliases=["puz", "puzz", "puzzl"])
+    @commands.command(aliases=["puz"])
     async def puzzle(
         self,
         ctx,
@@ -132,7 +132,7 @@ class PuzzleStatus(commands.Cog):
         return content
 
     @guild_only()
-    @commands.command(aliases=["location", "loc", "where", "wheres"])
+    @commands.command(aliases=["where"])
     async def whereis(
         self,
         ctx,
@@ -166,7 +166,7 @@ class PuzzleStatus(commands.Cog):
         return
 
     @guild_only()
-    @commands.command(aliases=["comment", "addnote", "addcomment"])
+    @commands.command(aliases=["comment", "notes"])
     async def note(
         self,
         ctx,
@@ -205,7 +205,7 @@ class PuzzleStatus(commands.Cog):
         await ctx.message.add_reaction("✍️")
 
     @guild_only()
-    @commands.command(aliases=["markas"])
+    @commands.command()
     async def mark(
         self, ctx, channel: typing.Optional[discord.TextChannel], *, markas: str
     ):
@@ -341,7 +341,7 @@ class PuzzleStatus(commands.Cog):
         )
         await message.add_reaction("🧩")
 
-    @commands.command(aliases=["afk", "bed", "break"])
+    @commands.command()
     async def away(self, ctx):
         """Lets folks know you're taking a break and not working on anything."""
         solver = puzzboss_interface.SQL.get_solver_from_member(ctx.author, bot=self.bot)
@@ -423,7 +423,7 @@ class PuzzleStatus(commands.Cog):
         )
 
     @guild_only()
-    @commands.command()
+    @commands.command(aliases=["leave", "leavus"])
     async def leaveus(
         self,
         ctx,

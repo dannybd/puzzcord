@@ -250,7 +250,7 @@ class HuntStatus(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.guild_only()
-    @commands.command(aliases=["priorities", "urgent", "whatdoido", "highpri", "hifi"])
+    @commands.command()
     async def hipri(self, ctx):
         """Show hipri puzzles"""
         puzzles = sorted(

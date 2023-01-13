@@ -10,8 +10,8 @@ class Toys(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=["huntyet"], hidden=True)
-    async def isithuntyet(self, ctx):
+    @commands.command(hidden=True)
+    async def huntyet(self, ctx):
         """Is it hunt yet?"""
         now = self.bot.now()
         timeleft = self.bot.hunt_begins - now
@@ -41,12 +41,6 @@ class Toys(commands.Cog):
             return
         content = message.content.lower()
         channel = message.channel
-        if content == "!julia":
-            await channel.send(
-                "Have you tried reading the first letters of everything? "
-                + "Yes? Okay, try it again."
-            )
-            return
         if "50/50" in content:
             await channel.send("Roll up your sleeves!")
             return
@@ -63,7 +57,7 @@ class Toys(commands.Cog):
             await message.add_reaction("🔙")
             await message.add_reaction("🏁")
 
-    @commands.command(hidden=True, aliases=["hurray"])
+    @commands.command(hidden=True)
     async def hooray(self, ctx):
         await ctx.send("🥳🎉🎊✨")
 

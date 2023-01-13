@@ -63,7 +63,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
 
     # @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(name="whois", aliases=["finduser"], hidden=True)
+    @commands.command(name="whois", hidden=True)
     async def whois_alias(
         self,
         ctx,
@@ -76,7 +76,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
 
     @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
     @guild_only()
-    @admin.command(name="whois", aliases=["finduser"])
+    @admin.command(name="whois")
     async def whois(
         self,
         ctx,
@@ -213,14 +213,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(name="newpuzzboss", aliases=["boss"], hidden=True)
+    @commands.command(name="newpuzzboss", hidden=True)
     async def newpuzzboss_alias(self, ctx, newboss: discord.Member):
         """[puzzboss only] Designates a new person as Puzzleboss"""
         return await self.newpuzzboss(ctx, newboss)
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @admin.command(aliases=["boss"])
+    @admin.command()
     async def newpuzzboss(self, ctx, newboss: discord.Member):
         """[puzzboss only] Designates a new person as Puzzleboss"""
         puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
@@ -244,13 +244,13 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         )
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
-    @commands.command(name="newround", aliases=["nr"], hidden=True)
+    @commands.command(name="newround", hidden=True)
     async def newround_alias(self, ctx, *, round_name: str):
         """[puzzboss only] Creates a new round"""
         return await self.newround(ctx, round_name=round_name)
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
-    @admin.command(aliases=["nr"])
+    @admin.command()
     async def newround(self, ctx, *, round_name: str):
         """[puzzboss only] Creates a new round"""
         logging.info("{0.command}: Creating a new round: {1}".format(ctx, round_name))
@@ -300,9 +300,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(
-        name="solved", aliases=["solve", "answer", "answered", "SOLVED"], hidden=True
-    )
+    @commands.command(name="solved", aliases=["solve", "submit", "SOLVED"], hidden=True)
     async def solved_alias(
         self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
     ):
@@ -311,7 +309,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @admin.command(aliases=["solve", "answer", "answered", "SOLVED"])
+    @admin.command(aliases=["solve", "submit", "SOLVED"])
     async def solved(
         self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
     ):
