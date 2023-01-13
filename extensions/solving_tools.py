@@ -2,7 +2,6 @@
 import discord
 from discord.ext import commands
 import string
-import aiohttp
 import random
 import extensions.util.urlhandler as urlhandler
 import extensions.util.tables as tables

@@ -1,5 +1,6 @@
 """Contains bot commands for relaying meta-information about puzzles (which ones need solving; where they're being solved; etc.)"""
 
+import aiohttp
 import asyncio
 import datetime
 import discord
@@ -8,6 +9,7 @@ from discord.ext.commands import guild_only
 import puzzboss_interface
 import discord_info
 import logging
+import re
 import typing
 from common import build_puzzle_embed, xyzloc_mention
 from pytz import timezone
@@ -88,7 +90,7 @@ class PuzzleStatus(commands.Cog):
         tables = [
             table
             for table in guild.voice_channels
-            if table.category and table.category.name.startswith("🦉")
+            if table.category and table.category.name.startswith("🪴")
         ]
         table_sizes = {table.name: len(table.members) for table in tables}
         xyzlocs = {table.name: [] for table in tables}
@@ -388,7 +390,9 @@ class PuzzleStatus(commands.Cog):
                 )
             await ctx.send(
                 "Sorry, you need to join one of the table voice chats "
-                + "before you can use the !joinus command."
+                + "before you can use the !joinus command.\n\n"
+                + "If you're hunting in person, whoever at your table is using "
+                + "the speakerphone must run !joinus for you. Then you "
                 + xyz
             )
             return
@@ -449,20 +453,41 @@ class PuzzleStatus(commands.Cog):
 
     @guild_only()
     @commands.command(name="wb", aliases=["whiteboard"])
-    async def wb(self, ctx):
+    async def wb(self, ctx, new: typing.Optional[str]):
         """Creates a new whiteboard for you to use, each time you call it"""
+        if new != "new":
+            pins = await ctx.channel.pins()
+            wb_message = next(
+                (
+                    pin.content
+                    for pin in pins
+                    if pin.author == self.bot.user
+                    and "https://cocreate.mehtank.com/r/" in pin.content
+                ),
+                None,
+            )
+            if wb_message:
+                wb_url = re.findall(
+                    r"https://cocreate\.mehtank\.com/r/[^*]+", wb_message
+                )[0]
+                await ctx.send(
+                    f"🎨 Found an existing whiteboard for you: 🎨\n**{wb_url}**\n\n"
+                    f"Direct everyone here! Re-running `!wb new` will "
+                    f"generate new, distinct whiteboards."
+                )
+                return
+
         url = "https://cocreate.mehtank.com/api/roomNew"
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 result = await response.json()
-                whiteboard_url = result["url"]
-        await ctx.send(
-            (
-                "🎨 Generated a whiteboard for you: 🎨\n**{}**\n\n"
-                + "Direct everyone here! Re-running `!wb` will "
-                + "generate new whiteboards."
-            ).format(whiteboard_url),
+                wb_url = result["url"]
+        message = await ctx.send(
+            f"🎨 Generated a whiteboard for you: 🎨\n**{wb_url}**\n\n"
+            f"Direct everyone here! Re-running `!wb new` will "
+            f"generate new, distinct whiteboards."
         )
+        await message.pin()
 
     @commands.Cog.listener("on_voice_state_update")
     async def handle_vc_emptying(self, member, before, after):
@@ -518,7 +543,9 @@ class PuzzleStatus(commands.Cog):
                             "Everyone left **{0.name}**, so this puzzle is "
                             + "no longer considered in progress.\n"
                             + "If you're working on this at a table, "
-                            + "please run the `!joinus` command."
+                            + "please run the `!joinus` command.\n\n"
+                            + "If you are in person, please stay connected to "
+                            + "a voice chat so remote folks can contribute too."
                         ).format(table)
                     )
                 except:
