@@ -88,7 +88,7 @@ class PuzzleStatus(commands.Cog):
         tables = [
             table
             for table in guild.voice_channels
-            if table.category and table.category.name.startswith("🪴")
+            if table.category and table.category.name.startswith("🦉")
         ]
         table_sizes = {table.name: len(table.members) for table in tables}
         xyzlocs = {table.name: [] for table in tables}
@@ -446,6 +446,23 @@ class PuzzleStatus(commands.Cog):
         )
         await ctx.message.add_reaction("👋")
         await ctx.message.add_reaction("🔚")
+
+    @guild_only()
+    @commands.command(name="wb", aliases=["whiteboard"])
+    async def wb(self, ctx):
+        """Creates a new whiteboard for you to use, each time you call it"""
+        url = "https://cocreate.mehtank.com/api/roomNew"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                result = await response.json()
+                whiteboard_url = result["url"]
+        await ctx.send(
+            (
+                "🎨 Generated a whiteboard for you: 🎨\n**{}**\n\n"
+                + "Direct everyone here! Re-running `!wb` will "
+                + "generate new whiteboards."
+            ).format(whiteboard_url),
+        )
 
     @commands.Cog.listener("on_voice_state_update")
     async def handle_vc_emptying(self, member, before, after):
