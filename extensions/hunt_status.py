@@ -263,7 +263,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         rounds = dict(
             sorted(
                 rounds.items(),
-                key=lambda item: -item[1]["max_id"],
+                key=lambda item: (-item[1]["approx_solvers"], -item[1]["max_id"]),
             )
         )
         solved = [
