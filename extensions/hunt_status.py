@@ -220,6 +220,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         ]
         table_sizes = {table.name: len(table.members) for table in tables}
         puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
+        meta_ids = puzzboss_interface.SQL.get_meta_ids(bot=self.bot)
         rounds = {}
         for puzzle in puzzles:
             round_name = puzzle["round_name"]
@@ -251,7 +252,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
                     rounds[round_name]["approx_solvers"] += table_sizes[xyzloc]
                     rounds[round_name]["solver_tables"].append(xyzloc)
 
-            if puzzle["name"].lower().endswith("meta"):
+            if puzzle["id"] in meta_ids:
                 rounds[round_name]["num_metas"] += 1
                 if status == "Solved":
                     rounds[round_name]["num_metas_solved"] += 1
@@ -352,7 +353,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         """Show hipri puzzles"""
         puzzles = sorted(
             puzzboss_interface.SQL.get_hipri_puzzles(bot=self.bot),
-            key=lambda puzzle: (puzzle["status"], puzzle["id"]),
+            key=lambda puzzle: (puzzle["status"], -1 * puzzle["ismeta"], puzzle["id"]),
         )
         response = "**Priority Puzzles ({}):**\n".format(len(puzzles))
         prefixes = {
@@ -367,6 +368,8 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
             status = puzzle["status"]
             response += prefixes[status]
             response += " {status}: `{name}` (<#{channel_id}>)".format(**puzzle)
+            if puzzle["ismeta"]:
+                response += " [**META** 🏅]"
             if puzzle["xyzloc"]:
                 response += " in **{}**".format(
                     xyzloc_mention(ctx.guild, puzzle["xyzloc"])

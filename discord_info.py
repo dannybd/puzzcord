@@ -34,7 +34,8 @@ def is_puzzle_channel(channel):
     category = channel.category
     if not category:
         return False
-    return category.name.startswith("🧩") or channel.category.name.startswith("🏁")
+    catname = category.name
+    return catname.startswith("🧩") or catname.startswith("🏁") or catname.startswith("🚫")
 
 
 def get_table(member):

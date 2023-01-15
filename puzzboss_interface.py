@@ -63,6 +63,7 @@ class SQL:
                     status,
                     answer,
                     xyzloc,
+                    ismeta,
                     comments
                 FROM puzzle_view
                 WHERE chat_channel_id IN ({})
@@ -112,6 +113,7 @@ class SQL:
                     status,
                     answer,
                     xyzloc,
+                    ismeta,
                     comments,
                     cursolvers
                 FROM puzzle_view
@@ -140,6 +142,21 @@ class SQL:
             return [row["name"] for row in cursor.fetchall()]
 
     @staticmethod
+    def get_meta_ids(bot=None):
+        connection = SQL._get_db_connection(bot=bot)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    meta_id
+                FROM round_view
+                WHERE name <> "mistakes"
+                """,
+            )
+            return [row["meta_id"] for row in cursor.fetchall()]
+
+    @staticmethod
     def get_all_puzzles(bot=None):
         connection = SQL._get_db_connection(bot=bot)
         with connection.cursor() as cursor:
@@ -155,6 +172,7 @@ class SQL:
                     status,
                     answer,
                     xyzloc,
+                    ismeta,
                     comments
                 FROM puzzle_view
                 WHERE roundname <> "mistakes"
@@ -175,6 +193,7 @@ class SQL:
                     chat_channel_id AS channel_id,
                     status,
                     xyzloc,
+                    ismeta,
                     comments
                 FROM puzzle_view
                 WHERE roundname <> "mistakes"
@@ -194,6 +213,7 @@ class SQL:
                     id,
                     name,
                     status,
+                    ismeta,
                     chat_channel_id AS channel_id
                 FROM puzzle_view
                 WHERE xyzloc LIKE %s

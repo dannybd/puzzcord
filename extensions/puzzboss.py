@@ -281,7 +281,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         )
         response = await puzzboss_interface.REST.post(
             "/rounds/{}/round_uri".format(round_name),
-            {"data": "https://perpendicular.institute/puzzles#solved"},
+            {"data": "https://puzzlefactory.place/puzzles#solved"},
         )
         status = response.status
         if status == 200:
