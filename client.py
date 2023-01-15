@@ -445,7 +445,11 @@ async def gen_cleanup(justification):
         for category in guild.categories
         if not category.channels
         and category.id not in [PUZZLE_CATEGORY, SOLVED_PUZZLE_CATEGORY]
-        and (category.name.startswith("🧩") or category.name.startswith("🏁") or category.name.startswith("🚫"))
+        and (
+            category.name.startswith("🧩")
+            or category.name.startswith("🏁")
+            or category.name.startswith("🚫")
+        )
     ]
     logging.info("Found {0} empty puzzle categories".format(len(empty_categories)))
     for category in empty_categories:

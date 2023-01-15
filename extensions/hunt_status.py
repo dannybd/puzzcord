@@ -252,7 +252,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
                     rounds[round_name]["approx_solvers"] += table_sizes[xyzloc]
                     rounds[round_name]["solver_tables"].append(xyzloc)
 
-            if puzzle["id"] in meta_ids:
+            if puzzle["id"] in meta_ids or round_name == "Capstones":
                 rounds[round_name]["num_metas"] += 1
                 if status == "Solved":
                     rounds[round_name]["num_metas_solved"] += 1
@@ -294,10 +294,21 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
             ),
         )
 
-        solved_round_names = puzzboss_interface.SQL.get_solved_round_names(bot=self.bot)
+        solved_round_names = []
 
         for name, round in rounds.items():
-            if name in solved_round_names:
+            if (
+                round["num_metas"] > 0
+                and round["num_metas"] == round["num_metas_solved"]
+                and round["Other"] == 0
+                and round["Needs eyes"] == 0
+                and round["Critical"] == 0
+                and round["WTF"] == 0
+            ):
+                solved_round_names.append(name)
+                continue
+            if name == "Events" and round["Solved"] == 4:
+                solved_round_names.append(name)
                 continue
             value = "Out of **{total}** puzzles open:\n".format(**round)
 
