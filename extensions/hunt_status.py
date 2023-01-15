@@ -304,6 +304,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
                 and round["Needs eyes"] == 0
                 and round["Critical"] == 0
                 and round["WTF"] == 0
+                and round["approx_solvers"] == 0
             ):
                 solved_round_names.append(name)
                 continue
