@@ -50,7 +50,7 @@ class PuzzcordBot(commands.Bot):
         self.tz = timezone("US/Eastern")
         # TODO: Update for 2024
         self.hunt_begins = datetime.datetime(2023, 1, 13, hour=13, tzinfo=self.tz)
-        self.hunt_ends = datetime.datetime(2023, 1, 15, hour=18, tzinfo=self.tz)
+        self.hunt_ends = datetime.datetime(2023, 1, 16, hour=12, tzinfo=self.tz)
 
     def now(self):
         return datetime.datetime.now(self.tz)
