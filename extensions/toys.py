@@ -47,6 +47,9 @@ class Toys(commands.Cog):
         if "thanks obama" in content:
             await channel.send("You're welcome!")
             return
+        if "org chart" in content:
+            await channel.send("We had a plan, and we executed the plan.")
+            return
         if content.startswith("!backsolv"):
             message = await channel.send(
                 "It's only backsolving if it comes from the region of "
