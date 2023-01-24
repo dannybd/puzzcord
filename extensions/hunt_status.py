@@ -22,6 +22,9 @@ class HuntStatus(commands.Cog):
         guild = self.bot.get_guild(discord_info.GUILD_ID)
         if not guild:
             return
+        now = self.bot.now()
+        if now > self.bot.hunt_ends:
+            return
         members = discord_info.get_team_members(guild)
         online_members = [
             member for member in members if member.status != discord.Status.offline
