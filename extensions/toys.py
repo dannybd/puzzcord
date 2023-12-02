@@ -35,6 +35,15 @@ class Toys(commands.Cog):
         ]
         await ctx.send("No! " + ", ".join(left))
 
+    @commands.command()
+    async def zwsp(self, ctx):
+        """Helper for getting a Zero Width Space"""
+        await ctx.send(
+            "Here is a [zero-width space](<https://en.wikipedia.org/wiki/Zero-width_space>) "
+            + "(ZWSP, U+200B): ```​``` "
+            + "You can also copy one [here](<https://zerowidthspace.me/>)."
+        )
+
     @commands.Cog.listener("on_message")
     async def fun_replies(self, message):
         if message.author == self.bot.user:
