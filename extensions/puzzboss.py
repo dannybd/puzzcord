@@ -238,9 +238,13 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         await newboss.add_roles(puzzboss_role)
         await ctx.send(
             (
-                "{0.mention} has annointed {1.mention} as the new {2.mention}! "
+                "{0.mention} has annointed {1} as the new {2.mention}! "
                 + "Use {2.mention} to get their attention."
-            ).format(ctx.author, newboss, puzzboss_role)
+            ).format(
+                ctx.author,
+                newboss.mention if newboss != ctx.author else "themself",
+                puzzboss_role,
+            )
         )
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
