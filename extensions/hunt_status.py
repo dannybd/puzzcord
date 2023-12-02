@@ -202,8 +202,8 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
             title="🧩 Your ~~Spotify~~ Mystery Hunt Wrapped 🎁",
             description=descriptions[0],
         )
-        # TODO: Update for 2024
-        embed.set_thumbnail(url="https://i.imgur.com/dnWoHz7.jpeg")
+        # TODO: Update for 2025
+        embed.set_thumbnail(url="https://i.imgur.com/JTgqNFP.png")
         embed.set_footer(
             text="based on approximate data, assembled hastily with love by danny"
         )

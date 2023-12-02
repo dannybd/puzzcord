@@ -48,11 +48,9 @@ class PuzzcordBot(commands.Bot):
         self.connection = puzzboss_interface.SQL._get_db_connection()
         self.hunt_team = config["hunt_team"]
         self.tz = timezone("US/Eastern")
-        # TODO: Update for 2024
-        self.hunt_begins = datetime.datetime(2023, 1, 13, hour=13, tzinfo=self.tz)
-        self.hunt_ends = datetime.datetime(
-            2023, 1, 16, hour=9, minute=3, tzinfo=self.tz
-        )
+        # TODO: Update for 2025
+        self.hunt_begins = datetime.datetime(2024, 1, 12, hour=13, tzinfo=self.tz)
+        self.hunt_ends = datetime.datetime(2024, 1, 15, hour=12, tzinfo=self.tz)
 
     def now(self):
         return datetime.datetime.now(self.tz)
