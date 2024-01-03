@@ -14,9 +14,11 @@ def print_user(user: discord.Member, with_display_name=False):
     name = user.name
     if int(user.discriminator or 0):
         name += f"#{user.discriminator}"
-    local_name = str(user)
-    if with_display_name and local_name != name:
-        name += f" ({local_name})"
+    if with_display_name:
+        if user.display_name != name:
+            name += f" ({user.display_name})"
+        elif user.global_name != name:
+            name += f" ({user.global_name})"
     return name
 
 
