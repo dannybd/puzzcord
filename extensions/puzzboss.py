@@ -11,15 +11,14 @@ from discord_info import *
 
 
 def print_user(user: discord.Member, with_display_name=False):
-    name = user.name
+    username = user.name
     if int(user.discriminator or 0):
-        name += f"#{user.discriminator}"
-    if with_display_name:
-        if user.display_name != name:
-            name += f" ({user.display_name})"
-        elif user.global_name != name:
-            name += f" ({user.global_name})"
-    return name
+        username += f"#{user.discriminator}"
+
+    if with_display_name and user.display_name != username:
+        return f"{user.display_name} ({username})"
+
+    return username
 
 
 class Puzzboss(commands.Cog):
