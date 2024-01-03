@@ -533,6 +533,31 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 """,
             )
             verified_discord_ids = [int(row["chat_uid"]) for row in cursor.fetchall()]
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id
+                    name,
+                    fullname
+                FROM solver_view
+                WHERE
+                    chat_uid IS NULL
+                    AND id > 310
+                ORDER BY id DESC
+                LIMIT 10
+                """,
+            )
+            unverified_new_accounts = [
+                f"{row['name']} ({row['fullname']}, ID {row['id']})"
+                for row in cursor.fetchall()
+            ]
+        if unverified_new_accounts:
+            unverified_new_accounts = "\n\nRecent Puzzleboss accounts needing Discord users:\n```{0}```".format(
+                "\n".join(unverified_new_accounts)
+            )
+        else:
+            unverified_new_accounts = ""
         visitor_role = ctx.guild.get_role(VISITOR_ROLE)
         unverified_users = [
             member
@@ -580,7 +605,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         else:
             unverified_members = ""
 
-        await ctx.send(unverified_other + unverified_members)
+        await ctx.send(unverified_other + unverified_members + unverified_new_accounts)
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @commands.command(name="verify", hidden=True)
