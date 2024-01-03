@@ -11,7 +11,7 @@ from discord_info import *
 
 
 def print_user(user: discord.Member):
-    if user.discriminator:
+    if int(user.discriminator or 0):
         return f"{user.name}#{user.discriminator}"
     return user.name
 
