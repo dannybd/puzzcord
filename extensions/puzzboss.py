@@ -10,10 +10,13 @@ import typing
 from discord_info import *
 
 
-def print_user(user: discord.Member):
+def print_user(user: discord.Member, with_display_name=False):
+    name = user.name
     if int(user.discriminator or 0):
-        return f"{user.name}#{user.discriminator}"
-    return user.name
+        name += f"#{user.discriminator}"
+    if with_display_name and user.display_name != name:
+        name += f" ({user.display_name})"
+    return name
 
 
 class Puzzboss(commands.Cog):
@@ -190,8 +193,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             await ctx.send(response)
 
     def _lookup_discord_user(self, member: discord.Member):
-        member_tag = "Discord user `{0.display_name} ({1})`".format(
-            member, print_user(member)
+        member_tag = "Discord user `{0}`".format(
+            print_user(member, with_display_name=True)
         )
         if member.bot:
             return f"{member_tag} is a bot, like me :)"
@@ -461,9 +464,9 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
         member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
         lines = [
-            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {1} ({0.display_name}){2}".format(
+            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {1}{2}".format(
                 member,
-                print_user(member),
+                print_user(member, with_display_name=True),
                 "  [Team Member]" if member_role in member.roles else "",
             )
             for member in dupe_members
@@ -586,8 +589,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             return
         member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
         unverified_other = [
-            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {1} ({0.display_name})".format(
-                member, print_user(member)
+            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {1}".format(
+                member, print_user(member, with_display_name=True)
             )
             for member in unverified_users
             if member_role not in member.roles
@@ -602,8 +605,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             unverified_other = ""
 
         unverified_members = [
-            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {1} ({0.display_name})".format(
-                member, print_user(member)
+            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {1}".format(
+                member, print_user(member, with_display_name=True)
             )
             for member in unverified_users
             if member_role in member.roles
