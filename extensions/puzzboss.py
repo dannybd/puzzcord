@@ -10,6 +10,12 @@ import typing
 from discord_info import *
 
 
+def print_user(user: discord.Member):
+    if user.discriminator:
+        return f"{user.name}#{user.discriminator}"
+    return user.name
+
+
 class Puzzboss(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -184,9 +190,9 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             await ctx.send(response)
 
     def _lookup_discord_user(self, member: discord.Member):
-        member_tag = (
-            "Discord user `{0.display_name} ({0.name}#{0.discriminator})`"
-        ).format(member)
+        member_tag = "Discord user `{0.display_name} ({1})`".format(
+            member, print_user(member)
+        )
         if member.bot:
             return f"{member_tag} is a bot, like me :)"
         connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
@@ -455,8 +461,10 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
         member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
         lines = [
-            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {0.name}#{0.discriminator} ({0.display_name}){1}".format(
-                member, "  [Team Member]" if member_role in member.roles else ""
+            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {1} ({0.display_name}){2}".format(
+                member,
+                print_user(member),
+                "  [Team Member]" if member_role in member.roles else "",
             )
             for member in dupe_members
         ]
@@ -553,8 +561,10 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 for row in cursor.fetchall()
             ]
         if unverified_new_accounts:
-            unverified_new_accounts = "\nRecent Puzzleboss accounts needing Discord users:\n```{0}```".format(
-                "\n".join(unverified_new_accounts)
+            unverified_new_accounts = (
+                "\nRecent Puzzleboss accounts needing Discord users:\n```{0}```".format(
+                    "\n".join(unverified_new_accounts)
+                )
             )
         else:
             unverified_new_accounts = ""
@@ -576,8 +586,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             return
         member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
         unverified_other = [
-            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {0.name}#{0.discriminator} ({0.display_name})".format(
-                member
+            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {1} ({0.display_name})".format(
+                member, print_user(member)
             )
             for member in unverified_users
             if member_role not in member.roles
@@ -592,8 +602,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             unverified_other = ""
 
         unverified_members = [
-            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {0.name}#{0.discriminator} ({0.display_name})".format(
-                member
+            "Joined {0.joined_at:%Y-%m-%d %H:%M}: {1} ({0.display_name})".format(
+                member, print_user(member)
             )
             for member in unverified_users
             if member_role in member.roles
@@ -698,7 +708,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 """,
                 (
                     str(member.id),
-                    "{0.name}#{0.discriminator}".format(member),
+                    print_user(member),
                     solver["id"],
                 ),
             )
