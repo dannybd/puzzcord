@@ -543,7 +543,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 FROM solver_view
                 WHERE
                     chat_uid IS NULL
-                    AND id > 310
+                    AND id > 320
                 ORDER BY id DESC
                 LIMIT 10
                 """,
@@ -553,7 +553,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 for row in cursor.fetchall()
             ]
         if unverified_new_accounts:
-            unverified_new_accounts = "\n\nRecent Puzzleboss accounts needing Discord users:\n```{0}```".format(
+            unverified_new_accounts = "\nRecent Puzzleboss accounts needing Discord users:\n```{0}```".format(
                 "\n".join(unverified_new_accounts)
             )
         else:
