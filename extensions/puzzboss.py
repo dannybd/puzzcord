@@ -537,7 +537,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             cursor.execute(
                 """
                 SELECT
-                    id
+                    id,
                     name,
                     fullname
                 FROM solver_view
