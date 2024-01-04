@@ -366,9 +366,10 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
     @commands.command()
     async def hipri(self, ctx):
         """Show hipri puzzles"""
+        meta_ids = puzzboss_interface.SQL.get_meta_ids(bot=self.bot)
         puzzles = sorted(
             puzzboss_interface.SQL.get_hipri_puzzles(bot=self.bot),
-            key=lambda puzzle: (puzzle["status"], -1 * puzzle["ismeta"], puzzle["id"]),
+            key=lambda puzzle: (puzzle["status"], -1 * int(puzzle["id"] in meta_ids), puzzle["id"]),
         )
         response = "**Priority Puzzles ({}):**\n".format(len(puzzles))
         prefixes = {
@@ -383,7 +384,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
             status = puzzle["status"]
             response += prefixes[status]
             response += " {status}: `{name}` (<#{channel_id}>)".format(**puzzle)
-            if puzzle["ismeta"]:
+            if puzzle["id"] in meta_ids:
                 response += " [**META** 🏅]"
             if puzzle["xyzloc"]:
                 response += " in **{}**".format(

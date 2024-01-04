@@ -63,7 +63,6 @@ class SQL:
                     status,
                     answer,
                     xyzloc,
-                    FALSE AS ismeta,
                     comments
                 FROM puzzle_view
                 WHERE chat_channel_id IN ({})
@@ -113,7 +112,6 @@ class SQL:
                     status,
                     answer,
                     xyzloc,
-                    FALSE AS ismeta,
                     comments,
                     cursolvers
                 FROM puzzle_view
@@ -172,7 +170,6 @@ class SQL:
                     status,
                     answer,
                     xyzloc,
-                    FALSE AS ismeta,
                     comments
                 FROM puzzle_view
                 WHERE roundname <> "mistakes"
@@ -193,7 +190,6 @@ class SQL:
                     chat_channel_id AS channel_id,
                     status,
                     xyzloc,
-                    FALSE AS ismeta,
                     comments
                 FROM puzzle_view
                 WHERE roundname <> "mistakes"
@@ -213,7 +209,6 @@ class SQL:
                     id,
                     name,
                     status,
-                    FALSE AS ismeta,
                     chat_channel_id AS channel_id
                 FROM puzzle_view
                 WHERE xyzloc LIKE %s
