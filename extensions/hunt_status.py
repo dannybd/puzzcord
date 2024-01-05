@@ -29,6 +29,12 @@ class HuntStatus(commands.Cog):
         online_members = [
             member for member in members if member.status != discord.Status.offline
         ]
+        puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
+        solved = [
+            puzzle
+            for puzzle in puzzles
+            if puzzle["status"] == "Solved" and puzzle["answer"]
+        ]
         active_members = set()
         tables = [
             channel
