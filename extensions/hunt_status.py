@@ -48,8 +48,13 @@ class HuntStatus(commands.Cog):
                     active_in_voice.add(user.id)
 
         time_window_start = now - datetime.timedelta(minutes=15.0)
+        last_loop_snowflake = discord.utils.time_snowflake(
+            now - datetime.timedelta(seconds=60.0),
+            high=False
+        ) - 1
 
         active_in_text = set()
+        messages_per_minute = 0
         for channel in guild.text_channels:
             last_message_id = channel.last_message_id
             if not last_message_id:
@@ -60,6 +65,8 @@ class HuntStatus(commands.Cog):
             async for message in channel.history(after=time_window_start):
                 if message.author in members:
                     active_in_text.add(message.author.id)
+                    if message.id >= last_loop_snowflake:
+                        messages_per_minute += 1
 
         active_in_sheets = set()
         solvers = puzzboss_interface.SQL.get_all_solvers(bot=self.bot)
@@ -105,6 +112,7 @@ class HuntStatus(commands.Cog):
                     )
                 ),
             },
+            "messages_per_minute": messages_per_minute,
         }
 
         logging.info(
