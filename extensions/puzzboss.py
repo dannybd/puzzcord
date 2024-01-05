@@ -127,19 +127,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
                 return True
             return False
 
-        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT
-                    name,
-                    fullname,
-                    chat_name AS discord_name
-                FROM solver_view
-                ORDER BY name
-                """,
-            )
-            solvers = cursor.fetchall()
+        solvers = puzzboss_interface.SQL.get_all_solvers(bot=self.bot)
         results = []
         for solver in solvers:
             if solver_matches(**solver):

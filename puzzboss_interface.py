@@ -234,3 +234,37 @@ class SQL:
             )
             row = cursor.fetchone()
         return row if row else None
+
+    @staticmethod
+    def get_all_solvers(bot=None):
+        connection = SQL._get_db_connection(bot=bot)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id AS solver_id,
+                    name,
+                    fullname,
+                    chat_uid AS discord_id,
+                    chat_name AS discord_name
+                FROM solver_view
+                ORDER BY name
+                """,
+            )
+            return cursor.fetchall()
+
+    @staticmethod
+    def get_solver_ids_since(time, bot=None):
+        connection = SQL._get_db_connection(bot=bot)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    DISTINCT solver_id
+                FROM puzzle_solver
+                WHERE time > %s
+                """,
+                time
+            )
+            return [row["solver_id"] for row in cursor.fetchall()]
+
