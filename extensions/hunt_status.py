@@ -35,7 +35,7 @@ class HuntStatus(commands.Cog):
             for puzzle in puzzles
             if puzzle["status"] == "Solved" and puzzle["answer"]
         ]
-        active_members = set()
+        active_in_voice = set()
         tables = [
             channel
             for channel in guild.voice_channels
@@ -44,9 +44,11 @@ class HuntStatus(commands.Cog):
         for table in tables:
             for user in table.members:
                 if user in members and user.voice != discord.VoiceState.self_deaf:
-                    active_members.add(user.id)
+                    active_in_voice.add(user.id)
 
         time_window_start = now - datetime.timedelta(minutes=15.0)
+
+        active_in_text = set()
         for channel in guild.text_channels:
             last_message_id = channel.last_message_id
             if not last_message_id:
@@ -56,8 +58,9 @@ class HuntStatus(commands.Cog):
                 continue
             async for message in channel.history(after=time_window_start):
                 if message.author in members:
-                    active_members.add(message.author.id)
+                    active_in_text.add(message.author.id)
 
+        active_in_sheets = set()
         solvers = puzzboss_interface.SQL.get_all_solvers(bot=self.bot)
         recent_solvers = puzzboss_interface.SQL.get_solver_ids_since(
             time=time_window_start,
@@ -66,7 +69,13 @@ class HuntStatus(commands.Cog):
         for solver in solvers:
             if solver["solver_id"] not in recent_solvers:
                 continue
-            active_members.add(int(solver["discord_id"]))
+            active_in_sheets.add(int(solver["discord_id"]))
+
+        active_members = set().union(
+            active_in_text,
+            active_in_voice,
+            active_in_sheets,
+        )
 
         logging.info(
             f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
@@ -78,7 +87,19 @@ class HuntStatus(commands.Cog):
         )
         logging.info(
             f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
-            f"{len(active_members)}/{len(members)} members active; "
+            f"{len(active_in_voice)}/{len(members)} members active in voice; "
+        )
+        logging.info(
+            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
+            f"{len(active_in_text)}/{len(members)} members active in text; "
+        )
+        logging.info(
+            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
+            f"{len(active_in_sheets)}/{len(members)} members active in sheets; "
+        )
+        logging.info(
+            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
+            f"{len(active_members)}/{len(members)} members active total; "
         )
 
     @commands.command()
