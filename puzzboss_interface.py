@@ -261,7 +261,7 @@ class SQL:
                 """
                 SELECT
                     DISTINCT solver_id
-                FROM puzzle_solver
+                FROM activity
                 WHERE time > %s
                 """,
                 time,

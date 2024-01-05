@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands, tasks
 import puzzboss_interface
 import discord_info
+import json
 import logging
 from common import xyzloc_mention
 import datetime
@@ -77,29 +78,38 @@ class HuntStatus(commands.Cog):
             active_in_sheets,
         )
 
+        metrics_payload = {
+            "time": self.bot.now().strftime("%Y-%m-%dT%H:%M:%S"),
+            "hours_in": self.get_hunt_hours_clock(),
+            "puzzles": {
+                "total": len(puzzles),
+                "solved": len(solved),
+            },
+            "members": {
+                "total": len(members),
+                "online": len(online_members),
+                "active_in_voice": len(active_in_voice),
+                "active_in_text": len(active_in_text),
+                "active_in_sheets": len(active_in_sheets),
+                "active_in_discord": len(
+                    set().union(
+                        active_in_text,
+                        active_in_voice,
+                    )
+                ),
+                "active_anywhere": len(
+                    set().union(
+                        active_in_text,
+                        active_in_voice,
+                        active_in_sheets,
+                    )
+                ),
+            },
+        }
+
         logging.info(
-            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
-            f"{len(solved)}/{len(puzzles)} puzzles solved; "
-        )
-        logging.info(
-            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
-            f"{len(online_members)}/{len(members)} members online; "
-        )
-        logging.info(
-            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
-            f"{len(active_in_voice)}/{len(members)} members active in voice; "
-        )
-        logging.info(
-            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
-            f"{len(active_in_text)}/{len(members)} members active in text; "
-        )
-        logging.info(
-            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
-            f"{len(active_in_sheets)}/{len(members)} members active in sheets; "
-        )
-        logging.info(
-            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
-            f"{len(active_members)}/{len(members)} members active total; "
+            f"<<<METRICS_SNAPSHOT>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
+            f"{json.dumps(metrics_payload)}"
         )
 
     @commands.command()
@@ -410,18 +420,19 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
                 inline=True,
             )
 
+        embed.set_footer(text=self.get_hunt_hours_clock())
+        await ctx.send(embed=embed)
+
+    def get_hunt_hours_clock(self):
         now = self.bot.now()
         hunt_begins = self.bot.hunt_begins
         hunt_ends = self.bot.hunt_ends
         hours_in = (min(now, hunt_ends) - hunt_begins).total_seconds() / 3600
-        embed.set_footer(
-            text="T{0:+.1f} hours {1} Hunt{2}".format(
-                hours_in,
-                "into" if hours_in >= 0 else "until",
-                " [FINAL]" if now > hunt_ends else "",
-            )
+        return "T{0:+.1f} hours {1} Hunt{2}".format(
+            hours_in,
+            "into" if hours_in >= 0 else "until",
+            " [FINAL]" if now > hunt_ends else "",
         )
-        await ctx.send(embed=embed)
 
     @commands.guild_only()
     @commands.command()
