@@ -29,16 +29,50 @@ class HuntStatus(commands.Cog):
         online_members = [
             member for member in members if member.status != discord.Status.offline
         ]
-        puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
-        solved = [
-            puzzle
-            for puzzle in puzzles
-            if puzzle["status"] == "Solved" and puzzle["answer"]
+        active_members = set()
+        tables = [
+            channel
+            for channel in guild.voice_channels
+            if "tables" in str(channel.category).lower()
         ]
+        for table in tables:
+            for user in table.members:
+                if user in members and user.voice != discord.VoiceState.self_deaf:
+                    active_members.add(user.id)
+
+        time_window_start = now - datetime.timedelta(minutes=15.0)
+        for channel in guild.text_channels:
+            last_message_id = channel.last_message_id
+            if not last_message_id:
+                continue
+            last_message_time = discord.utils.snowflake_time(last_message_id)
+            if last_message_time < time_window_start:
+                continue
+            async for message in channel.history(after=time_window_start):
+                if message.author in members:
+                    active_members.add(message.author.id)
+
+        solvers = puzzboss_interface.SQL.get_all_solvers(bot=self.bot)
+        recent_solvers = puzzboss_interface.SQL.get_solver_ids_since(
+            time=time_window_start,
+            bot=self.bot,
+        )
+        for solver in solvers:
+            if solver["solver_id"] not in recent_solvers:
+                continue
+            active_members.add(int(solver["discord_id"]))
+
+        logging.info(
+            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
+            f"{len(solved)}/{len(puzzles)} puzzles solved; "
+        )
         logging.info(
             f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
             f"{len(online_members)}/{len(members)} members online; "
-            f"{len(solved)}/{len(puzzles)} puzzles solved"
+        )
+        logging.info(
+            f"<<<METRICS>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
+            f"{len(active_members)}/{len(members)} members active; "
         )
 
     @commands.command()
@@ -369,7 +403,11 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         meta_ids = puzzboss_interface.SQL.get_meta_ids(bot=self.bot)
         puzzles = sorted(
             puzzboss_interface.SQL.get_hipri_puzzles(bot=self.bot),
-            key=lambda puzzle: (puzzle["status"], -1 * int(puzzle["id"] in meta_ids), puzzle["id"]),
+            key=lambda puzzle: (
+                puzzle["status"],
+                -1 * int(puzzle["id"] in meta_ids),
+                puzzle["id"],
+            ),
         )
         response = "**Priority Puzzles ({}):**\n".format(len(puzzles))
         prefixes = {

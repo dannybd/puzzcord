@@ -4,7 +4,6 @@ from hashlib import md5
 
 
 def build_puzzle_embed(puzzle, guild):
-
     description = ""
 
     if "xyzloc" in puzzle and puzzle["xyzloc"]:

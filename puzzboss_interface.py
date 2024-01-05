@@ -264,7 +264,6 @@ class SQL:
                 FROM puzzle_solver
                 WHERE time > %s
                 """,
-                time
+                time,
             )
             return [row["solver_id"] for row in cursor.fetchall()]
-
