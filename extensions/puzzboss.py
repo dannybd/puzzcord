@@ -418,14 +418,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         await ctx.send("Success! Moved this back.")
         logging.info("{0.command}: succeeded!".format(ctx))
 
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(name="duplicates", hidden=True)
     async def duplicates_alias(self, ctx):
         """Try to find duplicate guild members"""
         return await self.duplicates(ctx)
 
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command()
     async def duplicates(self, ctx):
@@ -462,14 +462,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             + "\n```"
         )
 
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(name="unmatched", hidden=True)
     async def unmatched_alias(self, ctx):
         """Unmatched Puzzleboss accounts w/o Discord accounts yet"""
         return await self.unmatched(ctx)
 
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command()
     async def unmatched(self, ctx):
@@ -505,14 +505,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             + "\n```"
         )
 
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(name="unverified", hidden=True)
     async def unverified_alias(self, ctx):
         """Lists not-yet-verified team members"""
         return await self.unverified(ctx)
 
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command()
     async def unverified(self, ctx):
@@ -604,7 +604,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
         await ctx.send(unverified_other + unverified_members + unverified_new_accounts)
 
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @commands.command(name="verify", hidden=True)
     async def verify_alias(
         self, ctx, member: typing.Union[discord.Member, str], *, username: str
@@ -614,7 +614,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         """
         return await self.verify(ctx, member, username=username)
 
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command()
     async def verify(
@@ -623,15 +623,6 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         """Verifies a team member with their email
         Usage: !verify @member username[@importanthuntpoll.org]
         """
-        verifier_role = ctx.guild.get_role(794318951235715113)
-        if verifier_role not in ctx.author.roles:
-            await ctx.send(
-                (
-                    "Sorry, only folks with the @{0.name} "
-                    + "role can use this command."
-                ).format(verifier_role)
-            )
-            return
         if not isinstance(member, discord.Member) and " " in username:
             # Let's perform some surgery, and stitch the actual member name
             # back together.
@@ -721,6 +712,12 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 + "If the person's display name has spaces or weird symbols "
                 + "in it, try wrapping it in quotes, like\n"
                 + '`!verify "Fancy Name" FancyPerson`'
+            )
+            return
+        if isinstance(error, errors.CheckFailure):
+            await ctx.send(
+                "Sorry, only folks with the @RoleVerifier role can use this command. "
+                + "Ping them and they should be able to help you."
             )
             return
         await ctx.send(
