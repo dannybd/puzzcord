@@ -318,7 +318,7 @@ class PuzzleStatus(commands.Cog):
         if not solver:
             await ctx.send(
                 f"Sorry, we can't find your {domain} account. Please talk to "
-                + "a @Role Verifier, then try again."
+                + "a @RoleVerifier, then try again."
             )
             return
         response = await puzzboss_interface.REST.post(
@@ -350,7 +350,7 @@ class PuzzleStatus(commands.Cog):
         if not solver:
             await ctx.send(
                 f"Sorry, we can't find your {domain} account. Please talk to "
-                + "a @Role Verifier, then try again."
+                + "a @RoleVerifier, then try again."
             )
             return
         response = await puzzboss_interface.REST.post(

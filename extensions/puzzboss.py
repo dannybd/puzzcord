@@ -28,14 +28,14 @@ class Puzzboss(commands.Cog):
             return
         await ctx.send("Sneaky things happen here 👀")
 
-    @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
+    @has_any_role("RoleVerifier", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(name="onboard", hidden=True)
     async def onboard_alias(self, ctx, member: discord.Member):
         """Sends a onboarding message to a new member"""
         return await self.onboard(ctx, member=member)
 
-    @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
+    @has_any_role("RoleVerifier", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command(name="onboard")
     async def onboard(self, ctx, member: discord.Member):
@@ -49,7 +49,7 @@ class Puzzboss(commands.Cog):
 Welcome to **{team_name}!** Here's how to get started.
 
 1. Make a Puzzleboss account (https://{domain}/account), accessing that page with username `{registration_username}` and password `{registration_password}`. (This account lets our team coordinate who is solving what, generate common spreadsheets, and more.)
-2. Ping @Role Verifier on the Discord server with your {domain} username, so we can link the two 🔗
+2. Ping @RoleVerifier on the Discord server with your {domain} username, so we can link the two 🔗
 
 **How the Discord server works:**
 * We make text channels for each puzzle 🧩
@@ -68,7 +68,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
             )
         )
 
-    # @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
+    # @has_any_role("RoleVerifier", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(name="whois", hidden=True)
     async def whois_alias(
@@ -81,7 +81,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         """Looks up a user in Discord and Puzzleboss. (Regex supported)"""
         return await self.whois(ctx, member=member, query=query)
 
-    @has_any_role("Role Verifier", "Puzzleboss", "Puzztech")
+    @has_any_role("RoleVerifier", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command(name="whois")
     async def whois(
