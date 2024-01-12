@@ -172,7 +172,9 @@ class SQL:
                     xyzloc,
                     comments
                 FROM puzzle_view
-                WHERE roundname <> "mistakes"
+                WHERE
+                    roundname <> "mistakes"
+                    AND status <> "[hidden]"
                 """,
             )
             return cursor.fetchall()
@@ -193,6 +195,7 @@ class SQL:
                     comments
                 FROM puzzle_view
                 WHERE roundname <> "mistakes"
+                AND status <> "[hidden]"
                 AND status IN ("Critical", "Needs eyes", "WTF")
                 ORDER BY status, id
                 """,
