@@ -207,7 +207,15 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         embed.set_thumbnail(url=wifi["qr"])
         embed.add_field(name="Network", value=f"`{wifi['network']}`", inline=True)
         embed.add_field(name="Password", value=f"`{wifi['password']}`", inline=True)
-        await ctx.send(embed=embed)
+        await ctx.send(
+            content="""
+Student? Use `MIT SECURE`.
+Alumni? Use `MIT` via [wifi.mit.edu](https://wifi.mit.edu).
+
+Everyone else: **MIT GUEST _does not work_ with Discord**, and will give you a lot of pain. If you need WiFi, use this:
+            """,
+            embed=embed,
+        )
 
     @commands.command(aliases=["wrapped"])
     async def wrapup(self, ctx):
