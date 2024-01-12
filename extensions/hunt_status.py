@@ -245,7 +245,7 @@ You can [set up cloud printing]({printer_setup_link}) from your laptop/phone, bu
         hq_room = self.bot.hunt_team["hq_room"]
         await ctx.send(
             content=f"""
-Our Zoom hangout: {zoom_link}
+Our Zoom hangout: **<{zoom_link}>**
 There's a live stream of {hq_room} throughout Hunt there.
 We'll use it for team meetings & HQ interactions, but it's also fun to stay connected on mute while solving.
             """,
