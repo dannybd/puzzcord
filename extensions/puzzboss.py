@@ -569,7 +569,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         ]
         if unverified_other:
             unverified_other = (
-                "Folks needing verification ({0}):\n```\n{1}\n```\n".format(
+                "Folks needing verification ({0}):\n```\n{1}\n```".format(
                     len(unverified_other), "\n".join(unverified_other)
                 )
             )
@@ -631,7 +631,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 f"{row['username']} ({row['fullname']})" for row in cursor.fetchall()
             ]
         if accounts_being_registered:
-            accounts_being_registered = "\nPuzzleboss accounts pending confirmation before creation:\n```{0}```".format(
+            accounts_being_registered = "\nPuzzleboss accounts pending confirmation before creation/reset:\n```{0}```".format(
                 "\n".join(accounts_being_registered)
             )
         else:
