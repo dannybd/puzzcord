@@ -223,6 +223,34 @@ It will give you a lot of pain. Instead, use this:
             embed=embed,
         )
 
+    @commands.command()
+    async def printer(self, ctx):
+        """Get the relevant printer setup info"""
+        # TODO: Update for 2025
+        hq_room = self.bot.hunt_team["hq_room"]
+        printer_setup_link = self.bot.hunt_team["printer_setup_link"]
+        await ctx.send(
+            content=f"""
+If you're on campus, we have a printer in {hq_room} you can use.
+
+You can [set up cloud printing]({printer_setup_link}) from your laptop/phone, but if that's a pain you can also walk up to the Zoom laptop and try printing directly.
+            """,
+        )
+
+    @commands.command()
+    async def zoom(self, ctx):
+        """Get the team Zoom link"""
+        # TODO: Update for 2025
+        zoom_link = self.bot.hunt_team["zoom_link"]
+        hq_room = self.bot.hunt_team["hq_room"]
+        await ctx.send(
+            content=f"""
+Our Zoom hangout: {zoom_link}
+There's a live stream of {hq_room} throughout Hunt there.
+We'll use it for team meetings & HQ interactions, but it's also fun to stay connected on mute while solving.
+            """,
+        )
+
     @commands.command(aliases=["wrapped"])
     async def wrapup(self, ctx):
         """What puzzles you worked on, with links so you can go leave feedback"""

@@ -16,6 +16,9 @@
     "name": "<<The entire text of TEAM NAME>>",
     "registration_username": "<<USERNAME>>",
     "registration_password": "<<PASSWORD>>",
+    "hq_room": "26-100",
+    "zoom_link": "https://mit.zoom.us/j/<<ID>>",
+    "printer_setup_link": "https://mp.cloud.papercut.com/?token=<<TOKEN>>",
     "wifi": {
       "network": "MIT",
       "password": "<<PASS>>",
