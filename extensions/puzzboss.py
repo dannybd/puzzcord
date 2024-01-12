@@ -110,7 +110,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
             regex = re.compile(r"^$")
         query = query.lower()
 
-        def solver_matches(name, fullname, discord_name):
+        def solver_matches(name, fullname, discord_name, **kwargs):
             if query in name.lower():
                 return True
             if regex.search(name):
