@@ -48,10 +48,12 @@ class HuntStatus(commands.Cog):
                     active_in_voice.add(user.id)
 
         time_window_start = now - datetime.timedelta(minutes=15.0)
-        last_loop_snowflake = discord.utils.time_snowflake(
-            now - datetime.timedelta(seconds=60.0),
-            high=False
-        ) - 1
+        last_loop_snowflake = (
+            discord.utils.time_snowflake(
+                now - datetime.timedelta(seconds=60.0), high=False
+            )
+            - 1
+        )
 
         active_in_text = set()
         messages_per_minute = 0
@@ -189,6 +191,23 @@ See all commands here: https://{domain}/wiki/index.php/Hunting_in_Discord:_A_Gui
 Thanks, and happy hunting! 🕵️‍♀️🧩
 """
         )
+
+    @commands.command()
+    async def wifi(self, ctx):
+        """Get the relevant WiFi login info"""
+        domain = self.bot.hunt_team["domain"]
+        wifi = self.bot.hunt_team["wifi"]
+        embed = discord.Embed(
+            title="🛜 Connect to on-campus WiFi 🧑‍💻",
+            url=f"https://{domain}/wiki/index.php/WiFi",
+            description="Use the credentials below, or scan this QR code:",
+            color=0x0033FF,
+        )
+        # TODO: Update for 2025
+        embed.set_thumbnail(url=wifi["qr"])
+        embed.add_field(name="Network", value=f"`{wifi['network']}`", inline=True)
+        embed.add_field(name="Password", value=f"`{wifi['password']}`", inline=True)
+        await ctx.send(embed=embed)
 
     @commands.command(aliases=["wrapped"])
     async def wrapup(self, ctx):

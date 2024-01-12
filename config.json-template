@@ -8,13 +8,19 @@
     "db": "puzzleboss"
   },
   "discord": {
-    "botsecret": "<<BOTSECRET>>"
+    "botsecret": "<<BOTSECRET>>",
+    "client_id": "<<CLIENT_ID>>"
   },
   "hunt_team": {
     "domain": "importanthuntpoll.org",
-    "name": "<<The entire text of TEAM NAME>>"
+    "name": "<<The entire text of TEAM NAME>>",
     "registration_username": "<<USERNAME>>",
-    "registration_password": "<<PASSWORD>>"
+    "registration_password": "<<PASSWORD>>",
+    "wifi": {
+      "network": "MIT",
+      "password": "<<PASS>>",
+      "qr": "https://media.discordapp.net/attachments/QR_CODE.png"
+    },
   },
   "asyncio_server": {
     "host": "0.0.0.0",
