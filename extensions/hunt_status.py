@@ -212,10 +212,10 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
             content=f"""
 Student? Use **MIT SECURE**.
 Alumni? Use **MIT**. Generate your password at [wifi.mit.edu](https://wifi.mit.edu)
+Everyone else: **Do not use MIT GUEST.**
 
-**Do not use MIT GUEST.**
-Everyone else: MIT GUEST is really slow and [_does not work_ with Discord]({wifi_url}).
-It will give you a lot of pain. If you need WiFi, use this:
+MIT GUEST is really slow and [_does not work_ with Discord]({wifi_url}).
+It will give you a lot of pain. Instead, use this:
             """,
             embed=embed,
         )
