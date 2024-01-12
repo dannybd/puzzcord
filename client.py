@@ -200,7 +200,7 @@ async def gen_announce_attention(puzzle_name):
 
     if status == "WTF":
         channel_name_prefix = "💣 "
-        content = "**💣Puzzle _`{name}` is WTF! ☣️**".format(**puzzle)
+        content = "**💣Puzzle _`{name}`_ is WTF! ☣️**".format(**puzzle)
         embed = None
 
     if content:
