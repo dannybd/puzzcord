@@ -37,6 +37,7 @@ class HuntStatus(commands.Cog):
             if puzzle["status"] == "Solved" and puzzle["answer"]
         ]
         active_in_voice = set()
+        tables_in_use = set()
         tables = [
             channel
             for channel in guild.voice_channels
@@ -46,6 +47,7 @@ class HuntStatus(commands.Cog):
             for user in table.members:
                 if user in members and user.voice != discord.VoiceState.self_deaf:
                     active_in_voice.add(user.id)
+                    tables_in_use.add(table.id)
 
         time_window_start = now - datetime.timedelta(minutes=15.0)
         last_loop_snowflake = (
@@ -115,6 +117,7 @@ class HuntStatus(commands.Cog):
                 ),
             },
             "messages_per_minute": messages_per_minute,
+            "tables_in_use": len(tables_in_use),
         }
 
         logging.info(
