@@ -450,6 +450,12 @@ class PuzzleStatus(commands.Cog):
         )
         await ctx.message.add_reaction("👋")
         await ctx.message.add_reaction("🔚")
+        if not channel_or_query:
+            await ctx.message.reply(
+                "See you later! Please consider using the `!note [message]` "
+                + "command to help note how far your got in this puzzle "
+                + "for future solvers."
+            )
 
     @guild_only()
     @commands.command(name="wb", aliases=["whiteboard"])
