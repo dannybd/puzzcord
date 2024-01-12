@@ -31,6 +31,7 @@ class HuntStatus(commands.Cog):
             member for member in members if member.status != discord.Status.offline
         ]
         puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
+        rounds = set(puzzle["round_name"] for puzzle in puzzles)
         solved = [
             puzzle
             for puzzle in puzzles
@@ -95,6 +96,7 @@ class HuntStatus(commands.Cog):
             "puzzles": {
                 "total": len(puzzles),
                 "solved": len(solved),
+                "rounds": len(rounds),
             },
             "members": {
                 "total": len(members),
