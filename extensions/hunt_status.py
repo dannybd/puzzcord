@@ -197,9 +197,10 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         """Get the relevant WiFi login info"""
         domain = self.bot.hunt_team["domain"]
         wifi = self.bot.hunt_team["wifi"]
+        wifi_url = f"https://{domain}/wiki/index.php/WiFi"
         embed = discord.Embed(
             title="🛜 Connect to on-campus WiFi 🧑‍💻",
-            url=f"https://{domain}/wiki/index.php/WiFi",
+            url=wifi_url,
             description="Use the credentials below, or scan this QR code:",
             color=0x0033FF,
         )
@@ -208,11 +209,13 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         embed.add_field(name="Network", value=f"`{wifi['network']}`", inline=True)
         embed.add_field(name="Password", value=f"`{wifi['password']}`", inline=True)
         await ctx.send(
-            content="""
-Student? Use `MIT SECURE`.
-Alumni? Use `MIT` via [wifi.mit.edu](https://wifi.mit.edu).
+            content=f"""
+Student? Use **MIT SECURE**.
+Alumni? Use **MIT**. Generate your password at [wifi.mit.edu](https://wifi.mit.edu)
 
-Everyone else: **MIT GUEST _does not work_ with Discord**, and will give you a lot of pain. If you need WiFi, use this:
+**Do not use MIT GUEST.**
+Everyone else: MIT GUEST is really slow and [_does not work_ with Discord]({wifi_url}).
+It will give you a lot of pain. If you need WiFi, use this:
             """,
             embed=embed,
         )
