@@ -293,7 +293,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         )
         response = await puzzboss_interface.REST.post(
             "/rounds/{}/round_uri".format(round_name),
-            {"data": "https://puzzlefactory.place/puzzles#solved"},
+            {"round_uri": "#solved"},
         )
         status = response.status
         if status == 200:
@@ -798,7 +798,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         )
         response = await puzzboss_interface.REST.post(
             "/puzzles/{id}/drive_id".format(**puzzle),
-            {"data": sheet_hash},
+            {"drive_id": sheet_hash},
         )
         if response.status != 200:
             await ctx.send("Error setting drive_id!")
@@ -807,7 +807,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         response = await puzzboss_interface.REST.post(
             "/puzzles/{id}/drive_uri".format(**puzzle),
             {
-                "data": f"https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk"
+                "drive_uri": f"https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk"
             },
         )
         if response.status != 200:
@@ -817,7 +817,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         response = await puzzboss_interface.REST.post(
             "/puzzles/{id}/drive_link".format(**puzzle),
             {
-                "data": f'<a href="https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk">DOC</a>'
+                "drive_link": f'<a href="https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk">DOC</a>'
             },
         )
         if response.status != 200:
