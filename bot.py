@@ -49,7 +49,7 @@ class PuzzcordBot(commands.Bot):
         self.hunt_team = config["hunt_team"]
         self.tz = timezone("US/Eastern")
         # TODO: Update for 2025
-        self.hunt_begins = datetime.datetime(2024, 1, 12, hour=13, tzinfo=self.tz)
+        self.hunt_begins = datetime.datetime(2024, 1, 12, hour=13, minute=20, tzinfo=self.tz)
         self.hunt_ends = datetime.datetime(2024, 1, 15, hour=12, tzinfo=self.tz)
 
     def now(self):
