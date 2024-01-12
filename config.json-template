@@ -20,7 +20,7 @@
       "network": "MIT",
       "password": "<<PASS>>",
       "qr": "https://media.discordapp.net/attachments/QR_CODE.png"
-    },
+    }
   },
   "asyncio_server": {
     "host": "0.0.0.0",
