@@ -68,9 +68,24 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
             )
         )
 
+    @onboard.error
+    @onboard_alias.error
+    async def onboard_error(self, ctx, error):
+        if isinstance(error, errors.MissingRequiredArgument):
+            await ctx.send("Usage: `!onboard [Discord display name]`\n")
+            return
+        if isinstance(error, errors.CheckFailure):
+            await ctx.send(
+                "Sorry, only folks with the @RoleVerifier role can use this command. "
+                + "Ping them and they should be able to help you."
+            )
+            return
+        await ctx.send("Error! Something went wrong, please ping @dannybd.")
+        raise error
+
     # @has_any_role("RoleVerifier", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(name="whois", hidden=True)
+    @commands.command(name="whois", aliases=["lookup"], hidden=True)
     async def whois_alias(
         self,
         ctx,
@@ -83,7 +98,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
 
     @has_any_role("RoleVerifier", "Puzzleboss", "Puzztech")
     @guild_only()
-    @admin.command(name="whois")
+    @admin.command(name="whois", aliases=["lookup"])
     async def whois(
         self,
         ctx,
