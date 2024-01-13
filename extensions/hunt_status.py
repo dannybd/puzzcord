@@ -82,7 +82,7 @@ class HuntStatus(commands.Cog):
         for solver in solvers:
             if solver["solver_id"] not in recent_solvers:
                 continue
-            active_in_sheets.add(int(solver["discord_id"]))
+            active_in_sheets.add(int(solver["discord_id"] or solver["solver_id"]))
 
         active_members = set().union(
             active_in_text,
