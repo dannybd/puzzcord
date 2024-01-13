@@ -291,24 +291,64 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         logging.info(
             "{0.command}: Marking a round as solved: {1}".format(ctx, round_name)
         )
-        response = await puzzboss_interface.REST.post(
-            "/rounds/{}/round_uri".format(round_name),
-            {"round_uri": "#solved"},
-        )
-        status = response.status
-        if status == 200:
+        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE round
+                SET round_uri = '#solved'
+                WHERE name = %s
+                """,
+                (round_name,),
+            )
+            logging.info("{0.command}: Committing row".format(ctx))
+            connection.commit()
+            logging.info("{0.command}: Committed row successfully!".format(ctx))
             await ctx.send("You solved the meta!! 🎉 🥳")
-            return
-        if status == 500:
+        return
+        # response = await puzzboss_interface.REST.post(
+        #     "/rounds/{}/round_uri".format(round_name),
+        #     {"round_uri": "#solved"},
+        # )
+        # status = response.status
+        # if status == 200:
+        #     await ctx.send("You solved the meta!! 🎉 🥳")
+        #     return
+        # if status == 500:
+        #     await ctx.send(
+        #         (
+        #             "Error. This is likely because the round "
+        #             + "`{}` doesn't exist with exactly that name. "
+        #             + "Please try again."
+        #         ).format(round_name)
+        #     )
+        #     return
+        # await ctx.send("Error. Something weird happened, ping @dannybd")
+
+    @solvedround.error
+    @solvedround_alias.error
+    async def solvedround_error(self, ctx, error):
+        puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
+        if isinstance(error, errors.MissingAnyRole):
             await ctx.send(
                 (
-                    "Error. This is likely because the round "
-                    + "`{}` doesn't exist with exactly that name. "
-                    + "Please try again."
-                ).format(round_name)
+                    "Only {0.mention} can mark a round as solved. "
+                    + "I've just pinged them; they should be here soon "
+                    + "to confirm. (You don't need to ping them again.)"
+                ).format(puzzboss_role)
             )
             return
-        await ctx.send("Error. Something weird happened, ping @dannybd")
+        if isinstance(error, errors.MissingRequiredArgument):
+            await ctx.send("Usage: `!solvedround RoundName`\n")
+            return
+        await ctx.send(
+            (
+                "Error! Something went wrong, possibly because "
+                + "you didn't match the round name exactly. "
+                + "Otherwise, please ping @dannybd, "
+                + "who can mark this solved behind the scenes."
+            ).format(puzzboss_role)
+        )
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
