@@ -708,8 +708,27 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
             solver = cursor.fetchone()
             if not solver:
+                cursor.execute(
+                    """
+                    SELECT
+                        username
+                    FROM newuser
+                    WHERE username LIKE %s
+                    LIMIT 1
+                    """,
+                    (username,),
+                )
+                pending_solver = cursor.fetchone()
+                if pending_solver:
+                    await ctx.send(
+                        (
+                            "Error: {0} has started registration but has not yet "
+                            + "confirmed their email! Check your spam folder as well, "
+                            + "click the confirmation link, then come back here to let us know."
+                        ).format(username)
+                    )
                 await ctx.send(
-                    ("Error: Couldn't find a {0}@{1}, " + "please try again.").format(
+                    "Error: Couldn't find a {0}@{1}, please try again.".format(
                         username, self.bot.hunt_team["domain"]
                     )
                 )
