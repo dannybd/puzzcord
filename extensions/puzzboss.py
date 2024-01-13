@@ -297,8 +297,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         )
         status = response.status
         if status == 200:
-            import json
-            await ctx.send("You solved the meta!! 🎉 🥳\n```{}```".format(json.dumps(response)))
+            await ctx.send("You solved the meta!! 🎉 🥳\n```{}```".format(response))
             return
         if status == 500:
             await ctx.send(
