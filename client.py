@@ -160,11 +160,14 @@ async def gen_announce_new(puzzle_name):
 
 async def gen_announce_solve(puzzle_name):
     puzzle, channel = get_puzzle_and_channel(puzzle_name)
-    await gen_archive_channel(puzzle, channel)
-    await channel.send(
-        "**Puzzle solved!** Answer: ||`{answer}`||".format(**puzzle)
-        + "\nChannel is now archived."
-    )
+    if channel.name.startswith('⛔-'):
+        await channel.delete()
+    else:
+        await gen_archive_channel(puzzle, channel)
+        await channel.send(
+            "**Puzzle solved!** Answer: ||`{answer}`||".format(**puzzle)
+            + "\nChannel is now archived."
+        )
     content = (
         "**🎉 Puzzle _`{name}`_ has been solved! 🥳**\n"
         + "(Answer: ||`{answer}`||)\n"
