@@ -461,6 +461,7 @@ class PuzzleStatus(commands.Cog):
     @commands.command(name="wb", aliases=["whiteboard"])
     async def wb(self, ctx, new: typing.Optional[str]):
         """Creates a new whiteboard for you to use, each time you call it"""
+        pending_message = await ctx.send("Getting you a whiteboard...")
         if new != "new":
             pins = await ctx.channel.pins()
             wb_message = next(
@@ -481,9 +482,9 @@ class PuzzleStatus(commands.Cog):
                     f"Direct everyone here! Re-running `!wb new` will "
                     f"generate new, distinct whiteboards."
                 )
+                await pending_message.delete()
                 return
 
-        pending_message = await ctx.send("Generating a whiteboard...")
         url = "https://cocreate.mehtank.com/api/roomNew"
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
