@@ -259,38 +259,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
         )
 
-    @has_any_role("Puzztech")
-    @commands.command(name="killredirects", hidden=True)
-    async def killredirects(self, ctx, *, cmd: typing.Optional[str]):
-        """[puzztech only] clean up dead redirected channels"""
-        closed_redirected_channels = [
-            channel
-            for channel in ctx.guild.text_channels
-            if channel.name.startswith("⛔-") and channel.category.name.startswith("🏁")
-        ]
-        puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
-        if cmd != "force":
-            await ctx.message.reply(
-                "Kill " + " ".join(c.name for c in closed_redirected_channels) + "?"
-            )
-            return
-        await ctx.message.reply(
-            "Killing " + " ".join(c.name for c in closed_redirected_channels) + ":"
-        )
-        num_channels = len(closed_redirected_channels)
-        for channel in closed_redirected_channels:
-            logging.info("{0.command}: Killing #{1.name}...", ctx, channel)
-            await channel.delete()
-        await ctx.send("Killed {num_channels} channels")
-
     @has_any_role("Puzzleboss", "Puzztech")
-    @commands.command(name="deferto", aliases=["redirectto"], hidden=True)
+    @commands.command(name="deferto", aliases=["defer", "redirectto"], hidden=True)
     async def deferto_alias(self, ctx, *, target_channel: discord.TextChannel):
         """[puzzboss only] Defer a puzzle channel to another channel"""
         return await self.deferto(ctx, target_channel=target_channel)
 
     @has_any_role("Puzzleboss", "Puzztech")
-    @admin.command(aliases=["redirectto"])
+    @admin.command(aliases=["defer", "redirectto"])
     async def deferto(self, ctx, *, target_channel: discord.TextChannel):
         """[puzzboss only] Defer a puzzle channel to another channel"""
         logging.info(
@@ -346,6 +322,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             f"# DO NOT USE THIS CHANNEL!\nGo to {target_channel.mention} instead"
         )
         await ctx.channel.edit(name="⛔️-" + ctx.channel.name)
+        if ctx.channel.category.name.startswith("🏁"):
+            await ctx.channel.delete(reason="Redirected channel cleanup")
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @commands.command(name="newround", hidden=True)
