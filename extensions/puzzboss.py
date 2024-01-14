@@ -259,6 +259,60 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
         )
 
+    @has_any_role("Puzzleboss", "Puzztech")
+    @commands.command(name="deferto", aliases=["redirectto"], hidden=True)
+    async def deferto_alias(self, ctx, *, target_channel: discord.TextChannel):
+        """[puzzboss only] Defer a puzzle channel to another channel"""
+        return await self.deferto(ctx, target_channel=target_channel)
+
+    @has_any_role("Puzzleboss", "Puzztech")
+    @admin.command(aliases=["redirectto"])
+    async def deferto(self, ctx, *, target_channel: discord.TextChannel):
+        """[puzzboss only] Defer a puzzle channel to another channel"""
+        logging.info(
+            "{0.command}: Deferring {0.channel} to channel: {1}".format(
+                ctx, target_channel
+            )
+        )
+        await ctx.send(
+            f"# DO NOT USE THIS CHANNEL!\n" f"Go to {target_channel.mention} instead"
+        )
+        await ctx.channel.edit(name="⛔️-" + name)
+        member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
+        await ctx.channel.set_permissions(member_role, read_messages=False)
+        this_puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
+            ctx.channel,
+            bot=self.bot,
+        )
+        target_puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
+            target_channel,
+            bot=self.bot,
+        )
+        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE puzzle
+                SET
+                    chat_channel_link = %s,
+                    drive_id = %s,
+                    drive_uri = %s,
+                    xyzloc = %s
+                WHERE id = %s AND name = %s
+                """,
+                (
+                    target_puzzle["chat_channel_link"],
+                    target_puzzle["drive_id"],
+                    target_puzzle["drive_uri"],
+                    target_puzzle["xyzloc"],
+                    this_puzzle["id"],
+                    this_puzzle["name"],
+                ),
+            )
+            logging.info("{0.command}: Committing row".format(ctx))
+            connection.commit()
+            logging.info("{0.command}: Committed row successfully!".format(ctx))
+
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @commands.command(name="newround", hidden=True)
     async def newround_alias(self, ctx, *, round_name: str):
