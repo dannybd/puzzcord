@@ -259,6 +259,29 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
         )
 
+    @has_any_role("Puzztech")
+    async def killredirects(self, ctx, *, cmd: typing.Optional[str]):
+        """[puzztech only] clean up dead redirected channels"""
+        redirected_channels = [
+            channel
+            for channel in ctx.guild.text_channels
+            if channel.name.startswith("⛔️-") and channel.category.name.startswith("🏁")
+        ]
+        puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
+        if cmd != "force":
+            await ctx.message.reply(
+                "Kill " + " ".join(c.mention for c in redirected_channels) + "?"
+            )
+            return
+        await ctx.message.reply(
+            "Killing " + " ".join(c.name for c in redirected_channels) + ":"
+        )
+        num_channels = len(redirected_channels)
+        for channel in redirected_channels:
+            logging.info("{0.command}: Killing #{1.name}...", ctx, channel)
+            await channel.delete()
+        await ctx.send("Killed {num_channels} channels")
+
     @has_any_role("Puzzleboss", "Puzztech")
     @commands.command(name="deferto", aliases=["redirectto"], hidden=True)
     async def deferto_alias(self, ctx, *, target_channel: discord.TextChannel):
