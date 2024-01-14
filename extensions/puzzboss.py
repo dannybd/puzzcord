@@ -274,8 +274,11 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 ctx, target_channel
             )
         )
+        if ctx.channel == target_channel:
+            await ctx.message.reply("You cannot defer to its own channel!")
+            return
         await ctx.send(
-            f"# DO NOT USE THIS CHANNEL!\n" f"Go to {target_channel.mention} instead"
+            f"# DO NOT USE THIS CHANNEL!\nGo to {target_channel.mention} instead"
         )
         await ctx.channel.edit(name="⛔️-" + ctx.channel.name)
         member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
@@ -312,6 +315,11 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             logging.info("{0.command}: Committing row".format(ctx))
             connection.commit()
             logging.info("{0.command}: Committed row successfully!".format(ctx))
+        await target_channel.send(
+            "**Heads up:** Puzzle [`{name}`]({puzzle_uri}) now points to this channel!".format(
+                **this_puzzle
+            )
+        )
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @commands.command(name="newround", hidden=True)
