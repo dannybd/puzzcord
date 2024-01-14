@@ -221,18 +221,20 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(name="newpuzzboss", aliases=["usurp"], hidden=True)
-    async def newpuzzboss_alias(self, ctx, newboss: discord.Member):
+    @commands.command(name="newpuzzboss", aliases=[""], hidden=True)
+    async def newpuzzboss_alias(self, ctx, newboss: Optional[discord.Member]):
         """[puzzboss only] Designates a new person as Puzzleboss"""
         return await self.newpuzzboss(ctx, newboss)
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @admin.command()
-    async def newpuzzboss(self, ctx, newboss: discord.Member):
+    async def newpuzzboss(self, ctx, newboss: Optional[discord.Member]):
         """[puzzboss only] Designates a new person as Puzzleboss"""
         puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
         current_puzzbosses = puzzboss_role.members
+        if not newboss:
+            newboss = ctx.author
         if newboss in current_puzzbosses:
             await ctx.send("{0.mention} is already Puzzleboss!".format(newboss))
             return
