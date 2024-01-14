@@ -263,7 +263,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     @commands.command(name="killredirects", hidden=True)
     async def killredirects(self, ctx, *, cmd: typing.Optional[str]):
         """[puzztech only] clean up dead redirected channels"""
-        redirected_channels = [
+        closed_redirected_channels = [
             channel
             for channel in ctx.guild.text_channels
             if channel.name.startswith("⛔️-") and channel.category.name.startswith("🏁")
@@ -271,14 +271,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
         if cmd != "force":
             await ctx.message.reply(
-                "Kill " + " ".join(c.mention for c in redirected_channels) + "?"
+                "Kill " + " ".join(c.name for c in closed_redirected_channels) + "?"
             )
             return
         await ctx.message.reply(
-            "Killing " + " ".join(c.name for c in redirected_channels) + ":"
+            "Killing " + " ".join(c.name for c in closed_redirected_channels) + ":"
         )
-        num_channels = len(redirected_channels)
-        for channel in redirected_channels:
+        num_channels = len(closed_redirected_channels)
+        for channel in closed_redirected_channels:
             logging.info("{0.command}: Killing #{1.name}...", ctx, channel)
             await channel.delete()
         await ctx.send("Killed {num_channels} channels")
