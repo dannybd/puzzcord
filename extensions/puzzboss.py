@@ -277,7 +277,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         await ctx.send(
             f"# DO NOT USE THIS CHANNEL!\n" f"Go to {target_channel.mention} instead"
         )
-        await ctx.channel.edit(name="⛔️-" + name)
+        await ctx.channel.edit(name="⛔️-" + ctx.channel.name)
         member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
         await ctx.channel.set_permissions(member_role, read_messages=False)
         this_puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
