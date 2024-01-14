@@ -260,6 +260,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         )
 
     @has_any_role("Puzztech")
+    @admin.command()
     async def killredirects(self, ctx, *, cmd: typing.Optional[str]):
         """[puzztech only] clean up dead redirected channels"""
         redirected_channels = [
