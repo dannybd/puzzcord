@@ -266,6 +266,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         closed_redirected_channels = [
             channel
             for channel in ctx.guild.text_channels
+            if channel.name.startswith("⛔-") and channel.category.name.startswith("🏁")
         ]
         puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
         if cmd != "force":
