@@ -160,6 +160,7 @@ async def gen_announce_new(puzzle_name):
 
 async def gen_announce_solve(puzzle_name):
     puzzle, channel = get_puzzle_and_channel(puzzle_name)
+    logging.info("{puzzle=}")
     if puzzle["comments"].startswith("<<<REDIRECTED>>>"):
         await channel.delete(reason="Redirected channel cleanup")
     else:
