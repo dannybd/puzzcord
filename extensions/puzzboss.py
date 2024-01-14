@@ -297,6 +297,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 """
                 UPDATE puzzle
                 SET
+                    comment = %s,
                     chat_channel_link = %s,
                     drive_id = %s,
                     drive_uri = %s,
@@ -308,6 +309,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                     target_puzzle["drive_id"],
                     target_puzzle["drive_uri"],
                     target_puzzle["xyzloc"],
+                    f"<<<REDIRECTED>>> to #{target_channel}",
                     this_puzzle["id"],
                     this_puzzle["name"],
                 ),
