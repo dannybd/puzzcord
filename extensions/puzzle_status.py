@@ -483,6 +483,7 @@ class PuzzleStatus(commands.Cog):
                 )
                 return
 
+        pending_message = await ctx.send("Generating a whiteboard...")
         url = "https://cocreate.mehtank.com/api/roomNew"
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
@@ -493,6 +494,7 @@ class PuzzleStatus(commands.Cog):
             f"Direct everyone here! Re-running `!wb new` will "
             f"generate new, distinct whiteboards."
         )
+        await pending_message.delete()
         await message.pin()
 
     @commands.Cog.listener("on_voice_state_update")
