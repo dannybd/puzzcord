@@ -316,7 +316,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             connection.commit()
             logging.info("{0.command}: Committed row successfully!".format(ctx))
         await target_channel.send(
-            "**Heads up:** Puzzle [`{name}`]({puzzle_uri}) now points to this channel!".format(
+            "**Heads up:** Puzzle [`{name}`](<{puzzle_uri}>) now points to this channel!".format(
                 **this_puzzle
             )
         )
