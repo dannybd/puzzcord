@@ -301,11 +301,11 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 WHERE id = %s AND name = %s
                 """,
                 (
+                    f"<<<REDIRECTED>>> to #{target_channel}",
                     target_puzzle["chat_channel_link"],
                     target_puzzle["drive_id"],
                     target_puzzle["drive_uri"],
                     target_puzzle["xyzloc"],
-                    f"<<<REDIRECTED>>> to #{target_channel}",
                     this_puzzle["id"],
                     this_puzzle["name"],
                 ),
