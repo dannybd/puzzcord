@@ -135,7 +135,7 @@ class SQL:
                     id,
                     name
                 FROM round_view
-                WHERE round_uri LIKE '%%#solved'
+                WHERE round_uri LIKE '\%#solved'
                 AND name <> "mistakes"
                 """,
             )
