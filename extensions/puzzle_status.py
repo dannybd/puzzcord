@@ -103,6 +103,8 @@ class PuzzleStatus(commands.Cog):
                 continue
             if puzzle["comments"] and puzzle["comments"].startswith("<<<REDIRECTED>>>"):
                 continue
+            if xyzloc.startswith("<<<REDIRECTED>>>"):
+                continue
             if xyzloc not in xyzlocs:
                 xyzlocs[xyzloc] = []
             xyzlocs[xyzloc].append("<#{channel_id}>".format(**puzzle))
