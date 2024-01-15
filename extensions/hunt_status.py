@@ -439,22 +439,10 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             ),
         )
 
-        solved_round_names = []
+        solved_round_names = puzzboss_interface.SQL.get_solved_round_names(bot=self.bot)
 
         for name, round in rounds.items():
-            if (
-                round["num_metas"] > 0
-                and round["num_metas"] == round["num_metas_solved"]
-                and round["Other"] == 0
-                and round["Needs eyes"] == 0
-                and round["Critical"] == 0
-                and round["WTF"] == 0
-                and round["approx_solvers"] == 0
-            ):
-                solved_round_names.append(name)
-                continue
-            if name == "Events" and round["Solved"] == 4:
-                solved_round_names.append(name)
+            if name in solved_round_names:
                 continue
             value = "Out of **{total}** puzzles open:\n".format(**round)
 

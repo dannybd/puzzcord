@@ -125,21 +125,21 @@ class SQL:
                 None,
             )
 
-    # @staticmethod
-    # def get_solved_round_names(bot=None):
-    #     connection = SQL._get_db_connection(bot=bot)
-    #     with connection.cursor() as cursor:
-    #         cursor.execute(
-    #             """
-    #             SELECT
-    #                 id,
-    #                 name
-    #             FROM round_view
-    #             WHERE round_uri LIKE '%%#solved'
-    #             AND name <> "mistakes"
-    #             """,
-    #         )
-    #         return [row["name"] for row in cursor.fetchall()]
+    @staticmethod
+    def get_solved_round_names(bot=None):
+        connection = SQL._get_db_connection(bot=bot)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    id,
+                    name
+                FROM round_view
+                WHERE round_uri LIKE '%%#solved'
+                AND name <> "mistakes"
+                """,
+            )
+            return [row["name"] for row in cursor.fetchall()]
 
     @staticmethod
     def get_meta_ids(bot=None):
