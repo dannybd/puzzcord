@@ -222,7 +222,9 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command(
-        name="newpuzzboss", aliases=["usurp", "burden", "annoint"], hidden=True
+        name="newpuzzboss",
+        aliases=["usurp", "burden", "anoint", "annoint", "annnoint"],
+        hidden=True,
     )
     async def newpuzzboss_alias(self, ctx, newboss: typing.Optional[discord.Member]):
         """[puzzboss only] Designates a new person as Puzzleboss"""
@@ -250,7 +252,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         await newboss.add_roles(puzzboss_role)
         await ctx.send(
             (
-                "{0.mention} has annointed {1} as the new {2.mention}! "
+                "{0.mention} has anointed {1} as the new {2.mention}! "
                 + "Use {2.mention} to get their attention."
             ).format(
                 ctx.author,
