@@ -223,7 +223,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     @guild_only()
     @commands.command(
         name="newpuzzboss",
-        aliases=["usurp", "burden", "anoint", "annoint", "annnoint"],
+        aliases=["usurp", "burden", "anoint", "annoint", "annnoint", "annoy"],
         hidden=True,
     )
     async def newpuzzboss_alias(self, ctx, newboss: typing.Optional[discord.Member]):
