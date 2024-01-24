@@ -43,14 +43,20 @@ def get_table(member):
     if not voice:
         return None
     channel = voice.channel
-    if not channel:
-        return None
-    category = channel.category
-    if not category:
-        return None
-    if "tables" not in category.name.lower():
+    if not is_table_channel(channel):
         return None
     return channel
+
+
+def is_table_channel(channel):
+    if not channel:
+        return False
+    category = channel.category
+    if not category:
+        return False
+    if "tables" not in category.name.lower():
+        return False
+    return True
 
 
 def get_tables(ctx):

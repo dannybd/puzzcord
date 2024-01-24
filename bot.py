@@ -39,6 +39,7 @@ if loglevel == "INFO":
 intents = discord.Intents.all()
 intents.members = True
 intents.presences = True
+intents.voice_states = True
 
 
 class PuzzcordBot(commands.Bot):

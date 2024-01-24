@@ -514,13 +514,16 @@ class PuzzleStatus(commands.Cog):
         table = before.channel
 
         # Ensure it's a table channel
-        if not table.category:
-            return
-        if not table.category.name.startswith("🪴"):
+        if not discord_info.is_table_channel(table):
             return
 
         # Still occupied? That's fine then
         if table.members:
+            return
+
+        # No puzzles here? Stop
+        puzzles = puzzboss_interface.SQL.get_puzzles_at_table(table, bot=self.bot)
+        if not puzzles:
             return
 
         try:
