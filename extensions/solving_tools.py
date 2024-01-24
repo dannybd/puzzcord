@@ -334,8 +334,10 @@ class SolvingTools(commands.Cog):
         Usage: !tools morse hello world
         Usage: !tools morse .... . .-.. .-.. ---/.-- --- .-. .-.. -..
         """
-        if text[0] in ".-":
-            text = text.replace("/", " / ").split()
+        if text[0] in ".-…—":
+            text = (
+                text.replace("/", " / ").replace("…", "...").replace("—", "--").split()
+            )
             await ctx.send(
                 "".join(
                     [
