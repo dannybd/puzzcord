@@ -320,6 +320,23 @@ class SolvingTools(commands.Cog):
 
         await ctx.send(" ".join([convert(i) for i in args]))
 
+    @commands.command(name="atbash", hidden=True)
+    async def atbash_alias(self, ctx, *, text: str):
+        """Atbash cipher: flips A-Z to Z-A
+        Usage: !atbash Hello world
+        """
+        return await self.atbash(ctx, text)
+
+    @tools.command(name="atbash")
+    async def atbash(self, ctx, *, text: str):
+        """Atbash cipher: flips A-Z to Z-A
+        Usage: !tools atbash Hello world
+        """
+        lower = string.ascii_lowercase
+        upper = string.ascii_uppercase
+        lookup = dict(zip(upper + lower, upper[::-1] + lower[::-1]))
+        await ctx.send("".join(lookup.get(c, c) for c in text))
+
     @commands.command(name="morse", hidden=True)
     async def morse_alias(self, ctx, *, text: str):
         """Convert to/from morse code (/ for word boundaries)
