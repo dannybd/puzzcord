@@ -80,18 +80,17 @@ async def gen_run(command, args):
     guild = client.get_guild(GUILD_ID)
     status_channel = client.get_channel(STATUS_CHANNEL)
 
-    if command == "create" or command == "create_json":
+    if command == "create_json":
         name, *topic = args
         topic = " ".join(topic)
         channel = await gen_create_channel(name, topic)
-        invite = await channel.create_invite()
         return (
             json.dumps(
                 {
                     "id": channel.id,
                     "name": channel.name,
                     "mention": channel.mention,
-                    "url": invite.url,
+                    "url": channel.jump_url,
                 }
             )
             + "\n"
