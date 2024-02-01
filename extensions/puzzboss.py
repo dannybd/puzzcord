@@ -943,16 +943,6 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             await ctx.send("Error setting drive_uri!")
             return
 
-        response = await puzzboss_interface.REST.post(
-            "/puzzles/{id}/drive_link".format(**puzzle),
-            {
-                "drive_link": f'<a href="https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk">DOC</a>'
-            },
-        )
-        if response.status != 200:
-            await ctx.send("Error setting drive_link!")
-            return
-
         await ctx.send("Done. Please run: `!puz {name}`".format(**puzzle))
 
 
