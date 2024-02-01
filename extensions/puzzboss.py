@@ -350,13 +350,13 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @commands.command(name="solvedround", hidden=True)
-    async def solvedround_alias(self, ctx, *, round_name: Optional[str]):
+    async def solvedround_alias(self, ctx, *, round_name: typing.Optional[str]):
         """[puzzboss only] Marks a round as solved"""
         return await self.solvedround(ctx, round_name=round_name)
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @admin.command()
-    async def solvedround(self, ctx, *, round_name: Optional[str]):
+    async def solvedround(self, ctx, *, round_name: typing.Optional[str]):
         """[puzzboss only] Marks a round as solved"""
         if not round_name:
             puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
