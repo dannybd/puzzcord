@@ -312,11 +312,10 @@ class PuzzleStatus(commands.Cog):
             return
         puzzle = SQL.get_puzzle_for_channel(ctx.channel)
         solver = SQL.get_solver_from_member(ctx.author)
-        domain = self.bot.hunt_team["domain"]
         if not solver:
             await ctx.send(
-                f"Sorry, we can't find your {domain} account. Please talk to "
-                + "a @RoleVerifier, then try again."
+                f"Sorry, we can't find your {self.bot.team_domain} account. "
+                + "Please talk to a @RoleVerifier, then try again."
             )
             return
         response = await REST.post(
@@ -347,8 +346,8 @@ class PuzzleStatus(commands.Cog):
         solver = SQL.get_solver_from_member(ctx.author)
         if not solver:
             await ctx.send(
-                f"Sorry, we can't find your {domain} account. Please talk to "
-                + "a @RoleVerifier, then try again."
+                f"Sorry, we can't find your {self.bot.team_domain} account. "
+                + "Please talk to a @RoleVerifier, then try again."
             )
             return
         response = await REST.post(

@@ -18,14 +18,13 @@ class SolvingTools(commands.Cog):
         """[category] Assorted puzzle-solving tools and utilities"""
         if ctx.invoked_subcommand:
             return
-        domain = self.bot.hunt_team["domain"]
         text = (
             "Run `!help tools` to see everything I support.\n\n"
             + "Popular links:\n"
             + "http://nutrimatic.org/ (see `!tools nu`)\n"
             + "https://tools.qhex.org/ \n"
             + "https://util.in/ \n"
-            + f"https://{domain}/scripts/ \n"
+            + f"https://{self.bot.team_domain}/scripts/ \n"
             + "https://www.mit.edu/~puzzle/tools.html \n"
         )
         embed = discord.Embed(title="Popular links:", color=discord.Colour.greyple())
@@ -43,7 +42,7 @@ class SolvingTools(commands.Cog):
         embed.add_field(name="\u200B", value="\u200B", inline=True)
         embed.add_field(
             name="WUB Scripts",
-            value=f"[Link](https://{domain}/scripts/)",
+            value=f"[Link](https://{self.bot.team_domain}/scripts/)",
             inline=True,
         )
         embed.add_field(
@@ -79,10 +78,9 @@ class SolvingTools(commands.Cog):
         random.shuffle(tips)
 
         content = "**Have You Tried...**\n{}".format("".join(tips[:6]))
-        domain = self.bot.hunt_team["domain"]
         embed = discord.Embed(
             title="Have You Tried?",
-            url=f"https://{domain}/wiki/index.php/Have_You_Tried",
+            url=f"https://{self.bot.team_domain}/wiki/index.php/Have_You_Tried",
         )
         await ctx.send(content=content, embed=embed)
 
@@ -189,9 +187,8 @@ class SolvingTools(commands.Cog):
 
     @tools.command(hidden=True)
     async def search(self, ctx, *, word: str):
-        domain = self.bot.hunt_team["domain"]
-        # https://{domain}/scripts/cgi-bin/grep.cgi?dictionary=google-books-common-words.txt&word=%5Ef.ot.
-        url = f"https://{domain}/scripts/cgi-bin/grep.cgi"
+        # https://{self.bot.team_domain}/scripts/cgi-bin/grep.cgi?dictionary=google-books-common-words.txt&word=%5Ef.ot.
+        url = f"https://{self.bot.team_domain}/scripts/cgi-bin/grep.cgi"
         params = {
             "dictionary": self.dictionary("english"),
             "word": word,

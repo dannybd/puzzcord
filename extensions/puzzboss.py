@@ -26,16 +26,12 @@ class Puzzboss(commands.Cog):
     @commands.command(name="onboard")
     async def onboard(self, ctx, member: discord.Member):
         """Sends a onboarding message to a new member"""
-        domain = self.bot.hunt_team["domain"]
-        team_name = self.bot.hunt_team["name"]
-        registration_username = self.bot.hunt_team["registration_username"]
-        registration_password = self.bot.hunt_team["registration_password"]
         await member.send(
-            f"""
+            """
 Welcome to **{team_name}!** Here's how to get started.
 
-1. Make a Puzzleboss account (https://{domain}/account), accessing that page with username `{registration_username}` and password `{registration_password}`. (This account lets our team coordinate who is solving what, generate common spreadsheets, and more.)
-2. Ping @RoleVerifier on the Discord server with your {domain} username, so we can link the two 🔗
+1. Make a Puzzleboss account (https://{team_domain}/account), accessing that page with username `{registration_username}` and password `{registration_password}`. (This account lets our team coordinate who is solving what, generate common spreadsheets, and more.)
+2. Ping @RoleVerifier on the Discord server with your {team_domain} username, so we can link the two 🔗
 
 **How the Discord server works:**
 * We make text channels for each puzzle 🧩
@@ -43,11 +39,11 @@ Welcome to **{team_name}!** Here's how to get started.
 * We've got a trusty bot, puzzbot (that's me!), which helps us connect puzzle channels to the table VCs where people are solving 🤖
 * puzzbot's got a lot of commands, but you don't have to learn any more than maybe 3 of them to participate 🙂
 
-Learn more here: https://{domain}/wiki/index.php/Hunting_in_Discord:_A_Guide
+Learn more here: https://{team_domain}/wiki/index.php/Hunting_in_Discord:_A_Guide
 
 Thanks, and happy hunting! 🕵️‍♀️🧩
         """
-        )
+        ).format(**self.bot.hunt_config)
         await ctx.send(
             "Welcome aboard, {}! Check your DMs for instructions on how to set up your account to hunt with us 🙂".format(
                 member.mention
@@ -664,7 +660,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 ).format(member)
             )
             return
-        username = username.replace("@" + self.bot.hunt_team["domain"], "")
+        username = username.replace("@" + self.bot.team_domain, "")
         logging.info(
             "{0.command}: Marking user {1.display_name} as PB user {2}".format(
                 ctx, member, username
@@ -704,7 +700,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 return
             await ctx.send(
                 "Error: Couldn't find a {0}@{1}, please try again.".format(
-                    username, self.bot.hunt_team["domain"]
+                    username, self.bot.team_domain
                 )
             )
             return

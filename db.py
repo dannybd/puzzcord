@@ -6,12 +6,13 @@ import pymysql
 import re
 from config import config
 from discord_info import is_puzzle_channel
+from munch import munchify
 
 
 class REST:
     @staticmethod
     async def post(path, data=None):
-        url = config["puzzledb"]["rest_url"] + path
+        url = config.puzzledb["rest_url"] + path
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=data) as response:
                 logging.info(
@@ -33,7 +34,7 @@ class SQL:
             return SQL.connection
 
         logging.info("[SQL] No connection found, creating new connection")
-        creds = config["puzzledb"]
+        creds = config.puzzledb
         connection = pymysql.connect(
             host=creds["host"],
             port=creds["port"],
@@ -71,6 +72,12 @@ class SQL:
             logging.info("{0.command}: Committing row".format(ctx))
             connection.commit()
             logging.info("{0.command}: Committed row successfully!".format(ctx))
+
+    @staticmethod
+    def get_hunt_config():
+        rows = SQL.select_all("SELECT `key`, val FROM config")
+        hunt_config = munchify(dict(row.values() for row in rows))
+        return hunt_config or config.hunt_config
 
     @staticmethod
     def get_puzzle_for_channel(channel):

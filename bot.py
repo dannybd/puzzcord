@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 import asyncio
-import datetime
+from datetime import datetime
 import discord
 import logging
 import os
@@ -38,17 +38,17 @@ class PuzzcordBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        SQL._get_db_connection()
-        self.hunt_team = config["hunt_team"]
-        self.tz = timezone("US/Eastern")
-        # TODO: Update for 2025
-        self.hunt_begins = datetime.datetime(
-            2024, 1, 12, hour=13, minute=20, tzinfo=self.tz
-        )
-        self.hunt_ends = datetime.datetime(2024, 1, 15, hour=12, tzinfo=self.tz)
+        self.hunt_config = SQL.get_hunt_config()
+        self.tz = timezone(self.hunt_config.timezone)
+        self.hunt_begins = self.from_iso(self.hunt_config.hunt_begins)
+        self.hunt_ends = self.from_iso(self.hunt_config.hunt_ends)
+        self.team_domain = self.hunt_config.team_domain
 
     def now(self):
-        return datetime.datetime.now(self.tz)
+        return datetime.now(self.tz)
+
+    def from_iso(self, iso):
+        return datetime.fromisoformat(iso).replace(tzinfo=self.tz)
 
 
 bot = PuzzcordBot(
@@ -82,9 +82,7 @@ async def members_only(ctx):
         "isithuntyet",
         "hooray",
         "onboard",
-        "admin onboard",
         "verify",
-        "admin verify",
     ]
     if ctx.invoked_with in ALLOWED_LOBBY_COMMANDS:
         return True
@@ -109,7 +107,7 @@ async def main():
                     "Failed to load extension {}\n{}".format(extension, exc)
                 )
         logging.info("Starting!")
-        await bot.start(config["discord"]["botsecret"])
+        await bot.start(config.discord.botsecret)
         logging.info("Done, closing out")
 
 
