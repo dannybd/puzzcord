@@ -1,7 +1,6 @@
 """ Methods for interacting with the puzzbost REST api and SQL database """
 import aiohttp
 import discord
-import json
 import logging
 import pymysql
 import re
@@ -118,7 +117,7 @@ class SQL:
         query = channel_or_query
         try:
             regex = re.compile(query, re.IGNORECASE)
-        except Exception as e:
+        except Exception:
             regex = re.compile(r"^$")
         query = query.replace(" ", "").lower()
 
