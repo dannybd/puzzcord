@@ -215,6 +215,13 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         )
 
     @has_any_role("Puzzleboss", "Puzztech")
+    @commands.command()
+    async def reload(self, ctx):
+        """[puzztech only] Reload hunt config from DB"""
+        self.bot.hunt_config = SQL.get_hunt_config()
+        await ctx.reply("Updated puzzcord's hunt config from DB.")
+
+    @has_any_role("Puzzleboss", "Puzztech")
     @commands.command(aliases=["defer", "redirectto"])
     async def deferto(self, ctx, *, target_channel: discord.TextChannel):
         """[puzzboss only] Defer a puzzle channel to another channel"""
