@@ -6,7 +6,7 @@ import datetime
 import discord
 from discord.ext import commands, tasks
 from discord.ext.commands import guild_only
-import puzzboss_interface
+from puzzboss_interface import REST, SQL
 import discord_info
 import logging
 import re
@@ -47,9 +47,7 @@ class PuzzleStatus(commands.Cog):
     ):
         """Display current state of a puzzle.
         If no channel is provided, we default to the current puzzle channel."""
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(
-            ctx, channel_or_query, bot=self.bot
-        )
+        puzzle = SQL.get_puzzle_for_channel_fuzzy(ctx, channel_or_query)
         if puzzle:
             embed = build_puzzle_embed(puzzle, ctx.guild)
             await ctx.send(embed=embed)
@@ -94,7 +92,7 @@ class PuzzleStatus(commands.Cog):
         ]
         table_sizes = {table.name: len(table.members) for table in tables}
         xyzlocs = {table.name: [] for table in tables}
-        puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
+        puzzles = SQL.get_all_puzzles()
         for puzzle in puzzles:
             xyzloc = puzzle["xyzloc"]
             if not xyzloc:
@@ -155,9 +153,7 @@ class PuzzleStatus(commands.Cog):
             return await self.tables(ctx)
 
         logging.info("{0.command}: Looking for {1}".format(ctx, channel_or_query))
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(
-            ctx, channel_or_query, bot=self.bot
-        )
+        puzzle = SQL.get_puzzle_for_channel_fuzzy(ctx, channel_or_query)
         if not puzzle:
             logging.info("{0.command}: No puzzle found, sending !tables.".format(ctx))
             return await self.tables(ctx)
@@ -183,13 +179,13 @@ class PuzzleStatus(commands.Cog):
         """Update a puzzle's comments in Puzzleboss
         These are visible on the Puzzleboss site, and when people run !puzzle"""
         channel = channel or ctx.channel
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
+        puzzle = SQL.get_puzzle_for_channel(channel)
         if not puzzle:
             await ctx.send(
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             return
-        response = await puzzboss_interface.REST.post(
+        response = await REST.post(
             "/puzzles/{id}/comments".format(**puzzle), {"comments": comments or ""}
         )
         if len(comments) > 200:
@@ -233,13 +229,13 @@ class PuzzleStatus(commands.Cog):
             return
 
         channel = channel or ctx.channel
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
+        puzzle = SQL.get_puzzle_for_channel(channel)
         if not puzzle:
             await ctx.send(
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             return
-        response = await puzzboss_interface.REST.post(
+        response = await REST.post(
             "/puzzles/{id}/status".format(**puzzle), {"status": status}
         )
 
@@ -293,13 +289,13 @@ class PuzzleStatus(commands.Cog):
             return
         if not discord_info.is_puzzle_channel(channel):
             return
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
+        puzzle = SQL.get_puzzle_for_channel(channel)
         if not puzzle:
             return
-        solver = puzzboss_interface.SQL.get_solver_from_member(member, bot=self.bot)
+        solver = SQL.get_solver_from_member(member)
         if not solver:
             return
-        await puzzboss_interface.REST.post(
+        await REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
             {"puzz": puzzle["id"]},
         )
@@ -314,10 +310,8 @@ class PuzzleStatus(commands.Cog):
         if not discord_info.is_puzzle_channel(ctx.channel):
             await ctx.send("Sorry, the !here command only works in puzzle channels.")
             return
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
-            ctx.channel, bot=self.bot
-        )
-        solver = puzzboss_interface.SQL.get_solver_from_member(ctx.author, bot=self.bot)
+        puzzle = SQL.get_puzzle_for_channel(ctx.channel)
+        solver = SQL.get_solver_from_member(ctx.author)
         domain = self.bot.hunt_team["domain"]
         if not solver:
             await ctx.send(
@@ -325,7 +319,7 @@ class PuzzleStatus(commands.Cog):
                 + "a @RoleVerifier, then try again."
             )
             return
-        response = await puzzboss_interface.REST.post(
+        response = await REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
             {"puzz": puzzle["id"]},
         )
@@ -350,14 +344,14 @@ class PuzzleStatus(commands.Cog):
     @commands.command()
     async def away(self, ctx):
         """Lets folks know you're taking a break and not working on anything."""
-        solver = puzzboss_interface.SQL.get_solver_from_member(ctx.author, bot=self.bot)
+        solver = SQL.get_solver_from_member(ctx.author)
         if not solver:
             await ctx.send(
                 f"Sorry, we can't find your {domain} account. Please talk to "
                 + "a @RoleVerifier, then try again."
             )
             return
-        response = await puzzboss_interface.REST.post(
+        response = await REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
             {"puzz": ""},
         )
@@ -383,9 +377,7 @@ class PuzzleStatus(commands.Cog):
             await ctx.send("Sorry, the !joinus command only works in puzzle channels.")
             return
         table = discord_info.get_table(ctx.author)
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
-            ctx.channel, bot=self.bot
-        )
+        puzzle = SQL.get_puzzle_for_channel(ctx.channel)
         if not table:
             xyz = ""
             if puzzle["xyzloc"]:
@@ -406,16 +398,16 @@ class PuzzleStatus(commands.Cog):
                 + "Puzzleboss database, so !joinus won't work."
             )
             return
-        await puzzboss_interface.REST.post(
+        await REST.post(
             "/puzzles/{id}/xyzloc".format(**puzzle),
             {"xyzloc": table.name},
         )
         if discord_info.is_puzzboss(ctx.author):
             return
-        solver = puzzboss_interface.SQL.get_solver_from_member(ctx.author, bot=self.bot)
+        solver = SQL.get_solver_from_member(ctx.author)
         if not solver:
             return
-        response = await puzzboss_interface.REST.post(
+        response = await REST.post(
             "/solvers/{0}/puzz".format(solver["id"]),
             {"puzz": puzzle["id"]},
         )
@@ -440,15 +432,13 @@ class PuzzleStatus(commands.Cog):
     ):
         """Unmark a channel as being worked anywhere.
         If no channel is provided, we default to the current puzzle channel."""
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel_fuzzy(
-            ctx, channel_or_query, bot=self.bot
-        )
+        puzzle = SQL.get_puzzle_for_channel_fuzzy(ctx, channel_or_query)
         if not puzzle:
             await ctx.send(
                 "Sorry, I couldn't find a puzzle for that query. Please try again."
             )
             return
-        await puzzboss_interface.REST.post(
+        await REST.post(
             "/puzzles/{id}/xyzloc".format(**puzzle),
             {"xyzloc": ""},
         )
@@ -522,7 +512,7 @@ class PuzzleStatus(commands.Cog):
             return
 
         # No puzzles here? Stop
-        puzzles = puzzboss_interface.SQL.get_puzzles_at_table(table, bot=self.bot)
+        puzzles = SQL.get_puzzles_at_table(table)
         if not puzzles:
             return
 
@@ -542,11 +532,11 @@ class PuzzleStatus(commands.Cog):
             )
             return
         except asyncio.TimeoutError:
-            puzzles = puzzboss_interface.SQL.get_puzzles_at_table(table, bot=self.bot)
+            puzzles = SQL.get_puzzles_at_table(table)
             for puzzle in puzzles:
                 name = puzzle["name"]
                 logging.info("Removing {0} from {1.name}".format(name, table))
-                await puzzboss_interface.REST.post(
+                await REST.post(
                     "/puzzles/{0}/xyzloc".format(puzzle["id"]),
                     {"xyzloc": ""},
                 )

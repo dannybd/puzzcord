@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import guild_only, has_any_role, MemberConverter, errors
 import logging
-import puzzboss_interface
+from puzzboss_interface import REST, SQL
 import re
 import typing
 
@@ -115,7 +115,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
                 return True
             return False
 
-        solvers = puzzboss_interface.SQL.get_all_solvers(bot=self.bot)
+        solvers = SQL.get_all_solvers()
         results = []
         for solver in solvers:
             if solver_matches(**solver):
@@ -170,7 +170,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         member_tag = "Discord user `{0}`".format(print_user(member))
         if member.bot:
             return f"{member_tag} is a bot, like me :)"
-        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -237,15 +237,9 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             return
         member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
         await ctx.channel.set_permissions(member_role, read_messages=False)
-        this_puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
-            ctx.channel,
-            bot=self.bot,
-        )
-        target_puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
-            target_channel,
-            bot=self.bot,
-        )
-        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        this_puzzle = SQL.get_puzzle_for_channel(ctx.channel)
+        target_puzzle = SQL.get_puzzle_for_channel(target_channel)
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -286,9 +280,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     async def newround(self, ctx, *, round_name: str):
         """[puzzboss only] Creates a new round"""
         logging.info("{0.command}: Creating a new round: {1}".format(ctx, round_name))
-        response = await puzzboss_interface.REST.post(
-            "/rounds/", {"name": "{0}".format(round_name)}
-        )
+        response = await REST.post("/rounds/", {"name": "{0}".format(round_name)})
         status = response.status
         if status == 200:
             await ctx.send("Round created!")
@@ -303,9 +295,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     async def solvedround(self, ctx, *, round_name: typing.Optional[str]):
         """[puzzboss only] Marks a round as solved"""
         if not round_name:
-            puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(
-                ctx.channel, bot=self.bot
-            )
+            puzzle = SQL.get_puzzle_for_channel(ctx.channel)
             if not puzzle:
                 await ctx.send("Incorrect usage: please specify round name")
                 return
@@ -313,7 +303,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         logging.info(
             "{0.command}: Marking a round as solved: {1}".format(ctx, round_name)
         )
-        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -328,7 +318,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             logging.info("{0.command}: Committed row successfully!".format(ctx))
             await ctx.send("You solved the meta!! 🎉 🥳")
         return
-        # response = await puzzboss_interface.REST.post(
+        # response = await REST.post(
         #     "/rounds/{}/round_uri".format(round_name),
         #     {"round_uri": "#solved"},
         # )
@@ -385,14 +375,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         apply_to_self = channel is None
         if apply_to_self:
             channel = ctx.channel
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
+        puzzle = SQL.get_puzzle_for_channel(channel)
         if not puzzle:
             await ctx.send(
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             await ctx.message.delete()
             return
-        response = await puzzboss_interface.REST.post(
+        response = await REST.post(
             "/puzzles/{id}/answer".format(**puzzle), {"answer": answer.upper()}
         )
         if apply_to_self:
@@ -438,14 +428,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         apply_to_self = channel is None
         if apply_to_self:
             channel = ctx.channel
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
+        puzzle = SQL.get_puzzle_for_channel(channel)
         if not puzzle:
             await ctx.send(
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             return
         await ctx.send("Trying to restore...")
-        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -521,7 +511,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     @commands.command()
     async def unmatched(self, ctx):
         """Unmatched Puzzleboss accounts w/o Discord accounts yet"""
-        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -557,7 +547,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     @commands.command()
     async def unverified(self, ctx):
         """Lists not-yet-verified team members"""
-        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -707,7 +697,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 ctx, member, username
             )
         )
-        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -813,11 +803,11 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     ):
         """[puzztech only] Emergency relinking of a puzzle to an existing sheet"""
         channel = channel or ctx.channel
-        puzzle = puzzboss_interface.SQL.get_puzzle_for_channel(channel, bot=self.bot)
+        puzzle = SQL.get_puzzle_for_channel(channel)
         await ctx.send(
             "Relinking sheet `{}` to `{name}`...".format(sheet_hash, **puzzle)
         )
-        response = await puzzboss_interface.REST.post(
+        response = await REST.post(
             "/puzzles/{id}/drive_id".format(**puzzle),
             {"drive_id": sheet_hash},
         )
@@ -825,7 +815,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             await ctx.send("Error setting drive_id!")
             return
 
-        response = await puzzboss_interface.REST.post(
+        response = await REST.post(
             "/puzzles/{id}/drive_uri".format(**puzzle),
             {
                 "drive_uri": f"https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk"

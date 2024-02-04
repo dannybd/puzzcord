@@ -1,7 +1,7 @@
 """ Get an overview of the entire hunt status """
 import discord
 from discord.ext import commands, tasks
-import puzzboss_interface
+from puzzboss_interface import SQL
 import discord_info
 import json
 import logging
@@ -30,7 +30,7 @@ class HuntStatus(commands.Cog):
         online_members = [
             member for member in members if member.status != discord.Status.offline
         ]
-        puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
+        puzzles = SQL.get_all_puzzles()
         rounds = set(puzzle["round_name"] for puzzle in puzzles)
         solved = [
             puzzle
@@ -74,11 +74,8 @@ class HuntStatus(commands.Cog):
                         messages_per_minute += 1
 
         active_in_sheets = set()
-        solvers = puzzboss_interface.SQL.get_all_solvers(bot=self.bot)
-        recent_solvers = puzzboss_interface.SQL.get_solver_ids_since(
-            time=time_window_start,
-            bot=self.bot,
-        )
+        solvers = SQL.get_all_solvers()
+        recent_solvers = SQL.get_solver_ids_since(time=time_window_start)
         for solver in solvers:
             if solver["solver_id"] not in recent_solvers:
                 continue
@@ -261,7 +258,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             return
 
         author = ctx.author
-        connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
+        connection = SQL._get_db_connection()
         domain = self.bot.hunt_team["domain"]
         with connection.cursor() as cursor:
             cursor.execute(
@@ -364,8 +361,8 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             if table.category and table.category.name.startswith("🪴")
         ]
         table_sizes = {table.name: len(table.members) for table in tables}
-        puzzles = puzzboss_interface.SQL.get_all_puzzles(bot=self.bot)
-        meta_ids = puzzboss_interface.SQL.get_meta_ids(bot=self.bot)
+        puzzles = SQL.get_all_puzzles()
+        meta_ids = SQL.get_meta_ids()
         rounds = {}
         for puzzle in puzzles:
             round_name = puzzle["round_name"]
@@ -439,7 +436,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             ),
         )
 
-        solved_round_names = puzzboss_interface.SQL.get_solved_round_names(bot=self.bot)
+        solved_round_names = SQL.get_solved_round_names()
 
         for name, round in rounds.items():
             if name in solved_round_names:
@@ -497,9 +494,9 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
     @commands.command()
     async def hipri(self, ctx):
         """Show hipri puzzles"""
-        meta_ids = puzzboss_interface.SQL.get_meta_ids(bot=self.bot)
+        meta_ids = SQL.get_meta_ids()
         puzzles = sorted(
-            puzzboss_interface.SQL.get_hipri_puzzles(bot=self.bot),
+            SQL.get_hipri_puzzles(),
             key=lambda puzzle: (
                 puzzle["status"],
                 -1 * int(puzzle["id"] in meta_ids),

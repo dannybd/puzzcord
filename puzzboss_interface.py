@@ -24,15 +24,18 @@ class REST:
 
 
 class SQL:
-    @staticmethod
-    def _get_db_connection(bot=None):
-        if bot and bot.connection:
-            bot.connection.ping(reconnect=True)
-            return bot.connection
+    # Class variable to store connection once established
+    connection = None
 
-        logging.info("[SQL] No bot found, creating new connection")
+    @staticmethod
+    def _get_db_connection():
+        if SQL.connection:
+            SQL.connection.ping(reconnect=True)
+            return SQL.connection
+
+        logging.info("[SQL] No connection found, creating new connection")
         creds = config["puzzledb"]
-        return pymysql.connect(
+        connection = pymysql.connect(
             host=creds["host"],
             port=creds["port"],
             user=creds["user"].lower(),
@@ -41,15 +44,17 @@ class SQL:
             cursorclass=pymysql.cursors.DictCursor,
             autocommit=True,
         )
+        SQL.connection = connection
+        return connection
 
     @staticmethod
-    def get_puzzle_for_channel(channel, bot=None):
-        rows = SQL.get_puzzles_for_channels([channel], bot=bot)
+    def get_puzzle_for_channel(channel):
+        rows = SQL.get_puzzles_for_channels([channel])
         return rows[channel.id] if channel.id in rows else None
 
     @staticmethod
-    def get_puzzles_for_channels(channels, bot=None):
-        connection = SQL._get_db_connection(bot=bot)
+    def get_puzzles_for_channels(channels):
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -76,15 +81,15 @@ class SQL:
             return {int(row["channel_id"]): row for row in cursor.fetchall()}
 
     @staticmethod
-    def get_puzzle_for_channel_fuzzy(ctx, channel_or_query, bot=None):
+    def get_puzzle_for_channel_fuzzy(ctx, channel_or_query):
         if not channel_or_query:
             if not is_puzzle_channel(ctx.channel):
                 return None
-            return SQL.get_puzzle_for_channel(ctx.channel, bot=bot)
+            return SQL.get_puzzle_for_channel(ctx.channel)
 
         if isinstance(channel_or_query, discord.TextChannel):
             channel = channel_or_query
-            return SQL.get_puzzle_for_channel(channel, bot=bot)
+            return SQL.get_puzzle_for_channel(channel)
 
         query = channel_or_query
         try:
@@ -100,7 +105,7 @@ class SQL:
                 return True
             return regex.search(name) is not None
 
-        connection = SQL._get_db_connection(bot=bot)
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -126,8 +131,8 @@ class SQL:
             )
 
     @staticmethod
-    def get_solved_round_names(bot=None):
-        connection = SQL._get_db_connection(bot=bot)
+    def get_solved_round_names():
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -142,8 +147,8 @@ class SQL:
             return [row["name"] for row in cursor.fetchall()]
 
     @staticmethod
-    def get_meta_ids(bot=None):
-        connection = SQL._get_db_connection(bot=bot)
+    def get_meta_ids():
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -157,8 +162,8 @@ class SQL:
             return [row["meta_id"] for row in cursor.fetchall()]
 
     @staticmethod
-    def get_all_puzzles(bot=None):
-        connection = SQL._get_db_connection(bot=bot)
+    def get_all_puzzles():
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -182,8 +187,8 @@ class SQL:
             return cursor.fetchall()
 
     @staticmethod
-    def get_hipri_puzzles(bot=None):
-        connection = SQL._get_db_connection(bot=bot)
+    def get_hipri_puzzles():
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -205,8 +210,8 @@ class SQL:
             return cursor.fetchall()
 
     @staticmethod
-    def get_puzzles_at_table(table, bot=None):
-        connection = SQL._get_db_connection(bot=bot)
+    def get_puzzles_at_table(table):
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -223,8 +228,8 @@ class SQL:
             return cursor.fetchall()
 
     @staticmethod
-    def get_solver_from_member(member, bot=None):
-        connection = SQL._get_db_connection(bot=bot)
+    def get_solver_from_member(member):
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -241,8 +246,8 @@ class SQL:
         return row if row else None
 
     @staticmethod
-    def get_all_solvers(bot=None):
-        connection = SQL._get_db_connection(bot=bot)
+    def get_all_solvers():
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -259,8 +264,8 @@ class SQL:
             return cursor.fetchall()
 
     @staticmethod
-    def get_solver_ids_since(time, bot=None):
-        connection = SQL._get_db_connection(bot=bot)
+    def get_solver_ids_since(time):
+        connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(
                 """

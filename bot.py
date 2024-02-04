@@ -13,13 +13,13 @@ import sys
 import typing
 import traceback
 import glob
-import puzzboss_interface
 
 from common import *
 from discord.ext import commands
 from discord.ext.commands import guild_only
 from config import config
 from discord_info import GUILD_ID, WELCOME_LOBBY, get_team_members
+from puzzboss_interface import SQL
 from pytz import timezone
 
 # Define logging levels
@@ -46,7 +46,7 @@ class PuzzcordBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.connection = puzzboss_interface.SQL._get_db_connection()
+        SQL._get_db_connection()
         self.hunt_team = config["hunt_team"]
         self.tz = timezone("US/Eastern")
         # TODO: Update for 2025
