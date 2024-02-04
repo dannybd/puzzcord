@@ -49,7 +49,7 @@ class SQL:
 
     @staticmethod
     def select_one(query: str, args=None):
-        assert query.strip().upper().startswith("SELECT "), "SELECT only!"
+        assert query.split()[0].upper() == "SELECT", "SELECT only!"
         connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(query, args)
@@ -57,7 +57,7 @@ class SQL:
 
     @staticmethod
     def select_all(query: str, args=None):
-        assert query.strip().upper().startswith("SELECT "), "SELECT only!"
+        assert query.split()[0].upper() == "SELECT", "SELECT only!"
         connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(query, args)
@@ -65,7 +65,7 @@ class SQL:
 
     @staticmethod
     def update(ctx, query: str, args=None):
-        assert query.strip().upper().startswith("UPDATE "), "UPDATE only!"
+        assert query.split()[0].upper() == "UPDATE", "UPDATE only!"
         connection = SQL._get_db_connection()
         with connection.cursor() as cursor:
             cursor.execute(query, args)
