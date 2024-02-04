@@ -258,55 +258,51 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             return
 
         author = ctx.author
-        connection = SQL._get_db_connection()
         domain = self.bot.hunt_team["domain"]
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT
-                    puzzles
-                FROM solver_view
-                WHERE chat_uid = %s
-                ORDER BY id DESC
-                LIMIT 1
-                """,
-                (str(author.id),),
+        solver = SQL.select_one(
+            """
+            SELECT
+                puzzles
+            FROM solver_view
+            WHERE chat_uid = %s
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (str(author.id),),
+        )
+        if not solver:
+            await ctx.send(
+                (
+                    "Sorry, {0.mention}, I couldn't find your {1} "
+                    + "account! Did you register? *Did you even hunt with us?*"
+                ).format(author, domain)
             )
-            solver = cursor.fetchone()
-            if not solver:
-                await ctx.send(
-                    (
-                        "Sorry, {0.mention}, I couldn't find your {1} "
-                        + "account! Did you register? *Did you even hunt with us?*"
-                    ).format(author, domain)
-                )
-                return
-            puzzles = (solver["puzzles"] or "").split(",")
-            if not puzzles:
-                await ctx.send(
-                    (
-                        "Sorry, {0.mention}, I couldn't find any puzzles recorded "
-                        + "to your {1} account. "
-                        + "Maybe try using the `!here` and `!joinus` commands "
-                        + "next year 😛"
-                    ).format(author, domain)
-                )
-                return
-            cursor.execute(
-                """
-                SELECT
-                    name,
-                    roundname AS round_name,
-                    puzzle_uri
-                FROM puzzle_view
-                WHERE name IN ({})
-                ORDER BY id
-                """.format(
-                    ",".join(["%s"] * len(puzzles))
-                ),
-                tuple(puzzles),
+            return
+        puzzles = (solver["puzzles"] or "").split(",")
+        if not puzzles:
+            await ctx.send(
+                (
+                    "Sorry, {0.mention}, I couldn't find any puzzles recorded "
+                    + "to your {1} account. "
+                    + "Maybe try using the `!here` and `!joinus` commands "
+                    + "next year 😛"
+                ).format(author, domain)
             )
-            puzzles = cursor.fetchall()
+            return
+        puzzles = SQL.select_all(
+            """
+            SELECT
+                name,
+                roundname AS round_name,
+                puzzle_uri
+            FROM puzzle_view
+            WHERE name IN ({})
+            ORDER BY id
+            """.format(
+                ",".join(["%s"] * len(puzzles))
+            ),
+            tuple(puzzles),
+        )
 
         def plural(num, noun):
             return "{} {}{}".format(num, noun, "" if num == 1 else "s")

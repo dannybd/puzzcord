@@ -170,27 +170,23 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         member_tag = "Discord user `{0}`".format(print_user(member))
         if member.bot:
             return f"{member_tag} is a bot, like me :)"
-        connection = SQL._get_db_connection()
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT
-                    name,
-                    fullname
-                FROM solver_view
-                WHERE chat_uid = %s
-                ORDER BY id DESC
-                LIMIT 1
-                """,
-                (member.id,),
-            )
-            solver = cursor.fetchone()
-            not_found = f"{member_tag} does not seem to be verified yet!"
-            if not solver:
-                return not_found
-            return ("{0} is Puzzleboss user `{1} ({2})`").format(
-                member_tag, solver["name"], solver["fullname"]
-            )
+        solver = SQL.select_one(
+            """
+            SELECT
+                name,
+                fullname
+            FROM solver_view
+            WHERE chat_uid = %s
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (member.id,),
+        )
+        if not solver:
+            return f"{member_tag} does not seem to be verified yet!"
+        return ("{0} is Puzzleboss user `{1} ({2})`").format(
+            member_tag, solver["name"], solver["fullname"]
+        )
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
@@ -239,30 +235,26 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         await ctx.channel.set_permissions(member_role, read_messages=False)
         this_puzzle = SQL.get_puzzle_for_channel(ctx.channel)
         target_puzzle = SQL.get_puzzle_for_channel(target_channel)
-        connection = SQL._get_db_connection()
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                UPDATE puzzle
-                SET
-                    comments = %s,
-                    chat_channel_link = %s,
-                    drive_id = %s,
-                    drive_uri = %s
-                WHERE id = %s AND name = %s
-                """,
-                (
-                    f"<<<REDIRECTED>>> to #{target_channel}",
-                    target_puzzle["chat_channel_link"],
-                    target_puzzle["drive_id"],
-                    target_puzzle["drive_uri"],
-                    this_puzzle["id"],
-                    this_puzzle["name"],
-                ),
-            )
-            logging.info("{0.command}: Committing row".format(ctx))
-            connection.commit()
-            logging.info("{0.command}: Committed row successfully!".format(ctx))
+        SQL.update(
+            ctx,
+            """
+            UPDATE puzzle
+            SET
+                comments = %s,
+                chat_channel_link = %s,
+                drive_id = %s,
+                drive_uri = %s
+            WHERE id = %s AND name = %s
+            """,
+            (
+                f"<<<REDIRECTED>>> to #{target_channel}",
+                target_puzzle["chat_channel_link"],
+                target_puzzle["drive_id"],
+                target_puzzle["drive_uri"],
+                this_puzzle["id"],
+                this_puzzle["name"],
+            ),
+        )
         await target_channel.send(
             "**Heads up:** Puzzle [`{name}`](<{puzzle_uri}>) now points to this channel!".format(
                 **this_puzzle
@@ -303,20 +295,16 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         logging.info(
             "{0.command}: Marking a round as solved: {1}".format(ctx, round_name)
         )
-        connection = SQL._get_db_connection()
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                UPDATE round
-                SET round_uri = '#solved'
-                WHERE name = %s
-                """,
-                (round_name,),
-            )
-            logging.info("{0.command}: Committing row".format(ctx))
-            connection.commit()
-            logging.info("{0.command}: Committed row successfully!".format(ctx))
-            await ctx.send("You solved the meta!! 🎉 🥳")
+        SQL.update(
+            ctx,
+            """
+            UPDATE round
+            SET round_uri = '#solved'
+            WHERE name = %s
+            """,
+            (round_name,),
+        )
+        await ctx.send("You solved the meta!! 🎉 🥳")
         return
         # response = await REST.post(
         #     "/rounds/{}/round_uri".format(round_name),
@@ -435,19 +423,15 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
             return
         await ctx.send("Trying to restore...")
-        connection = SQL._get_db_connection()
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                UPDATE puzzle
-                SET answer = '', status = 'Being worked'
-                WHERE id = %s AND name = %s
-                """,
-                (puzzle["id"], puzzle["name"]),
-            )
-            logging.info("{0.command}: Committing row".format(ctx))
-            connection.commit()
-            logging.info("{0.command}: Committed row successfully!".format(ctx))
+        SQL.update(
+            ctx,
+            """
+            UPDATE puzzle
+            SET answer = '', status = 'Being worked'
+            WHERE id = %s AND name = %s
+            """,
+            (puzzle["id"], puzzle["name"]),
+        )
 
         round_name = puzzle["round_name"]
         category_name = "🧩 {0}".format(round_name)
@@ -511,21 +495,18 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     @commands.command()
     async def unmatched(self, ctx):
         """Unmatched Puzzleboss accounts w/o Discord accounts yet"""
-        connection = SQL._get_db_connection()
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT
-                    name,
-                    fullname
-                FROM solver_view
-                WHERE
-                    chat_uid IS NULL
-                    AND name <> 'puzzleboss'
-                ORDER BY id DESC
-                """,
-            )
-            unmatched_users = cursor.fetchall()
+        unmatched_users = SQL.select_all(
+            """
+            SELECT
+                name,
+                fullname
+            FROM solver_view
+            WHERE
+                chat_uid IS NULL
+                AND name <> 'puzzleboss'
+            ORDER BY id DESC
+            """,
+        )
 
         if not unmatched_users:
             await ctx.send("Looks like all PB accounts are matched, nice!")
@@ -547,17 +528,15 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     @commands.command()
     async def unverified(self, ctx):
         """Lists not-yet-verified team members"""
-        connection = SQL._get_db_connection()
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT
-                    DISTINCT chat_uid
-                FROM solver_view
-                WHERE chat_uid IS NOT NULL
-                """,
-            )
-            verified_discord_ids = [int(row["chat_uid"]) for row in cursor.fetchall()]
+        rows = SQL.select_all(
+            """
+            SELECT
+                DISTINCT chat_uid
+            FROM solver_view
+            WHERE chat_uid IS NOT NULL
+            """,
+        )
+        verified_discord_ids = [int(row["chat_uid"]) for row in rows]
         visitor_role = ctx.guild.get_role(VISITOR_ROLE)
         unverified_users = [
             member
@@ -605,25 +584,23 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         else:
             unverified_members = ""
 
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT
-                    id,
-                    name,
-                    fullname
-                FROM solver_view
-                WHERE
-                    chat_uid IS NULL
-                    AND id > 320
-                ORDER BY id DESC
-                LIMIT 10
-                """,
-            )
-            unverified_new_accounts = [
-                f"{row['name']} ({row['fullname']}, ID {row['id']})"
-                for row in cursor.fetchall()
-            ]
+        rows = SQL.select_all(
+            """
+            SELECT
+                id,
+                name,
+                fullname
+            FROM solver_view
+            WHERE
+                chat_uid IS NULL
+                AND id > 320
+            ORDER BY id DESC
+            LIMIT 10
+            """,
+        )
+        unverified_new_accounts = [
+            f"{row['name']} ({row['fullname']}, ID {row['id']})" for row in rows
+        ]
         if unverified_new_accounts:
             unverified_new_accounts = (
                 "\nRecent Puzzleboss accounts needing Discord users:\n```{0}```".format(
@@ -633,18 +610,17 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         else:
             unverified_new_accounts = ""
 
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT
-                    username,
-                    fullname
-                FROM newuser
-                """,
-            )
-            accounts_being_registered = [
-                f"{row['username']} ({row['fullname']})" for row in cursor.fetchall()
-            ]
+        rows = SQL.select_all(
+            """
+            SELECT
+                username,
+                fullname
+            FROM newuser
+            """,
+        )
+        accounts_being_registered = [
+            f"{row['username']} ({row['fullname']})" for row in rows
+        ]
         if accounts_being_registered:
             accounts_being_registered = "\nPuzzleboss accounts pending confirmation before creation/reset:\n```{0}```".format(
                 "\n".join(accounts_being_registered)
@@ -697,66 +673,59 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 ctx, member, username
             )
         )
-        connection = SQL._get_db_connection()
-        with connection.cursor() as cursor:
-            cursor.execute(
+        solver = SQL.select_one(
+            """
+            SELECT
+                id,
+                name,
+                fullname
+            FROM solver_view
+            WHERE name LIKE %s
+            LIMIT 1
+            """,
+            (username,),
+        )
+        if not solver:
+            pending_solver = SQL.select_one(
                 """
                 SELECT
-                    id,
-                    name,
-                    fullname
-                FROM solver_view
-                WHERE name LIKE %s
+                    username
+                FROM newuser
+                WHERE username LIKE %s
                 LIMIT 1
                 """,
                 (username,),
             )
-            solver = cursor.fetchone()
-            if not solver:
-                cursor.execute(
-                    """
-                    SELECT
-                        username
-                    FROM newuser
-                    WHERE username LIKE %s
-                    LIMIT 1
-                    """,
-                    (username,),
-                )
-                pending_solver = cursor.fetchone()
-                if pending_solver:
-                    await ctx.send(
-                        (
-                            "Error: {0} has started registration but has not yet "
-                            + "confirmed their email! Check your spam folder as well, "
-                            + "click the confirmation link, then come back here to let us know."
-                        ).format(username)
-                    )
+            if pending_solver:
                 await ctx.send(
-                    "Error: Couldn't find a {0}@{1}, please try again.".format(
-                        username, self.bot.hunt_team["domain"]
-                    )
+                    (
+                        "Error: {0} has started registration but has not yet "
+                        + "confirmed their email! Check your spam folder as well, "
+                        + "click the confirmation link, then come back here to let us know."
+                    ).format(username)
                 )
                 return
-            logging.info(
-                "{0.command}: Found solver {1}".format(ctx, solver["fullname"])
+            await ctx.send(
+                "Error: Couldn't find a {0}@{1}, please try again.".format(
+                    username, self.bot.hunt_team["domain"]
+                )
             )
-            print(solver["id"])
-            cursor.execute(
-                """
-                UPDATE solver
-                SET chat_uid = %s, chat_name = %s
-                WHERE id = %s
-                """,
-                (
-                    str(member.id),
-                    str(member),
-                    solver["id"],
-                ),
-            )
-            logging.info("{0.command}: Committing row".format(ctx))
-            connection.commit()
-            logging.info("{0.command}: Committed row successfully!".format(ctx))
+            return
+        logging.info("{0.command}: Found solver {1}".format(ctx, solver["fullname"]))
+        print(solver["id"])
+        SQL.update(
+            ctx,
+            """
+            UPDATE solver
+            SET chat_uid = %s, chat_name = %s
+            WHERE id = %s
+            """,
+            (
+                str(member.id),
+                str(member),
+                solver["id"],
+            ),
+        )
         member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
         if member_role not in member.roles:
             logging.info("{0.command}: Adding member role!".format(ctx))
