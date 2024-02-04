@@ -3,10 +3,10 @@
 import aiohttp
 import asyncio
 import datetime
+from db import REST, SQL
 import discord
 from discord.ext import commands, tasks
 from discord.ext.commands import guild_only
-from puzzboss_interface import REST, SQL
 import discord_info
 import logging
 import re

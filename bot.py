@@ -18,8 +18,8 @@ from common import *
 from discord.ext import commands
 from discord.ext.commands import guild_only
 from config import config
+from db import SQL
 from discord_info import GUILD_ID, WELCOME_LOBBY, get_team_members
-from puzzboss_interface import SQL
 from pytz import timezone
 
 # Define logging levels

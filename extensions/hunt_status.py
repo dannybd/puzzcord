@@ -1,7 +1,7 @@
 """ Get an overview of the entire hunt status """
+from db import SQL
 import discord
 from discord.ext import commands, tasks
-from puzzboss_interface import SQL
 import discord_info
 import json
 import logging

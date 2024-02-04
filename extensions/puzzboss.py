@@ -1,9 +1,9 @@
 """ Puzzboss-only commands """
+from db import REST, SQL
 import discord
 from discord.ext import commands
 from discord.ext.commands import guild_only, has_any_role, MemberConverter, errors
 import logging
-from puzzboss_interface import REST, SQL
 import re
 import typing
 
