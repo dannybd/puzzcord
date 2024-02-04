@@ -55,7 +55,6 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         )
 
     @onboard.error
-    @onboard_alias.error
     async def onboard_error(self, ctx, error):
         if isinstance(error, errors.MissingRequiredArgument):
             await ctx.send("Usage: `!onboard [Discord display name]`\n")
@@ -326,7 +325,6 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         # await ctx.send("Error. Something weird happened, ping @dannybd")
 
     @solvedround.error
-    @solvedround_alias.error
     async def solvedround_error(self, ctx, error):
         puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
         if isinstance(error, errors.MissingAnyRole):
@@ -377,7 +375,6 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             await ctx.message.delete()
 
     @solved.error
-    @solved_alias.error
     async def solved_error(self, ctx, error):
         puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
         if isinstance(error, errors.MissingAnyRole):
@@ -737,7 +734,6 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         )
 
     @verify.error
-    @verify_alias.error
     async def verify_error(self, ctx, error):
         if isinstance(error, errors.MissingRequiredArgument):
             await ctx.send(
