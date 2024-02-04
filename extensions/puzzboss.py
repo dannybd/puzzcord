@@ -21,23 +21,9 @@ class Puzzboss(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(hidden=True, usage="[sneaky]")
-    async def admin(self, ctx):
-        """Administrative commands, mostly puzzboss-only"""
-        if ctx.invoked_subcommand:
-            return
-        await ctx.send("Sneaky things happen here 👀")
-
     @has_any_role("RoleVerifier", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(name="onboard", hidden=True)
-    async def onboard_alias(self, ctx, member: discord.Member):
-        """Sends a onboarding message to a new member"""
-        return await self.onboard(ctx, member=member)
-
-    @has_any_role("RoleVerifier", "Puzzleboss", "Puzztech")
-    @guild_only()
-    @admin.command(name="onboard")
+    @commands.command(name="onboard")
     async def onboard(self, ctx, member: discord.Member):
         """Sends a onboarding message to a new member"""
         domain = self.bot.hunt_team["domain"]
@@ -83,22 +69,9 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         await ctx.send("Error! Something went wrong, please ping @dannybd.")
         raise error
 
-    # @has_any_role("RoleVerifier", "Puzzleboss", "Puzztech")
-    @guild_only()
-    @commands.command(name="whois", aliases=["lookup"], hidden=True)
-    async def whois_alias(
-        self,
-        ctx,
-        member: typing.Optional[discord.Member],
-        *,
-        query: typing.Optional[str],
-    ):
-        """Looks up a user in Discord and Puzzleboss. (Regex supported)"""
-        return await self.whois(ctx, member=member, query=query)
-
     @has_any_role("RoleVerifier", "Puzzleboss", "Puzztech")
     @guild_only()
-    @admin.command(name="whois", aliases=["lookup"])
+    @commands.command(name="whois", aliases=["lookup"])
     async def whois(
         self,
         ctx,
@@ -221,18 +194,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(
-        name="newpuzzboss",
-        aliases=["usurp", "burden", "anoint", "annoint", "annnoint", "annoy"],
-        hidden=True,
-    )
-    async def newpuzzboss_alias(self, ctx, newboss: typing.Optional[discord.Member]):
-        """[puzzboss only] Designates a new person as Puzzleboss"""
-        return await self.newpuzzboss(ctx, newboss)
-
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
-    @guild_only()
-    @admin.command()
+    @commands.command()
     async def newpuzzboss(self, ctx, newboss: typing.Optional[discord.Member]):
         """[puzzboss only] Designates a new person as Puzzleboss"""
         puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
@@ -262,13 +224,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         )
 
     @has_any_role("Puzzleboss", "Puzztech")
-    @commands.command(name="deferto", aliases=["defer", "redirectto"], hidden=True)
-    async def deferto_alias(self, ctx, *, target_channel: discord.TextChannel):
-        """[puzzboss only] Defer a puzzle channel to another channel"""
-        return await self.deferto(ctx, target_channel=target_channel)
-
-    @has_any_role("Puzzleboss", "Puzztech")
-    @admin.command(aliases=["defer", "redirectto"])
+    @commands.command(aliases=["defer", "redirectto"])
     async def deferto(self, ctx, *, target_channel: discord.TextChannel):
         """[puzzboss only] Defer a puzzle channel to another channel"""
         logging.info(
@@ -326,13 +282,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             await ctx.channel.delete(reason="Redirected channel cleanup")
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
-    @commands.command(name="newround", hidden=True)
-    async def newround_alias(self, ctx, *, round_name: str):
-        """[puzzboss only] Creates a new round"""
-        return await self.newround(ctx, round_name=round_name)
-
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
-    @admin.command()
+    @commands.command()
     async def newround(self, ctx, *, round_name: str):
         """[puzzboss only] Creates a new round"""
         logging.info("{0.command}: Creating a new round: {1}".format(ctx, round_name))
@@ -349,13 +299,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         await ctx.send("Error. Something weird happened, try the PB UI directly.")
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
-    @commands.command(name="solvedround", hidden=True)
-    async def solvedround_alias(self, ctx, *, round_name: typing.Optional[str]):
-        """[puzzboss only] Marks a round as solved"""
-        return await self.solvedround(ctx, round_name=round_name)
-
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
-    @admin.command()
+    @commands.command()
     async def solvedround(self, ctx, *, round_name: typing.Optional[str]):
         """[puzzboss only] Marks a round as solved"""
         if not round_name:
@@ -430,16 +374,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(name="solved", aliases=["solve", "submit", "SOLVED"], hidden=True)
-    async def solved_alias(
-        self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
-    ):
-        """[puzzboss only] Mark a puzzle as solved and archive its channel"""
-        return await self.solved(ctx, channel=channel, answer=answer)
-
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
-    @guild_only()
-    @admin.command(aliases=["solve", "submit", "SOLVED"])
+    @commands.command(aliases=["solve", "submit", "SOLVED"])
     async def solved(
         self, ctx, channel: typing.Optional[discord.TextChannel], *, answer: str
     ):
@@ -494,14 +429,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(name="unsolved", aliases=["unsolve"], hidden=True)
-    async def unsolved_alias(self, ctx, channel: typing.Optional[discord.TextChannel]):
-        """[puzzboss only] Fix a puzzle accidentally marked as solved"""
-        return await self.unsolved(ctx, channel=channel)
-
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
-    @guild_only()
-    @admin.command(aliases=["unsolve"])
+    @commands.command(aliases=["unsolve"])
     async def unsolved(self, ctx, channel: typing.Optional[discord.TextChannel]):
         """[puzzboss only] Fix a puzzle accidentally marked as solved"""
         logging.info(
@@ -553,14 +481,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(name="duplicates", hidden=True)
-    async def duplicates_alias(self, ctx):
-        """Try to find duplicate guild members"""
-        return await self.duplicates(ctx)
-
-    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
-    @guild_only()
-    @admin.command()
+    @commands.command()
     async def duplicates(self, ctx):
         """Try to find duplicate guild members"""
         visitor_role = ctx.guild.get_role(VISITOR_ROLE)
@@ -597,14 +518,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(name="unmatched", hidden=True)
-    async def unmatched_alias(self, ctx):
-        """Unmatched Puzzleboss accounts w/o Discord accounts yet"""
-        return await self.unmatched(ctx)
-
-    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
-    @guild_only()
-    @admin.command()
+    @commands.command()
     async def unmatched(self, ctx):
         """Unmatched Puzzleboss accounts w/o Discord accounts yet"""
         connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
@@ -640,14 +554,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command(name="unverified", hidden=True)
-    async def unverified_alias(self, ctx):
-        """Lists not-yet-verified team members"""
-        return await self.unverified(ctx)
-
-    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
-    @guild_only()
-    @admin.command()
+    @commands.command()
     async def unverified(self, ctx):
         """Lists not-yet-verified team members"""
         connection = puzzboss_interface.SQL._get_db_connection(bot=self.bot)
@@ -763,18 +670,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         )
 
     @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
-    @commands.command(name="verify", hidden=True)
-    async def verify_alias(
-        self, ctx, member: typing.Union[discord.Member, str], *, username: str
-    ):
-        """Verifies a team member with their email
-        Usage: !verify @member username[@importanthuntpoll.org]
-        """
-        return await self.verify(ctx, member, username=username)
-
-    @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @admin.command()
+    @commands.command()
     async def verify(
         self, ctx, member: typing.Union[discord.Member, str], *, username: str
     ):
@@ -906,20 +803,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Puzztech")
     @guild_only()
-    @commands.command(name="relinkdoc", aliases=["linkdoc"], hidden=True)
-    async def relinkdoc_alias(
-        self,
-        ctx,
-        channel: typing.Optional[discord.TextChannel],
-        *,
-        sheet_hash: str,
-    ):
-        """[puzztech only] Emergency relinking of a puzzle to an existing sheet"""
-        return await self.relinkdoc(ctx, channel=channel, sheet_hash=sheet_hash)
-
-    @has_any_role("Puzztech")
-    @guild_only()
-    @admin.command(name="relinkdoc", aliases=["linkdoc"])
+    @commands.command(name="relinkdoc", aliases=["linkdoc"])
     async def relinkdoc(
         self,
         ctx,
