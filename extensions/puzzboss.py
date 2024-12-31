@@ -27,7 +27,8 @@ class Puzzboss(commands.Cog):
     async def onboard(self, ctx, member: discord.Member):
         """Sends a onboarding message to a new member"""
         await member.send(
-            """
+            (
+                """
 Welcome to **{team_name}!** Here's how to get started.
 
 1. Make a Puzzleboss account (https://{team_domain}/account), accessing that page with username `{registration_username}` and password `{registration_password}`. (This account lets our team coordinate who is solving what, generate common spreadsheets, and more.)
@@ -43,7 +44,8 @@ Learn more here: https://{team_domain}/wiki/index.php/Hunting_in_Discord:_A_Guid
 
 Thanks, and happy hunting! 🕵️‍♀️🧩
         """
-        ).format(**self.bot.hunt_config)
+            ).format(**self.bot.hunt_config)
+        )
         await ctx.send(
             "Welcome aboard, {}! Check your DMs for instructions on how to set up your account to hunt with us 🙂".format(
                 member.mention
