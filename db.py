@@ -75,9 +75,10 @@ class SQL:
 
     @staticmethod
     def get_hunt_config():
+        hunt_config = munchify(config.get("hunt_config", dict())
         rows = SQL.select_all("SELECT `key`, val FROM config")
-        hunt_config = munchify(dict(row.values() for row in rows))
-        return hunt_config or config.hunt_config
+        hunt_config.update(**dict(row.values() for row in rows))
+        return hunt_config
 
     @staticmethod
     def get_puzzle_for_channel(channel):
