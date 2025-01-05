@@ -4,21 +4,21 @@ import discord
 
 from config import config
 
-GUILD_ID = config.guild.id
+GUILD_ID = int(config.guild.id)
 
-VISITOR_ROLE = config.guild.roles.visitor
-HUNT_MEMBER_ROLE = config.guild.roles.hunt_member
-PUZZTECH_ROLE = config.guild.roles.puzztech
-PUZZBOSS_ROLE = config.guild.roles.puzzboss
-BETABOSS_ROLE = config.guild.roles.betaboss
+VISITOR_ROLE = int(config.guild.roles.visitor)
+HUNT_MEMBER_ROLE = int(config.guild.roles.hunt_member)
+PUZZTECH_ROLE = int(config.guild.roles.puzztech)
+PUZZBOSS_ROLE = int(config.guild.roles.puzzboss)
+BETABOSS_ROLE = int(config.guild.roles.betaboss)
 
-WELCOME_LOBBY = config.guild.channels.welcome_lobby
-PUZZTECH_CHANNEL = config.guild.channels.puzztech
-STATUS_CHANNEL = config.guild.channels.status
-TABLE_REPORT_CHANNEL = config.guild.channels.table_report
+WELCOME_LOBBY = int(config.guild.channels.welcome_lobby)
+PUZZTECH_CHANNEL = int(config.guild.channels.puzztech)
+STATUS_CHANNEL = int(config.guild.channels.status)
+TABLE_REPORT_CHANNEL = int(config.guild.channels.table_report)
 
-PUZZLE_CATEGORY = config.guild.categories.puzzle
-SOLVED_PUZZLE_CATEGORY = config.guild.categories.solved_puzzle
+PUZZLE_CATEGORY = int(config.guild.categories.puzzle)
+SOLVED_PUZZLE_CATEGORY = int(config.guild.categories.solved_puzzle)
 
 
 def get_team_members(guild):
