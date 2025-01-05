@@ -36,7 +36,9 @@ Welcome to **{team_name}!** Here's how to get started.
 
 **How the Discord server works:**
 * We make text channels for each puzzle 🧩
-* We have voice channel "tables" where people can work together 🗣
+  * This results in a lot of channels, but you can use Ctrl+K to quickly navigate between them!
+* We have voice channel "tables" where people work together, both on-campus and remote 🗣
+  * Because we rely so heavily on voice chats, please make sure you know how to join and [use Push-to-Talk in Discord Voice Chats](https://steemit.com/tutorial/@lenadr/how-to-set-up-voice-to-talk-in-discord)!
 * We've got a trusty bot, puzzbot (that's me!), which helps us connect puzzle channels to the table VCs where people are solving 🤖
 * puzzbot's got a lot of commands, but you don't have to learn any more than maybe 3 of them to participate 🙂
 
