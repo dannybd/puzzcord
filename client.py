@@ -13,17 +13,18 @@ import sys
 from common import *
 from config import config
 from datetime import datetime, timedelta
+from discord_info import (
+    GUILD_ID,
+    STATUS_CHANNEL,
+    PUZZLE_CATEGORY,
+    SOLVED_PUZZLE_CATEGORY,
+)
 
 nest_asyncio.apply()
 
 intents = discord.Intents.all()
 intents.members = True
 client = discord.Client(intents=intents)
-
-GUILD_ID = 790341470171168800
-STATUS_CHANNEL = 790348440890507285
-PUZZLE_CATEGORY = 790343785804201984
-SOLVED_PUZZLE_CATEGORY = 794869543448084491
 
 
 @client.event
