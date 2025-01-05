@@ -15,6 +15,26 @@
     "host": "0.0.0.0",
     "port": 3141
   },
+  "guild": {
+    "id": "<<<GUILD_ID>>>",
+    "roles": {
+      "visitor": "<<<VISITOR>>>",
+      "hunt_member": "<<<HUNT_MEMBER>>>",
+      "puzztech": "<<<PUZZTECH>>>",
+      "puzzboss": "<<<PUZZBOSS>>>",
+      "betaboss": "<<<BETABOSS>>>"
+    },
+    "channels": {
+      "welcome_lobby": "<<<WELCOME_LOBBY>>>",
+      "puzztech": "<<<PUZZTECH>>>",
+      "status": "<<<STATUS>>>",
+      "table_report": "<<<TABLE_REPORT>>>"
+    },
+    "categories": {
+      "puzzles": "<<<PUZZLES>>>",
+      "solved_puzzles": "<<<SOLVED_PUZZLES>>>"
+    }
+  },
   "hunt_config": {
     "hq_room": "26-100",
     "hunt_begins": "2024-01-12T13:00:00",

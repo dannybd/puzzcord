@@ -2,22 +2,23 @@
 
 import discord
 
+from config import config
 
-GUILD_ID = 790341470171168800
+GUILD_ID = config.guild.id
 
-VISITOR_ROLE = 795153098749771776
-HUNT_MEMBER_ROLE = 790341818885734430
-PUZZTECH_ROLE = 790341841916002335
-PUZZBOSS_ROLE = 799032063725535242
-BETABOSS_ROLE = 794351348295663616
+VISITOR_ROLE = config.guild.roles.visitor
+HUNT_MEMBER_ROLE = config.guild.roles.hunt_member
+PUZZTECH_ROLE = config.guild.roles.puzztech
+PUZZBOSS_ROLE = config.guild.roles.puzzboss
+BETABOSS_ROLE = config.guild.roles.betaboss
 
-WELCOME_LOBBY = 790341470602264576
-PUZZTECH_CHANNEL = 790387626531225611
-STATUS_CHANNEL = 790348440890507285
-TABLE_REPORT_CHANNEL = 800167637354283038
+WELCOME_LOBBY = config.guild.channels.welcome_lobby
+PUZZTECH_CHANNEL = config.guild.channels.puzztech
+STATUS_CHANNEL = config.guild.channels.status
+TABLE_REPORT_CHANNEL = config.guild.channels.table_report
 
-PUZZLE_CATEGORY = 790343785804201984
-SOLVED_PUZZLE_CATEGORY = 794869543448084491
+PUZZLE_CATEGORY = config.guild.categories.puzzle
+SOLVED_PUZZLE_CATEGORY = config.guild.categories.solved_puzzle
 
 
 def get_team_members(guild):
