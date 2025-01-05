@@ -75,7 +75,7 @@ class SQL:
 
     @staticmethod
     def get_hunt_config():
-        hunt_config = munchify(config.get("hunt_config", dict())
+        hunt_config = munchify(config.get("hunt_config", dict()))
         rows = SQL.select_all("SELECT `key`, val FROM config")
         hunt_config.update(**dict(row.values() for row in rows))
         return hunt_config
