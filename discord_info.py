@@ -60,8 +60,4 @@ def is_table_channel(channel):
 
 
 def get_tables(guild):
-    return [
-        channel
-        for channel in guild.voice_channels
-        if is_table_channel(channel)
-    ]
+    return [channel for channel in guild.voice_channels if is_table_channel(channel)]
