@@ -33,8 +33,8 @@ async def on_ready():
         loop = asyncio.get_event_loop()
         coro = asyncio.start_server(
             gen_handle_server_request,
-            host=config["asyncio_server"]["host"],
-            port=config["asyncio_server"]["port"],
+            host=config.asyncio_server.host,
+            port=config.asyncio_server.port,
         )
         server = loop.run_until_complete(coro)
 
@@ -505,13 +505,13 @@ def _get_puzzle_from_db(puzzle_name):
 
 
 def get_db_connection():
-    creds = config["puzzledb"]
+    creds = config.puzzledb
     return pymysql.connect(
-        host=creds["host"],
-        port=creds["port"],
-        user=creds["user"].lower(),
-        password=creds["passwd"],
-        db=creds["db"],
+        host=creds.host,
+        port=creds.port,
+        user=creds.user.lower(),
+        password=creds.passwd,
+        db=creds.db,
         cursorclass=pymysql.cursors.DictCursor,
     )
 
@@ -532,7 +532,7 @@ async def main():
 
     logging.info("Starting!")
     async with client:
-        await client.start(config["discord"]["botsecret"])
+        await client.start(config.discord.botsecret)
     logging.info("Done, closing out")
 
 
