@@ -341,11 +341,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
     @commands.command(aliases=["hunt"])
     async def status(self, ctx):
         """Hunt status update"""
-        tables = [
-            table
-            for table in ctx.guild.voice_channels
-            if table.category and table.category.name.startswith("🪴")
-        ]
+        tables = discord_info.get_tables(ctx.guild)
         table_sizes = {table.name: len(table.members) for table in tables}
         puzzles = SQL.get_all_puzzles()
         meta_ids = SQL.get_meta_ids()

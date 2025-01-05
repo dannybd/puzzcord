@@ -59,9 +59,9 @@ def is_table_channel(channel):
     return True
 
 
-def get_tables(ctx):
+def get_tables(guild):
     return [
         channel
-        for channel in ctx.guild.voice_channels
-        if "tables" in str(channel.category).lower()
+        for channel in guild.voice_channels
+        if is_table_channel(channel)
     ]

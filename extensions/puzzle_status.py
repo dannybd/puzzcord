@@ -85,11 +85,7 @@ class PuzzleStatus(commands.Cog):
         )
 
     def _tables(self, guild):
-        tables = [
-            table
-            for table in guild.voice_channels
-            if table.category and table.category.name.startswith("🪴")
-        ]
+        tables = discord_info.get_tables(guild)
         table_sizes = {table.name: len(table.members) for table in tables}
         xyzlocs = {table.name: [] for table in tables}
         puzzles = SQL.get_all_puzzles()
