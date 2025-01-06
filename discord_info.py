@@ -17,8 +17,8 @@ PUZZTECH_CHANNEL = int(config.guild.channels.puzztech)
 STATUS_CHANNEL = int(config.guild.channels.status)
 TABLE_REPORT_CHANNEL = int(config.guild.channels.table_report)
 
-PUZZLE_CATEGORY = int(config.guild.categories.puzzle)
-SOLVED_PUZZLE_CATEGORY = int(config.guild.categories.solved_puzzle)
+PUZZLE_CATEGORY = int(config.guild.categories.puzzles)
+SOLVED_PUZZLE_CATEGORY = int(config.guild.categories.solved_puzzles)
 
 
 def get_team_members(guild):
