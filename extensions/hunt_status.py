@@ -327,8 +327,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             title="🧩 Your ~~Spotify~~ Mystery Hunt Wrapped 🎁",
             description=descriptions[0],
         )
-        # TODO: Update for 2025
-        embed.set_thumbnail(url="https://i.imgur.com/JTgqNFP.png")
+        embed.set_thumbnail(url=self.bot.hunt_config.wrapped_icon)
         embed.set_footer(
             text="based on approximate data, assembled hastily with love by danny"
         )
