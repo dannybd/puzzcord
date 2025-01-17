@@ -835,10 +835,10 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                     await ctx.send(f"Scrape error code {response.status}")
                     return
                 result = await response.text()
-        if "window.initialActivityLog = " not in result:
-            await ctx.send("Data not found in scrape: "+result[:1000])
+        if "window.initialAllPuzzlesState = " not in result:
+            await ctx.send("Data not found in scrape")
             return
-        result = result.split("window.initialActivityLog = ", 1)[1]
+        result = result.split("window.initialAllPuzzlesState = ", 1)[1]
         result = result.split("</script>", 1)[0]
         try:
             data = json.loads(result)
