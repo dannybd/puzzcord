@@ -510,6 +510,16 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             response += "\n"
         await ctx.send(response)
 
+    @commands.Cog.listener("on_message")
+    async def fix_hunt_emails(self, message):
+        if message.author.id != 790401743669690428:
+            return
+        if "Unsubscribe: https://" not in message.content:
+            return
+        fixed = re.sub(r"Unsubscribe: https://\S+", "", x).strip()
+        await message.channel.send(fixed)
+        await message.delete()
+
 
 async def setup(bot):
     cog = HuntStatus(bot)
