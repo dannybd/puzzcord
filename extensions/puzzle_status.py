@@ -89,19 +89,28 @@ class PuzzleStatus(commands.Cog):
         table_sizes = {table.name: len(table.members) for table in tables}
         xyzlocs = {table.name: [] for table in tables}
         puzzles = SQL.get_all_puzzles()
+        quiet_puzzles = []
         for puzzle in puzzles:
-            xyzloc = puzzle["xyzloc"]
-            if not xyzloc:
-                continue
             if puzzle["status"] in ["Solved"]:
                 continue
             if puzzle["comments"] and puzzle["comments"].startswith("<<<REDIRECTED>>>"):
+                continue
+            xyzloc = puzzle["xyzloc"]
+            if not xyzloc:
+                quiet_puzzles.append(puzzle["channel_id"])
                 continue
             if xyzloc.startswith("<<<REDIRECTED>>>"):
                 continue
             if xyzloc not in xyzlocs:
                 xyzlocs[xyzloc] = []
             xyzlocs[xyzloc].append("<#{channel_id}>".format(**puzzle))
+
+        quiet_puzzles_str = ""
+        if quiet_puzzles:
+            quiet_puzzles.sort(reverse=True)
+            quiet_puzzles = [f"<#{channel_id}" for channel_id in quiet_puzzles]
+            quiet_puzzles_str = f"\n\nPuzzles which aren't being worked on anywhere:\n"
+            quiet_puzzles_str += ", ".join(quiet_puzzles)
 
         # Filter out empty tables
         xyzlocs = {k: v for k, v in xyzlocs.items() if v}
@@ -111,6 +120,7 @@ class PuzzleStatus(commands.Cog):
                 + "any of the tables!\n"
                 + "Try joining a table and using "
                 + "`!joinus` in a puzzle channel."
+                + quiet_puzzles_str
             )
 
         tz = timezone("US/Eastern")
@@ -128,6 +138,7 @@ class PuzzleStatus(commands.Cog):
                 xyzloc_mention(guild, xyzloc),
                 ", ".join(mentions),
             )
+        content += quiet_puzzles_str
 
         return content
 
