@@ -7,6 +7,7 @@ from discord.ext.commands import guild_only, has_any_role, MemberConverter, erro
 import json
 import logging
 import re
+from urllib import urlencode
 import typing
 
 from discord_info import *
@@ -845,7 +846,59 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         except JSONDecodeError as _:
             await ctx.send("Cannot parse JSON")
             return
-        await ctx.send(f"```\n{data}\n```")
+        db_puzzles = SQL.get_all_puzzles()
+        discrepancies = []
+        for round in data["rounds"]:
+            for puzzle in round.get("puzzles", []):
+                slug = puzzle.get("slug", "")
+                name = puzzle.get("title", "")
+                if not slug or not name:
+                    continue
+                if puzzle.get("state", "?") != "unlocked":
+                    continue
+                puzzle_uri = "https://www.two-pi-noir.agency/puzzles/" + slug
+                db_puzzle = next(
+                    iter(p for p in db_puzzles if p["puzzle_uri"] == puzzle_uri), None
+                )
+                if not db_puzzle:
+                    add_puzzle_params = {
+                        "puzzurl": puzzle_uri,
+                        "puzzid": name,
+                        "roundname": round["title"],
+                    }
+                    add_puzzle_url = (
+                        "https://importanthuntpoll.org/pb/addpuzzle.php?"
+                        + urlencode(add_puzzle_params)
+                    )
+                    discrepancies.append(
+                        f"* **New puzzle:** [{name}]({puzzle_uri}) "
+                        f"in round `{round.get('title', '?')}` needs to be added! "
+                        f"Click [here]({add_puzzle_url}) to add."
+                    )
+                    continue
+                answer = puzzle.get("answer", None)
+                db_answer = db_puzzle["answer"]
+                channel = f"<#{db_puzzle['channel_id']}>"
+                if answer == db_answer:
+                    continue
+                elif answer and not db_answer:
+                    discrepancies.append(
+                        f"* **Solved!** {channel} needs answer `{answer}`"
+                    )
+                elif not answer and db_answer:
+                    discrepancies.append(
+                        f"* Mis-labeled! {channel} lists answer `{db_answer}` "
+                        f"but is not marked as solved on the Hunt website"
+                    )
+                else:
+                    discrepancies.append(
+                        f"* Mis-labeled! {channel} lists answer `{db_answer}` "
+                        f"but the Hunt website says `{answer}`"
+                    )
+        if not discrepancies:
+            await ctx.send("Hunt website and Puzzleboss appear to be in sync :)")
+            return
+        await ctx.send("Discrepancies found:\n" + "\n".join(discrepancies))
 
 
 async def setup(bot):
