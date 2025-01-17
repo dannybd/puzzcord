@@ -882,6 +882,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 if answer:
                     answer = answer.replace(" ", "")
                 db_answer = db_puzzle["answer"]
+                if db_answer:
+                    db_answer = db_answer.replace(" ", "")
                 channel = f"<#{db_puzzle['channel_id']}>"
                 if answer == db_answer:
                     continue
