@@ -444,9 +444,10 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             (puzzle["id"], puzzle["name"]),
         )
 
-        round_name = puzzle["round_name"]
-        category_name = "🧩 {0}".format(round_name)
-        existing_categories = [c for c in ctx.guild.categories if c.name == round_name]
+        category_name = "🧩 {0}".format(puzzle["round_name"])
+        existing_categories = [
+            c for c in ctx.guild.categories if c.name == category_name
+        ]
         category = discord.utils.find(
             lambda category: len(category.channels) < 50,
             existing_categories,
