@@ -65,6 +65,13 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
                 + "Ping them and they should be able to help you."
             )
             return
+        if (
+            isinstance(error, errors.CommandInvokeError)
+            and "Cannot send messages to this user" in error.text
+        ):
+            await ctx.send(
+                "Sorry, we cannot DM this user! Please allow DMs and then retry."
+            )
         await ctx.send("Error! Something went wrong, please ping @dannybd.")
         raise error
 
