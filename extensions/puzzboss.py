@@ -1,8 +1,10 @@
 """ Puzzboss-only commands """
+import aiohttp
 from db import REST, SQL
 import discord
 from discord.ext import commands
 from discord.ext.commands import guild_only, has_any_role, MemberConverter, errors
+import json
 import logging
 import re
 import typing
@@ -806,6 +808,44 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             return
 
         await ctx.send("Done. Please run: `!puz {name}`".format(**puzzle))
+
+    @has_any_role("Puzztech")
+    @guild_only()
+    @commands.command(name="sync")
+    async def sync(self, ctx):
+        """[experimental] Pull updates from Hunt website we don't have in Puzzleboss yet"""
+        config = self.bot.hunt_config
+        url = config.get("scrape_url", None)
+        if not url:
+            await ctx.send("No url")
+            return
+        cookie = config.get("scrape_cookie", None)
+        if not cookie:
+            await ctx.send("No cookie")
+        headers = {
+            "accept": "text/html",
+            "cache-control": "max-age=0",
+            "cookie": cookie,
+            "user-agent": "Puzzleboss v0.1 HuntTeam:"
+            + config.get("team_name", "Unknown"),
+        }
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url) as response:
+                if response.status != 200:
+                    await ctx.send(f"Scrape error code {response.status}")
+                    return
+                result = await response.text()
+        if "window.initialActivityLog = " not in result:
+            await ctx.send("Data not found in scrape")
+            return
+        result = result.split("window.initialActivityLog = ", 1)[1]
+        result = result.split("</script>", 1)[0]
+        try:
+            data = json.loads(result)
+        except JSONDecodeError as _:
+            await ctx.send("Cannot parse JSON")
+            return
+        await ctx.send(f"```\n{data}\n```")
 
 
 async def setup(bot):

@@ -43,6 +43,8 @@
     "printer_setup_link": "https://mp.cloud.papercut.com/?token=<<TOKEN>>",
     "registration_password": "<<PASSWORD>>",
     "registration_username": "<<USERNAME>>",
+    "scrape_url": "https://puzzles.mit.edu/puzzles",
+    "scrape_cookie": "<<COOKIE>>",
     "team_domain": "huntteam.cool",
     "team_name": "<<The entire text of TEAM NAME>>",
     "timezone": "US/Eastern",
