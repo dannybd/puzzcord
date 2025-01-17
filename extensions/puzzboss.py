@@ -812,7 +812,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Puzztech")
     @guild_only()
-    @commands.command(name="sync")
+    @commands.command()
     async def sync(self, ctx):
         """[experimental] Pull updates from Hunt website we don't have in Puzzleboss yet"""
         config = self.bot.hunt_config
@@ -901,10 +901,6 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             await ctx.send("Hunt website and Puzzleboss appear to be in sync :)")
             return
         await ctx.send("Discrepancies found:\n" + "\n".join(discrepancies))
-
-    @sync.error
-    async def sync_error(self, ctx, error):
-        await ctx.send(f"{error=}")
 
 
 async def setup(bot):
