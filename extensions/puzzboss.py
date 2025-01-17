@@ -857,9 +857,11 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 if puzzle.get("state", "?") != "unlocked":
                     continue
                 puzzle_uri = "https://www.two-pi-noir.agency/puzzles/" + slug
-                db_puzzle = next(
-                    iter(p for p in db_puzzles if p["puzzle_uri"] == puzzle_uri), None
-                )
+                db_puzzle = None
+                for p in db_puzzles:
+                    if p["puzzle_uri"] == puzzle_uri:
+                        db_puzzle = p
+                        break
                 if not db_puzzle:
                     add_puzzle_params = {
                         "puzzurl": puzzle_uri,
