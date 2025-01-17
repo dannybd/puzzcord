@@ -812,7 +812,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Puzztech")
     @guild_only()
-    @commands.command(name="sync")
+    @commands.command(name="sync", aliases=["sync"])
     async def sync(self, ctx):
         """[experimental] Pull updates from Hunt website we don't have in Puzzleboss yet"""
         config = self.bot.hunt_config
