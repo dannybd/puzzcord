@@ -810,7 +810,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
         await ctx.send("Done. Please run: `!puz {name}`".format(**puzzle))
 
-    @has_any_role("Puzztech")
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command()
     async def sync(self, ctx):
