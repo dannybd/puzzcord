@@ -836,7 +836,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                     return
                 result = await response.text()
         if "window.initialActivityLog = " not in result:
-            await ctx.send("Data not found in scrape")
+            await ctx.send("Data not found in scrape: "+result[:1000])
             return
         result = result.split("window.initialActivityLog = ", 1)[1]
         result = result.split("</script>", 1)[0]
