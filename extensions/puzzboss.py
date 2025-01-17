@@ -856,7 +856,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                     continue
                 if puzzle.get("state", "?") != "unlocked":
                     continue
-                puzzle_uri = "https://www.two-pi-noir.agency/puzzles/" + slug
+                puzzle_uri = "https://www.two-pi-noir.agency/puzzles/" + urlencode(slug)
                 db_puzzle = None
                 for p in db_puzzles:
                     if p["puzzle_uri"] == puzzle_uri:
