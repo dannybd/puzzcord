@@ -900,6 +900,10 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             return
         await ctx.send("Discrepancies found:\n" + "\n".join(discrepancies))
 
+    @sync.error
+    async def sync_error(self, ctx, error):
+        await ctx.send(f"{error=}")
+
 
 async def setup(bot):
     cog = Puzzboss(bot)
