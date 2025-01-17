@@ -108,7 +108,7 @@ class PuzzleStatus(commands.Cog):
         quiet_puzzles_str = ""
         if quiet_puzzles:
             quiet_puzzles.sort(reverse=True)
-            quiet_puzzles = [f"<#{channel_id}" for channel_id in quiet_puzzles]
+            quiet_puzzles = [f"<#{channel_id}>" for channel_id in quiet_puzzles]
             quiet_puzzles_str = f"\n\nPuzzles which aren't being worked on anywhere:\n"
             quiet_puzzles_str += ", ".join(quiet_puzzles)
 
