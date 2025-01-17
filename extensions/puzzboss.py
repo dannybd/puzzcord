@@ -7,7 +7,7 @@ from discord.ext.commands import guild_only, has_any_role, MemberConverter, erro
 import json
 import logging
 import re
-from urllib import urlencode
+from urllib.parse import urlencode
 import typing
 
 from discord_info import *
