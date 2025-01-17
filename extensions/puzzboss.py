@@ -879,6 +879,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                     )
                     continue
                 answer = puzzle.get("answer", None)
+                if answer:
+                    answer = answer.replace(" ", "")
                 db_answer = db_puzzle["answer"]
                 channel = f"<#{db_puzzle['channel_id']}>"
                 if answer == db_answer:
