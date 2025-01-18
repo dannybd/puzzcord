@@ -850,7 +850,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         discrepancies = []
         puzzles_to_buy = []
         currency = data.get("currency", 0)
-        for round in data["rounds"]:
+        rounds = data.get("rounds", [])
+        rounds.append(
+            {
+                "title": "StrayLeads",
+                "puzzles": data.get("stray", []),
+            }
+        )
+        for round in rounds:
             round_name = round.get("title", "?")
             for puzzle in round.get("puzzles", []):
                 slug = puzzle.get("slug", "")
