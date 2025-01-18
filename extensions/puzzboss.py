@@ -327,26 +327,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             """,
             (round_name,),
         )
-        await ctx.send("You solved the meta!! 🎉 🥳")
+        await ctx.send("You solved the meta(s)!! 🎉 🥳")
         return
-        # response = await REST.post(
-        #     "/rounds/{}/round_uri".format(round_name),
-        #     {"round_uri": "#solved"},
-        # )
-        # status = response.status
-        # if status == 200:
-        #     await ctx.send("You solved the meta!! 🎉 🥳")
-        #     return
-        # if status == 500:
-        #     await ctx.send(
-        #         (
-        #             "Error. This is likely because the round "
-        #             + "`{}` doesn't exist with exactly that name. "
-        #             + "Please try again."
-        #         ).format(round_name)
-        #     )
-        #     return
-        # await ctx.send("Error. Something weird happened, ping @dannybd")
 
     @solvedround.error
     async def solvedround_error(self, ctx, error):
@@ -448,7 +430,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             ctx,
             """
             UPDATE puzzle
-            SET answer = '', status = 'Being worked'
+            SET answer = NULL, status = 'Being worked'
             WHERE id = %s AND name = %s
             """,
             (puzzle["id"], puzzle["name"]),
@@ -904,9 +886,13 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 answer = puzzle.get("answer", None)
                 if answer:
                     answer = answer.replace(" ", "")
+                if not answer:
+                    answer = None
                 db_answer = db_puzzle["answer"]
                 if db_answer:
                     db_answer = db_answer.replace(" ", "")
+                if not db_answer:
+                    db_answer = None
                 channel = f"<#{db_puzzle['channel_id']}>"
                 if answer == db_answer:
                     continue
