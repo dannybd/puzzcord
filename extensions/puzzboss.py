@@ -201,6 +201,12 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
     @commands.command()
+    async def usurp(self, ctx):
+        await self.newpuzzboss(ctx, ctx.author)
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
+    @guild_only()
+    @commands.command()
     async def newpuzzboss(self, ctx, newboss: typing.Optional[discord.Member]):
         """[puzzboss only] Designates a new person as Puzzleboss"""
         puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
