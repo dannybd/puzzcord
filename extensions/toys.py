@@ -4,6 +4,7 @@
 import discord
 from discord.ext import commands
 from discord.ext.commands import guild_only
+from common import plural
 
 
 class Toys(commands.Cog):
@@ -21,11 +22,6 @@ class Toys(commands.Cog):
                 return
             await ctx.send("Yes! 🎉")
             return
-
-        def plural(num, noun):
-            if num == 1:
-                return "1 {}".format(noun)
-            return "{} {}s".format(num, noun)
 
         left = [
             plural(timeleft.days, "day"),

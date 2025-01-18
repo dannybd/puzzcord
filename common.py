@@ -92,3 +92,9 @@ def get_round_embed_color(round):
 def xyzloc_mention(guild, xyzloc):
     channel = discord.utils.get(guild.voice_channels, name=xyzloc)
     return channel.mention if channel else xyzloc
+
+
+def plural(num, singular, plural=None):
+    if num == 1:
+        return "1 {}".format(singular)
+    return "{} {}".format(num, plural or (singular + "s"))

@@ -5,7 +5,7 @@ from discord.ext import commands, tasks
 import discord_info
 import json
 import logging
-from common import xyzloc_mention
+from common import plural, xyzloc_mention
 import datetime
 import typing
 
@@ -293,9 +293,6 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             ),
             tuple(puzzles),
         )
-
-        def plural(num, noun):
-            return "{} {}{}".format(num, noun, "" if num == 1 else "s")
 
         def link(uri, label):
             return f"[`{label}`]({uri})"

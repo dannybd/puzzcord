@@ -1,5 +1,6 @@
 """ Puzzboss-only commands """
 import aiohttp
+from common import plural
 from db import REST, SQL
 import discord
 from discord.ext import commands
@@ -927,11 +928,11 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 f"we can use on some puzzles:\n{puzzles_to_buy}"
             )
         elif discrepancies and not puzzles_to_buy:
-            await ctx.send(f"Discrepancies found:\n{discrepancies}")
+            await ctx.send(f"{Discrepancies found:\n{discrepancies}")
         else:
             await ctx.send(
                 f"Discrepancies found:\n{discrepancies}\n\n"
-                f"We also have {currency} keys we can use on some puzzles:\n"
+                f"We also have {plural(currency, 'key')} we can use on some puzzles:\n"
                 f"{puzzles_to_buy}"
             )
 
