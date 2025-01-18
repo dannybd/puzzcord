@@ -109,14 +109,14 @@ class PuzzleStatus(commands.Cog):
             xyzlocs[xyzloc].append("<#{channel_id}>".format(**puzzle))
 
         quiet_puzzles_str = ""
-        for round_name in quiet_puzzles:
-            quiet_puzzles[round_name].sort(reverse=True)
-            quiet_puzzles[round_name] = [
-                f"<#{channel_id}>" for channel_id in quiet_puzzles[round_name]
-            ]
-            quiet_puzzles_str += (
-                f"* `{round_name}`: " + ", ".join(quiet_puzzles[round_name]) + "\n"
-            )
+        solved_rounds = SQL.get_solved_round_names()
+        quiet_puzzles = sorted(quiet_puzzles.items(), key=lambda x: -1 * min(x[1]))
+        for (round_name, channels) in quiet_puzzles:
+            if round_name in solved_rounds:
+                continue
+            channels.sort(reverse=True)
+            channels = [f"<#{channel_id}>" for channel_id in channels]
+            quiet_puzzles_str += f"* `{round_name}`: " + ", ".join(channels) + "\n"
 
         if quiet_puzzles_str:
             quiet_puzzles_str = (
