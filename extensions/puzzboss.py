@@ -848,15 +848,24 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             return
         db_puzzles = SQL.get_all_puzzles()
         discrepancies = []
+        puzzles_to_buy = []
+        currency = data.get("currency", 0)
         for round in data["rounds"]:
+            round_name = round.get("title", "?")
             for puzzle in round.get("puzzles", []):
                 slug = puzzle.get("slug", "")
                 name = puzzle.get("title", "")
                 if not slug or not name:
                     continue
                 if puzzle.get("state", "?") != "unlocked":
+                    if currency:
+                        puzzles_to_buy.append(
+                            f"* {name} in `{round_name}` (_{puzzle.get('desc', '')}_)"
+                        )
                     continue
-                puzzle_uri = "https://www.two-pi-noir.agency/puzzles/" + quote_plus(slug)
+                puzzle_uri = "https://www.two-pi-noir.agency/puzzles/" + quote_plus(
+                    slug
+                )
                 db_puzzle = None
                 for p in db_puzzles:
                     if p["puzzle_uri"] == puzzle_uri:
@@ -866,7 +875,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                     add_puzzle_params = {
                         "puzzurl": puzzle_uri,
                         "puzzid": name,
-                        "roundname": round["title"],
+                        "roundname": round_name.replace(" ", ""),
                     }
                     add_puzzle_url = (
                         "https://importanthuntpoll.org/pb/addpuzzle.php?"
@@ -874,7 +883,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                     )
                     discrepancies.append(
                         f"* **New puzzle:** [{name}]({puzzle_uri}) "
-                        f"in round `{round.get('title', '?')}` needs to be added! "
+                        f"in round `{round_name}` needs to be added! "
                         f"Click [here]({add_puzzle_url}) to add."
                     )
                     continue
@@ -901,10 +910,23 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                         f"* Mis-labeled! {channel} lists answer `{db_answer}` "
                         f"but the Hunt website says `{answer}`"
                     )
-        if not discrepancies:
+        discrepancies = "\n".join(discrepancies)
+        puzzles_to_buy = "\n".join(puzzles_to_buy)
+        if not discrepancies and not puzzles_to_buy:
             await ctx.send("Hunt website and Puzzleboss appear to be in sync :)")
-            return
-        await ctx.send("Discrepancies found:\n" + "\n".join(discrepancies))
+        elif not discrepancies and puzzles_to_buy:
+            await ctx.send(
+                f"No discrepancies found, but we have {currency} keys "
+                f"we can use on some puzzles:\n{puzzles_to_buy}"
+            )
+        elif discrepancies and not puzzles_to_buy:
+            await ctx.send(f"Discrepancies found:\n{discrepancies}")
+        else:
+            await ctx.send(
+                f"Discrepancies found:\n{discrepancies}\n\n"
+                f"We also have {currency} keys we can use on some puzzles:\n"
+                f"{puzzle_to_buy}"
+            )
 
 
 async def setup(bot):
