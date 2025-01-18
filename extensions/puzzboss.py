@@ -932,7 +932,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             await ctx.send(
                 f"Discrepancies found:\n{discrepancies}\n\n"
                 f"We also have {currency} keys we can use on some puzzles:\n"
-                f"{puzzle_to_buy}"
+                f"{puzzles_to_buy}"
             )
 
 
