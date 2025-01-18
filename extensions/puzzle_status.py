@@ -110,7 +110,7 @@ class PuzzleStatus(commands.Cog):
 
         quiet_puzzles_str = ""
         solved_rounds = SQL.get_solved_round_names()
-        quiet_puzzles = sorted(quiet_puzzles.items(), key=lambda x: -1 * min(x[1]))
+        quiet_puzzles = sorted(quiet_puzzles.items(), key=lambda x: -1 * max(x[1]))
         for (round_name, channels) in quiet_puzzles:
             if round_name in solved_rounds:
                 continue
