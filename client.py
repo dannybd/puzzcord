@@ -169,10 +169,10 @@ async def gen_announce_solve(puzzle_name):
             + "\nChannel is now archived."
         )
     content = (
-        "**🎉 Puzzle _`{name}`_ has been solved! 🥳**\n"
-        + "(Answer: ||`{answer}`||)\n"
-        + "Way to go team! 🎉"
-    ).format(**puzzle)
+        f"**🎉 Puzzle _`{puzzle.name}`_ ({channel.mention}) has been solved! 🥳**\n"
+        f"(Answer: ||`{puzzle.answer}`||)\n"
+        f"Way to go team! 🎉"
+    )
     await status_channel.send(content=content)
     return "Solve announced"
 
