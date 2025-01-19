@@ -920,14 +920,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 f"we can use on some puzzles:\n{puzzles_to_buy}"
             )
         elif discrepancies and not puzzles_to_buy:
-            await ctx.send((f"Discrepancies found:\n{discrepancies}")[:3999])
+            await ctx.send((f"Discrepancies found:\n{discrepancies}")[:1999])
         else:
             await ctx.send(
                 (
                     f"Discrepancies found:\n{discrepancies}\n\n"
                     f"We also have {plural(currency, 'key')} we can use on some puzzles:\n"
                     f"{puzzles_to_buy}"
-                )[:3999]
+                )[:1999]
             )
 
 
