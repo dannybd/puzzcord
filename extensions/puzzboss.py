@@ -912,22 +912,46 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                     )
         discrepancies = "\n".join(discrepancies)
         puzzles_to_buy = "\n".join(puzzles_to_buy)
+
+        async def send_chunks(message):
+            if len(message) < 2000:
+                await ctx.send(message)
+                return
+            chunks = []
+            chunk = ""
+            first_line = True
+            for line in message.split("\n"):
+                if not first_line:
+                    line = "\n" + line
+                first_line = False
+                if len(line) >= 2000:
+                    chunk += line[: (2000 - len(chunk))]
+                    chunks.append(chunk)
+                    chunk = line[2000:]
+                    continue
+                if len(chunk) + len(line) >= 2000:
+                    chunks.append(chunk)
+                    chunk = ""
+                chunk += line
+            if chunk:
+                chunks.append(chunk)
+            for chunk in chunks:
+                await ctx.send(chunk)
+
         if not discrepancies and not puzzles_to_buy:
             await ctx.send("Hunt website and Puzzleboss appear to be in sync :)")
         elif not discrepancies and puzzles_to_buy:
-            await ctx.send(
+            await send_chunks(
                 f"No discrepancies found, but we have {currency} keys "
                 f"we can use on some puzzles:\n{puzzles_to_buy}"
             )
         elif discrepancies and not puzzles_to_buy:
-            await ctx.send((f"Discrepancies found:\n{discrepancies}")[:1999])
+            await send_chunks(f"Discrepancies found:\n{discrepancies}")
         else:
-            await ctx.send(
-                (
-                    f"Discrepancies found:\n{discrepancies}\n\n"
-                    f"We also have {plural(currency, 'key')} we can use on some puzzles:\n"
-                    f"{puzzles_to_buy}"
-                )[:1999]
+            await send_chunks(
+                f"Discrepancies found:\n{discrepancies}\n\n"
+                f"We also have {plural(currency, 'key')} we can use on some puzzles:\n"
+                f"{puzzles_to_buy}"
             )
 
 
