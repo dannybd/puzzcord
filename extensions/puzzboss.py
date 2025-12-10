@@ -9,6 +9,7 @@ import json
 import logging
 import re
 from urllib.parse import quote_plus, urlencode
+import time
 import typing
 
 from discord_info import *
@@ -36,13 +37,13 @@ class Puzzboss(commands.Cog):
 Welcome to **{team_name}!** Here's how to get started.
 
 1. Make a Puzzleboss account (https://{team_domain}/account), accessing that page with username `{registration_username}` and password `{registration_password}`. (This account lets our team coordinate who is solving what, generate common spreadsheets, and more.)
-2. Ping @RoleVerifier on the Discord server with your {team_domain} username, so we can link the two 🔗
+2. Ping @RoleVerifier on [the Discord server](https://{team_domain}/discord?cb={cb}) with your {team_domain} username, so we can link the two 🔗
 
 **How the Discord server works:**
 * We make text channels for each puzzle 🧩
   * This results in a lot of channels, but you can use Ctrl+K to quickly navigate between them!
 * We have voice channel "tables" where people work together, both on-campus and remote 🗣
-  * Because we rely so heavily on voice chats, please make sure you know how to join and [use Push-to-Talk in Discord Voice Chats](https://steemit.com/tutorial/@lenadr/how-to-set-up-voice-to-talk-in-discord)!
+  * Because we rely so heavily on voice chats, please make sure you know how to join and [use Push-to-Talk in Discord Voice Chats](<https://steemit.com/tutorial/@lenadr/how-to-set-up-voice-to-talk-in-discord>)!
 * We've got a trusty bot, puzzbot (that's me!), which helps us connect puzzle channels to the table VCs where people are solving 🤖
 * puzzbot's got a lot of commands, but you don't have to learn any more than maybe 3 of them to participate 🙂
 
@@ -50,7 +51,7 @@ Learn more here: https://{team_domain}/wiki/index.php/Hunting_in_Discord:_A_Guid
 
 Thanks, and happy hunting! 🕵️‍♀️🧩
         """
-            ).format(**self.bot.hunt_config)
+            ).format(**self.bot.hunt_config, cb=time.time())
         )
         await ctx.send(
             "Welcome aboard, {}! Check your DMs for instructions on how to set up your account to hunt with us 🙂".format(
