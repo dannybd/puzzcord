@@ -259,25 +259,12 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         await ctx.channel.set_permissions(member_role, read_messages=False)
         this_puzzle = SQL.get_puzzle_for_channel(ctx.channel)
         target_puzzle = SQL.get_puzzle_for_channel(target_channel)
-        SQL.update(
-            ctx,
-            """
-            UPDATE puzzle
-            SET
-                comments = %s,
-                chat_channel_link = %s,
-                drive_id = %s,
-                drive_uri = %s
-            WHERE id = %s AND name = %s
-            """,
-            (
-                f"<<<REDIRECTED>>> to #{target_channel}",
-                target_puzzle["chat_channel_link"],
-                target_puzzle["drive_id"],
-                target_puzzle["drive_uri"],
-                this_puzzle["id"],
-                this_puzzle["name"],
-            ),
+        await REST.update_puzzle(
+            this_puzzle["id"],
+            comments=f"<<<REDIRECTED>>> to #{target_channel}",
+            chat_channel_link=target_puzzle["chat_channel_link"],
+            drive_id=target_puzzle["drive_id"],
+            drive_uri=target_puzzle["drive_uri"],
         )
         await target_channel.send(
             "**Heads up:** Puzzle [`{name}`](<{puzzle_uri}>) now points to this channel!".format(
@@ -316,17 +303,17 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 await ctx.send("Incorrect usage: please specify round name")
                 return
             round_name = puzzle["round_name"]
+        round_id = SQL.get_round_id_by_name(round_name)
+        if round_id is None:
+            await ctx.send(f"Error. Round ID not found for '{round_name}'")
+            return
         logging.info(
             "{0.command}: Marking a round as solved: {1}".format(ctx, round_name)
         )
-        SQL.update(
-            ctx,
-            """
-            UPDATE round
-            SET round_uri = '#solved'
-            WHERE name = %s
-            """,
-            (round_name,),
+        await REST.update_round(
+            round_id,
+            status="Solved",
+            round_uri="#solved",
         )
         await ctx.send("You solved the meta(s)!! 🎉 🥳")
         return
@@ -375,8 +362,9 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
             await ctx.message.delete()
             return
-        response = await REST.post(
-            "/puzzles/{id}/answer".format(**puzzle), {"answer": answer.upper()}
+        await REST.update_puzzle(
+            puzzle["id"],
+            answer=answer.upper(),
         )
         if apply_to_self:
             await ctx.message.delete()
@@ -427,14 +415,10 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
             return
         await ctx.send("Trying to restore...")
-        SQL.update(
-            ctx,
-            """
-            UPDATE puzzle
-            SET answer = NULL, status = 'Being worked'
-            WHERE id = %s AND name = %s
-            """,
-            (puzzle["id"], puzzle["name"]),
+        await REST.update_puzzle(
+            puzzle["id"],
+            answer=None,
+            status="Being worked",
         )
 
         category_name = "🧩 {0}".format(puzzle["round_name"])
@@ -718,18 +702,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             return
         logging.info("{0.command}: Found solver {1}".format(ctx, solver["fullname"]))
         print(solver["id"])
-        SQL.update(
-            ctx,
-            """
-            UPDATE solver
-            SET chat_uid = %s, chat_name = %s
-            WHERE id = %s
-            """,
-            (
-                str(member.id),
-                str(member),
-                solver["id"],
-            ),
+        await REST.update_solver(
+            solver["id"], chat_uid=str(member.id), chat_name=str(member)
         )
         member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
         if member_role not in member.roles:
@@ -780,22 +754,13 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         await ctx.send(
             "Relinking sheet `{}` to `{name}`...".format(sheet_hash, **puzzle)
         )
-        response = await REST.post(
-            "/puzzles/{id}/drive_id".format(**puzzle),
-            {"drive_id": sheet_hash},
+        response = await REST.update_puzzle(
+            puzzle["id"],
+            drive_id=sheet_hash,
+            drive_uri=f"https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk",
         )
         if response.status != 200:
-            await ctx.send("Error setting drive_id!")
-            return
-
-        response = await REST.post(
-            "/puzzles/{id}/drive_uri".format(**puzzle),
-            {
-                "drive_uri": f"https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk"
-            },
-        )
-        if response.status != 200:
-            await ctx.send("Error setting drive_uri!")
+            await ctx.send("Error setting drive_id / drive_uri!")
             return
 
         await ctx.send("Done. Please run: `!puz {name}`".format(**puzzle))

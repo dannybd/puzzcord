@@ -11,16 +11,44 @@ from munch import munchify
 
 class REST:
     @staticmethod
+    async def get(path):
+        url = config.puzzledb["rest_url"] + path
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                logging.info(f"GET to {path} ; Response status = {response.status}")
+                return response
+
+    @staticmethod
     async def post(path, data=None):
         url = config.puzzledb["rest_url"] + path
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=data) as response:
                 logging.info(
-                    "POST to {} ; Data = {} ; Response status = {}".format(
-                        path, data, response.status
-                    )
+                    f"GET to {path} ; "
+                    f"Data = {data} ; "
+                    f"Response status = {response.status}"
                 )
                 return response
+
+    @staticmethod
+    async def update_puzzle(puzzle_id, **parts):
+        return await REST._post_parts("puzzles", puzzle_id, parts)
+
+    @staticmethod
+    async def update_round(round_id, **parts):
+        return await REST._post_parts("rounds", round_id, parts)
+
+    @staticmethod
+    async def update_solver(solver_id, **parts):
+        return await REST._post_parts("solvers", solver_id, parts)
+
+    @staticmethod
+    async def _post_parts(base_path, id, parts):
+        for part in parts:
+            response = await REST.post(f"/{base_path}/{id}/{part}", {part: parts[part]})
+            if response.status != 200:
+                break
+        return response
 
 
 class SQL:
@@ -62,16 +90,6 @@ class SQL:
         with connection.cursor() as cursor:
             cursor.execute(query, args)
             return cursor.fetchall()
-
-    @staticmethod
-    def update(ctx, query: str, args=None):
-        assert query.split()[0].upper() == "UPDATE", "UPDATE only!"
-        connection = SQL._get_db_connection()
-        with connection.cursor() as cursor:
-            cursor.execute(query, args)
-            logging.info("{0.command}: Committing row".format(ctx))
-            connection.commit()
-            logging.info("{0.command}: Committed row successfully!".format(ctx))
 
     @staticmethod
     def get_hunt_config():
@@ -159,6 +177,20 @@ class SQL:
         )
 
     @staticmethod
+    def get_round_id_by_name(round_name):
+        rows = SQL.select_one(
+            """
+            SELECT
+                id
+            FROM round_view
+            WHERE
+                name = %s
+            """,
+            (round_name,),
+        )
+        return row["id"] if row else None
+
+    @staticmethod
     def get_solved_round_names():
         rows = SQL.select_all(
             """
@@ -166,8 +198,12 @@ class SQL:
                 id,
                 name
             FROM round_view
-            WHERE round_uri LIKE '%%#solved'
-            AND name <> "mistakes"
+            WHERE
+                name <> "mistakes"
+                AND (
+                    round_uri LIKE "%%#solved"
+                    OR status = "Solved"
+                )
             """,
         )
         return [row["name"] for row in rows]
@@ -180,7 +216,8 @@ class SQL:
                 id,
                 meta_id
             FROM round_view
-            WHERE name <> "mistakes"
+            WHERE
+                name <> "mistakes"
             """,
         )
         return [row["meta_id"] for row in rows]

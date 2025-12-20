@@ -204,9 +204,7 @@ class PuzzleStatus(commands.Cog):
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             return
-        response = await REST.post(
-            "/puzzles/{id}/comments".format(**puzzle), {"comments": comments or ""}
-        )
+        await REST.update_puzzle(puzzle["id"], comments=comments or "")
         if len(comments) > 200:
             await ctx.message.add_reaction("📕")
             await ctx.message.add_reaction("✍️")
@@ -254,9 +252,7 @@ class PuzzleStatus(commands.Cog):
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             return
-        response = await REST.post(
-            "/puzzles/{id}/status".format(**puzzle), {"status": status}
-        )
+        await REST.update_puzzle(puzzle["id"], status=status)
 
     @commands.command(aliases=["needseyes"], hidden=True)
     async def eyes(self, ctx, channel: typing.Optional[discord.TextChannel]):
@@ -314,10 +310,7 @@ class PuzzleStatus(commands.Cog):
         solver = SQL.get_solver_from_member(member)
         if not solver:
             return
-        await REST.post(
-            "/solvers/{0}/puzz".format(solver["id"]),
-            {"puzz": puzzle["id"]},
-        )
+        await REST.update_solver(solver["id"], puzz=puzzle["id"])
         logging.info(
             "Marked {} as working on {}".format(solver["name"], puzzle["name"])
         )
@@ -337,10 +330,7 @@ class PuzzleStatus(commands.Cog):
                 + "Please talk to a @RoleVerifier, then try again."
             )
             return
-        response = await REST.post(
-            "/solvers/{0}/puzz".format(solver["id"]),
-            {"puzz": puzzle["id"]},
-        )
+        response = await REST.update_solver(solver["id"], puzz=puzzle["id"])
         if response.status != 200:
             await ctx.send(
                 "Sorry, something went wrong. "
@@ -369,10 +359,7 @@ class PuzzleStatus(commands.Cog):
                 + "Please talk to a @RoleVerifier, then try again."
             )
             return
-        response = await REST.post(
-            "/solvers/{0}/puzz".format(solver["id"]),
-            {"puzz": ""},
-        )
+        response = await REST.update_solver(solver["id"], puzz="")
         if response.status != 200:
             await ctx.send(
                 "Sorry, something went wrong. "
@@ -416,19 +403,13 @@ class PuzzleStatus(commands.Cog):
                 + "Puzzleboss database, so !joinus won't work."
             )
             return
-        await REST.post(
-            "/puzzles/{id}/xyzloc".format(**puzzle),
-            {"xyzloc": table.name},
-        )
+        await REST.update_puzzle(puzzle["id"], xyzloc=table.name)
         if discord_info.is_puzzboss(ctx.author):
             return
         solver = SQL.get_solver_from_member(ctx.author)
         if not solver:
             return
-        response = await REST.post(
-            "/solvers/{0}/puzz".format(solver["id"]),
-            {"puzz": puzzle["id"]},
-        )
+        response = await REST.update_solver(solver["id"], puzz=puzzle["id"])
         if response.status != 200:
             logging.error(
                 "Failed to mark {} as working on {}".format(
@@ -456,10 +437,7 @@ class PuzzleStatus(commands.Cog):
                 "Sorry, I couldn't find a puzzle for that query. Please try again."
             )
             return
-        await REST.post(
-            "/puzzles/{id}/xyzloc".format(**puzzle),
-            {"xyzloc": ""},
-        )
+        await REST.update_puzzle(puzzle["id"], xyzloc="")
         await ctx.message.add_reaction("👋")
         await ctx.message.add_reaction("🔚")
         if not channel_or_query:
@@ -554,10 +532,7 @@ class PuzzleStatus(commands.Cog):
             for puzzle in puzzles:
                 name = puzzle["name"]
                 logging.info("Removing {0} from {1.name}".format(name, table))
-                await REST.post(
-                    "/puzzles/{0}/xyzloc".format(puzzle["id"]),
-                    {"xyzloc": ""},
-                )
+                await REST.update_puzzle(puzzle["id"], xyzloc="")
                 if puzzle["status"] == "Solved":
                     continue
                 try:
