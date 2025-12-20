@@ -24,7 +24,7 @@ class REST:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=data) as response:
                 logging.info(
-                    f"GET to {path} ; "
+                    f"POST to {path} ; "
                     f"Data = {data} ; "
                     f"Response status = {response.status}"
                 )
