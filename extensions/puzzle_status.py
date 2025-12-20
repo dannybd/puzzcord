@@ -29,7 +29,7 @@ class PuzzleStatus(commands.Cog):
         if not guild:
             return
         now = self.bot.now()
-        if now < self.bot.hunt_starts - 86400:
+        if now < self.bot.hunt_begins - 86400:
             return
         if now > self.bot.hunt_ends + 86400:
             return
