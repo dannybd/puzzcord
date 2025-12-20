@@ -24,6 +24,8 @@ class HuntStatus(commands.Cog):
         if not guild:
             return
         now = self.bot.now()
+        if now < self.bot.hunt_starts - 86400:
+            return
         if now > self.bot.hunt_ends:
             return
         members = discord_info.get_team_members(guild)
