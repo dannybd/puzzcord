@@ -342,7 +342,6 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
         tables = discord_info.get_tables(ctx.guild)
         table_sizes = {table.name: len(table.members) for table in tables}
         puzzles = SQL.get_all_puzzles()
-        meta_ids = SQL.get_meta_ids()
         rounds = {}
         for puzzle in puzzles:
             round_name = puzzle["round_name"]
@@ -374,7 +373,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
                     rounds[round_name]["approx_solvers"] += table_sizes[xyzloc]
                     rounds[round_name]["solver_tables"].append(xyzloc)
 
-            if puzzle["id"] in meta_ids or round_name == "Capstones":
+            if puzzle["ismeta"]:
                 rounds[round_name]["num_metas"] += 1
                 if status == "Solved":
                     rounds[round_name]["num_metas_solved"] += 1
@@ -474,7 +473,6 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
     @commands.command()
     async def hipri(self, ctx):
         """Show hipri puzzles"""
-        meta_ids = SQL.get_meta_ids()
         puzzles = sorted(
             SQL.get_hipri_puzzles(),
             key=lambda puzzle: (
@@ -496,7 +494,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             status = puzzle["status"]
             response += prefixes[status]
             response += " {status}: `{name}` (<#{channel_id}>)".format(**puzzle)
-            if puzzle["id"] in meta_ids:
+            if puzzle["ismeta"]:
                 response += " [**META** 🏅]"
             if puzzle["xyzloc"]:
                 response += " in **{}**".format(

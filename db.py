@@ -222,20 +222,6 @@ class SQL:
         return [row["name"] for row in rows]
 
     @staticmethod
-    def get_meta_ids():
-        rows = SQL.select_all(
-            """
-            SELECT
-                id,
-                meta_id
-            FROM round_view
-            WHERE
-                name <> "mistakes"
-            """,
-        )
-        return [row["meta_id"] for row in rows]
-
-    @staticmethod
     def get_all_puzzles():
         return SQL.select_all(
             """
@@ -243,6 +229,7 @@ class SQL:
                 id,
                 name,
                 roundname AS round_name,
+                ismeta,
                 puzzle_uri,
                 drive_uri,
                 chat_channel_id AS channel_id,
@@ -265,14 +252,19 @@ class SQL:
                 id,
                 name,
                 roundname AS round_name,
+                ismeta,
                 chat_channel_id AS channel_id,
                 status,
                 xyzloc,
                 comments
             FROM puzzle_view
-            WHERE roundname <> "mistakes"
-            AND status <> "[hidden]"
-            AND status IN ("Critical", "Needs eyes", "WTF")
+            WHERE
+                roundname <> "mistakes"
+                AND status <> "[hidden]"
+                AND (
+                    status IN ("Critical", "Needs eyes", "WTF")
+                    OR ismeta = 1
+                )
             ORDER BY status, id
             """,
         )
