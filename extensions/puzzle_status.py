@@ -28,6 +28,11 @@ class PuzzleStatus(commands.Cog):
         guild = self.bot.get_guild(discord_info.GUILD_ID)
         if not guild:
             return
+        now = self.bot.now()
+        if now < self.bot.hunt_starts - 86400:
+            return
+        if now > self.bot.hunt_ends + 86400:
+            return
         channel = guild.get_channel(discord_info.TABLE_REPORT_CHANNEL)
         messages = [message async for message in channel.history(limit=1)]
         message = messages[0] if messages else None
