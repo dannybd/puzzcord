@@ -15,7 +15,11 @@ class REST:
         url = config.puzzledb["rest_url"] + path
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
-                logging.info(f"GET to {path} ; Response status = {response.status}")
+                if response.status == 200:
+                    logging.info(f"GET to {path} ; Response status = {response.status}")
+                else:
+                    resp_text = await response.text()
+                    logging.error(f"GET to {path} ; Response status = {response.status} ; Response = {resp_text}")
                 return response
 
     @staticmethod
@@ -23,11 +27,20 @@ class REST:
         url = config.puzzledb["rest_url"] + path
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=data) as response:
-                logging.info(
-                    f"POST to {path} ; "
-                    f"Data = {data} ; "
-                    f"Response status = {response.status}"
-                )
+                if response.status == 200:
+                    logging.info(
+                        f"POST to {path} ; "
+                        f"Data = {data} ; "
+                        f"Response status = {response.status}"
+                    )
+                else:
+                    resp_text = await response.text()
+                    logging.error(
+                        f"POST to {path} ; "
+                        f"Data = {data} ; "
+                        f"Response status = {response.status} ; "
+                        f"Response = {resp_text}"
+                    )
                 return response
 
     @staticmethod
