@@ -4,6 +4,7 @@ import asyncio
 from datetime import datetime
 import discord
 import logging
+import math
 import os
 import traceback
 import glob
@@ -95,11 +96,19 @@ async def members_only(ctx):
 async def main():
     async with bot:
         logging.info("Loading extensions...")
-        for extension in glob.glob("extensions/*.py"):
+        extensions = glob.glob("extensions/*.py")
+        for i, extension in enumerate(extensions):
             try:
                 ext = extension[:-3]
                 ext = ext.replace("/", ".")
-                logging.info("Loading {}".format(ext))
+                logging.info(
+                    "[{i: >{width}}/{n: >{width}}] Loading {ext}".format(
+                        i=i + 1,
+                        n=len(extensions),
+                        width=int(math.log10(len(extensions))),
+                        ext=ext,
+                    )
+                )
                 await bot.load_extension(ext)
             except Exception as e:
                 exc = "{}: {}".format(type(e).__name__, traceback.format_exc())
