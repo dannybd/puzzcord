@@ -1,10 +1,12 @@
-""" Get an overview of the entire hunt status """
+"""Get an overview of the entire hunt status"""
+
 from db import SQL
 import discord
 from discord.ext import commands, tasks
 import discord_info
 import json
 import logging
+import re
 from common import plural, xyzloc_mention
 import datetime
 import typing
@@ -82,12 +84,6 @@ class HuntStatus(commands.Cog):
             if solver["solver_id"] not in recent_solvers:
                 continue
             active_in_sheets.add(int(solver["discord_id"] or solver["solver_id"]))
-
-        active_members = set().union(
-            active_in_text,
-            active_in_voice,
-            active_in_sheets,
-        )
 
         metrics_payload = {
             "time": self.bot.now().strftime("%Y-%m-%dT%H:%M:%S"),
@@ -477,7 +473,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             SQL.get_hipri_puzzles(),
             key=lambda puzzle: (
                 puzzle["status"],
-                -1 * int(puzzle["id"] in meta_ids),
+                -1 * int(puzzle["ismeta"]),
                 puzzle["id"],
             ),
         )
@@ -513,7 +509,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             return
         if "Unsubscribe: https://" not in message.content:
             return
-        fixed = re.sub(r"Unsubscribe: https://\S+", "", x).strip()
+        fixed = re.sub(r"Unsubscribe: https://\S+", "", message.content).strip()
         await message.channel.send(fixed)
         await message.delete()
 

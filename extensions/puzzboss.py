@@ -1,4 +1,5 @@
-""" Puzzboss-only commands """
+"""Puzzboss-only commands"""
+
 import aiohttp
 from common import plural
 from db import REST, SQL
@@ -12,7 +13,13 @@ from urllib.parse import quote_plus, urlencode
 import time
 import typing
 
-from discord_info import *
+from discord_info import (
+    BETABOSS_ROLE,
+    HUNT_MEMBER_ROLE,
+    PUZZBOSS_ROLE,
+    PUZZTECH_ROLE,
+    VISITOR_ROLE,
+)
 
 
 def print_user(user: discord.Member):
@@ -105,7 +112,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         response += "Checking Puzzleboss accounts... "
         try:
             regex = re.compile(query, re.IGNORECASE)
-        except Exception as e:
+        except Exception:
             regex = re.compile(r"^$")
         query = query.lower()
 
@@ -169,7 +176,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
         try:
             await ctx.send(response)
-        except:
+        except Exception:
             response = f"{discord_result}\n\nChecking Puzzleboss accounts... Error! 😔\n"
             response += (
                 "Sorry, too many matches ({}) found to display in Discord. "
@@ -642,7 +649,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             try:
                 converter = MemberConverter()
                 member = await converter.convert(ctx, member)
-            except:
+            except Exception:
                 pass
 
         if not isinstance(member, discord.Member):
@@ -798,7 +805,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         result = result.split("</script>", 1)[0]
         try:
             data = json.loads(result)
-        except JSONDecodeError as _:
+        except json.JSONDecodeError as _:
             await ctx.send("Cannot parse JSON")
             return
         db_puzzles = SQL.get_all_puzzles()

@@ -1,5 +1,5 @@
-""" Lets users pin and unpin messages with emoji reacts """
-import discord
+"""Lets users pin and unpin messages with emoji reacts"""
+
 from discord.ext import commands
 
 

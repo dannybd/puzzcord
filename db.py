@@ -1,4 +1,5 @@
-""" Methods for interacting with the puzzbost REST api and SQL database """
+"""Methods for interacting with the puzzbost REST api and SQL database"""
+
 import aiohttp
 import discord
 import logging
@@ -19,7 +20,9 @@ class REST:
                     logging.info(f"GET to {path} ; Response status = {response.status}")
                 else:
                     resp_text = await response.text()
-                    logging.error(f"GET to {path} ; Response status = {response.status} ; Response = {resp_text}")
+                    logging.error(
+                        f"GET to {path} ; Response status = {response.status} ; Response = {resp_text}"
+                    )
                 return response
 
     @staticmethod
@@ -191,7 +194,7 @@ class SQL:
 
     @staticmethod
     def get_round_id_by_name(round_name):
-        rows = SQL.select_one(
+        row = SQL.select_one(
             """
             SELECT
                 id

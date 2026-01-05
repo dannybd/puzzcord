@@ -1,9 +1,6 @@
-""" Contains some fun commands that aren't that useful """
+"""Contains some fun commands that aren't that useful"""
 
-
-import discord
 from discord.ext import commands
-from discord.ext.commands import guild_only
 from common import plural
 
 

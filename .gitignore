@@ -4,3 +4,4 @@ __pycache__/
 logs/*
 !logs/example.log
 *.py~
+sandbox.py

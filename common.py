@@ -68,13 +68,13 @@ def build_puzzle_embed(puzzle, guild):
     )
     embed.add_field(name="Whiteboard", value="[run !wb]", inline=True)
     # spacer field to make it 2x2
-    embed.add_field(name="\u200B", value="\u200B", inline=True)
+    embed.add_field(name="\u200b", value="\u200b", inline=True)
     embed.add_field(
         name="Discord Channel", value="<#{channel_id}>".format(**puzzle), inline=True
     )
     embed.add_field(name="Round", value=puzzle["round_name"].title(), inline=True)
     # spacer field to make it 2x2
-    embed.add_field(name="\u200B", value="\u200B", inline=True)
+    embed.add_field(name="\u200b", value="\u200b", inline=True)
     if "cursolvers" in puzzle and puzzle["cursolvers"]:
         embed.add_field(
             name="Current Solvers:",

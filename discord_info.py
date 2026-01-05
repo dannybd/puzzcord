@@ -1,4 +1,4 @@
-""" Utility functions for getting information about discord channels, users, etc. """
+"""Utility functions for getting information about discord channels, users, etc."""
 
 import discord
 

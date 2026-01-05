@@ -1,5 +1,4 @@
 import aiohttp
-import asyncio
 from urllib.parse import urlencode
 
 

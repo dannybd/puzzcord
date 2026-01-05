@@ -116,7 +116,7 @@ class PuzzleStatus(commands.Cog):
         quiet_puzzles_str = ""
         solved_rounds = SQL.get_solved_round_names()
         quiet_puzzles = sorted(quiet_puzzles.items(), key=lambda x: -1 * max(x[1]))
-        for (round_name, channels) in quiet_puzzles:
+        for round_name, channels in quiet_puzzles:
             if round_name in solved_rounds:
                 continue
             channels.sort(reverse=True)
@@ -125,7 +125,7 @@ class PuzzleStatus(commands.Cog):
 
         if quiet_puzzles_str:
             quiet_puzzles_str = (
-                f"\n\nPuzzles which aren't being worked on anywhere:\n"
+                "\n\nPuzzles which aren't being worked on anywhere:\n"
                 + quiet_puzzles_str
             )
 
@@ -392,7 +392,7 @@ class PuzzleStatus(commands.Cog):
             xyz = ""
             if puzzle["xyzloc"]:
                 xyz = "\n\nFolks are already working on this puzzle in {}!".format(
-                    xyzloc_mention(ctz.guild, puzzle["xyzloc"])
+                    xyzloc_mention(ctx.guild, puzzle["xyzloc"])
                 )
             await ctx.send(
                 "Sorry, you need to join one of the table voice chats "
@@ -552,7 +552,7 @@ class PuzzleStatus(commands.Cog):
                             + "a voice chat so remote folks can contribute too."
                         ).format(table)
                     )
-                except:
+                except Exception:
                     continue
 
 

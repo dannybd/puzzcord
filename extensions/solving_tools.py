@@ -1,4 +1,5 @@
-""" Contains bot commands for things that are useful for solving puzzles """
+"""Contains bot commands for things that are useful for solving puzzles"""
+
 import discord
 from discord.ext import commands
 import string
@@ -18,7 +19,7 @@ class SolvingTools(commands.Cog):
         """[category] Assorted puzzle-solving tools and utilities"""
         if ctx.invoked_subcommand:
             return
-        text = (
+        _text = (
             "Run `!help tools` to see everything I support.\n\n"
             + "Popular links:\n"
             + "http://nutrimatic.org/ (see `!tools nu`)\n"
@@ -39,9 +40,9 @@ class SolvingTools(commands.Cog):
             inline=True,
         )
         # spacer field to make it 2x2
-        embed.add_field(name="\u200B", value="\u200B", inline=True)
+        embed.add_field(name="\u200b", value="\u200b", inline=True)
         embed.add_field(
-            name="WUB Scripts",
+            name="Team Scripts",
             value=f"[Link](https://{self.bot.team_domain}/scripts/)",
             inline=True,
         )
@@ -51,7 +52,7 @@ class SolvingTools(commands.Cog):
             inline=True,
         )
         # spacer field to make it 2x2
-        embed.add_field(name="\u200B", value="\u200B", inline=True)
+        embed.add_field(name="\u200b", value="\u200b", inline=True)
         embed.add_field(
             name="Nutrimatic",
             value="[Link](http://nutrimatic.org/) (also see `!tools nu`)",
@@ -93,8 +94,8 @@ class SolvingTools(commands.Cog):
     async def julia(self, ctx):
         """Suggests the Julia Strategy to Puzzlesolving"""
         await ctx.send(
-            f"Have you tried reading the first letters of everything? "
-            f"Yes? Okay, try it again."
+            "Have you tried reading the first letters of everything? "
+            "Yes? Okay, try it again."
         )
 
     @commands.command(name="rot", hidden=True)
@@ -120,7 +121,7 @@ class SolvingTools(commands.Cog):
         response += "```"
         try:
             await ctx.send(response)
-        except:
+        except Exception:
             await ctx.send(
                 "Sorry, response was too long for Discord. Try a shorter string"
             )
@@ -145,7 +146,7 @@ class SolvingTools(commands.Cog):
         response += "```"
         try:
             await ctx.send(response)
-        except:
+        except Exception:
             await ctx.send(
                 "Sorry, response was too long for Discord. Try a shorter string"
             )
@@ -193,10 +194,8 @@ class SolvingTools(commands.Cog):
             "dictionary": self.dictionary("english"),
             "word": word,
         }
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, params=params) as response:
-                text = await response.text()
-                await ctx.send(text)
+        text = await urlhandler.get(url, params=params)
+        await ctx.send(text)
 
     def dictionary(self, corpus):
         corpus = corpus.lower()
@@ -249,7 +248,7 @@ class SolvingTools(commands.Cog):
         result = f"`!nut {query}` yields:\n```\n{result}```"
         try:
             await ctx.send(result)
-        except:
+        except Exception:
             await ctx.send(
                 "Sorry, response was too long for Discord. "
                 + "Try a shorter string or go directly to the tool online here:\n"
@@ -287,7 +286,7 @@ class SolvingTools(commands.Cog):
         result = f"`!qat {query}` yields:\n```\n{result}\n```"
         try:
             await ctx.send(result)
-        except:
+        except Exception:
             await ctx.send(
                 "Sorry, response was too long for Discord. "
                 + "Try a shorter string or go directly to the tool online here:\n"

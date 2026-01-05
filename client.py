@@ -1,16 +1,18 @@
 #! /usr/bin/python3
 
 import asyncio
-import configparser
 import discord
 import json
 import logging
 import nest_asyncio
 import os
 import pymysql
-import sys
 
-from common import *
+from common import (
+    build_puzzle_embed,
+    get_round_embed_color,
+    xyzloc_mention,
+)
 from config import config
 from datetime import datetime, timedelta
 from discord_info import (
@@ -464,9 +466,9 @@ def get_channelx(channel_id):
     channel = None
     if isinstance(channel_id, int) or channel_id.isnumeric():
         channel = client.get_channel(int(channel_id))
-    if channel == None:
+    if channel is None:
         channel = discord.utils.get(client.get_all_channels(), name=channel_id)
-    if channel == None:
+    if channel is None:
         raise Exception("Channel ID {0} missing!".format(channel_id))
     return channel
 
