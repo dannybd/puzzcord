@@ -124,6 +124,10 @@ async def gen_run(command, args):
         round_name = rest_of_args
         return await gen_announce_round(round_name)
 
+    if command == "_move":
+        puzzle_name = rest_of_args
+        return await gen_announce_move(puzzle_name)
+
     # Helper methods
     if command == "stats":
         return await gen_stats()
@@ -249,6 +253,22 @@ async def gen_announce_round(round_name):
     )
     await status_channel.send(content=content, embed=embed)
     return "Round announced"
+
+
+async def gen_announce_move(puzzle_name):
+    puzzle, channel = get_puzzle_and_channel(puzzle_name)
+    round_category = await gen_or_create_round_category(puzzle["round_name"])
+    if channel.category == round_category:
+        await channel.send("No move needed!")
+        return
+    await channel.edit(
+        category=round_category,
+        position=0,
+    )
+    content = "Puzzle moved to correct round!"
+    embed = build_puzzle_embed(puzzle, channel.guild)
+    await channel.send(content=content, embed=embed)
+    return "Puzzle moved"
 
 
 async def gen_or_create_round_category(round_name, is_solved=False):
