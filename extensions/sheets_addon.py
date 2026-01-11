@@ -12,11 +12,12 @@ import typing
 
 
 class SheetsAddon(commands.Cog):
+    cookies = {}
+
     def __init__(self, bot):
         self.bot = bot
         self.rotate_1psidts.start()
         self.cookies = self.get_cookies()
-        await self.rotate_1psidts()
 
     def cog_unload(self):
         self.rotate_1psidts.cancel()
@@ -41,7 +42,7 @@ class SheetsAddon(commands.Cog):
                 response.raise_for_status()
                 new_1psidts = response.cookies.get("__Secure-1PSIDTS")
                 if not new_1psidts:
-                    logging.error("SheetsAddon: No new __Secure-1PSIDTS found")
+                    logging.info("SheetsAddon: No new __Secure-1PSIDTS found")
                     return
                 if self.cookies["__Secure-1PSIDTS"] == new_1psidts:
                     return
@@ -65,6 +66,6 @@ class SheetsAddon(commands.Cog):
 
 
 async def setup(bot):
-    cog = HuntStatus(bot)
+    cog = SheetsAddon(bot)
     await bot.add_cog(cog)
     await cog.rotate_1psidts()
