@@ -62,6 +62,14 @@
       "__Secure-1PSIDTS": "<<<__Secure-1PSIDTS>>>",
     },
     "refresh_headers": {
+    },
+    "invoke_get_params": {
+      "sid": "<<<SID>>>",
+      "token": "<<<TOKEN>>>",
+      "_rest": "&foo=bar"
+    },
+    "invoke_headers": {
+      "x-same-domain": "1"
     }
   }
 }
