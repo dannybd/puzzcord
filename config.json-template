@@ -53,5 +53,15 @@
     "wifi_qr": "https://media.discordapp.net/attachments/QR_CODE.png",
     "wrapped_icon": "https://i.imgur.com/ICON.jpeg",
     "zoom_link": "https://mit.zoom.us/j/<<ID>>",
+  },
+  "sheets_addon": {
+    "cookies": {
+      "SID": "<<<SID>>>",
+      "OSID": "<<<OSID>>>",
+      "__Secure-1PSID": "<<<__Secure-1PSID>>>",
+      "__Secure-1PSIDTS": "<<<__Secure-1PSIDTS>>>",
+    },
+    "refresh_headers": {
+    }
   }
 }
