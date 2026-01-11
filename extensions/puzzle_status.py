@@ -2,7 +2,7 @@
 
 import aiohttp
 import asyncio
-import datetime
+from datetime import datetime, timedelta
 from db import REST, SQL
 import discord
 from discord.ext import commands, tasks
@@ -29,9 +29,9 @@ class PuzzleStatus(commands.Cog):
         if not guild:
             return
         now = self.bot.now()
-        if now < self.bot.hunt_begins - 86400:
+        if now < self.bot.hunt_begins - timedelta(days=1):
             return
-        if now > self.bot.hunt_ends + 86400:
+        if now > self.bot.hunt_ends + timedelta(days=1):
             return
         channel = guild.get_channel(discord_info.TABLE_REPORT_CHANNEL)
         messages = [message async for message in channel.history(limit=1)]
@@ -141,7 +141,7 @@ class PuzzleStatus(commands.Cog):
             )
 
         tz = timezone("US/Eastern")
-        now = datetime.datetime.now(tz)
+        now = datetime.now(tz)
         content = "Which puzzles are where (as of {}):\n\n".format(
             now.strftime("%A at %I:%M:%S%p %Z")
         )
