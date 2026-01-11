@@ -55,7 +55,7 @@ class SheetsAddon(commands.Cog):
             FROM puzzle
             WHERE
               sheetenabled = 0
-              -- AND status <> "Solved"
+              AND status <> "Solved"
             """
         )
         for puzzle in puzzles_to_activate:
