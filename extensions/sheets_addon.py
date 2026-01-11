@@ -1,14 +1,10 @@
 """ Get an overview of the entire hunt status """
 import aiohttp
 from config import config
-import discord
+from db import SQL
 from discord.ext import commands, tasks
-import discord_info
 import json
 import logging
-from common import plural, xyzloc_mention
-import datetime
-import typing
 
 
 class SheetsAddon(commands.Cog):
@@ -19,8 +15,9 @@ class SheetsAddon(commands.Cog):
         self.rotate_1psidts.start()
         self.cookies = config.sheets_addon.cookies
         try:
-            self.cookies["__Secure-1PSIDTS"] = json.loads(".1PSIDTS")
-        except:
+            with open(".1PSIDTS", "r") as file:
+                self.cookies["__Secure-1PSIDTS"] = json.load(file)
+        except Exception:
             pass
 
     def cog_unload(self):
@@ -44,37 +41,45 @@ class SheetsAddon(commands.Cog):
                     return
                 logging.info("SheetsAddon: Updated __Secure-1PSIDTS!")
                 self.cookies["__Secure-1PSIDTS"] = new_1psidts
-                json.dumps(new_1psidts)
+                with open(".1PSIDTS", "w") as file:
+                    json.dump(new_1psidts, file)
                 logging.info("SheetsAddon: Saved __Secure-1PSIDTS!")
 
-
-    async def try_update(self):
-        logging.info("Finding cases:")
-        x = SQL.select_all(
+    @commands.command(aliases=["activate"])
+    async def activate_all(self, ctx):
+        puzzles_to_activate = SQL.select_all(
             """
             SELECT
               drive_id
             FROM puzzle
             WHERE
               sheetenabled = 0
-              AND status <> "Solved"
-            LIMIT 1
+              -- AND status <> "Solved"
             """
         )
+        for puzzle in puzzles_to_activate:
+            await self.activate(ctx, puzzle["drive_id"])
+
+    async def activate(self, ctx, sheet_id):
         async with aiohttp.ClientSession(cookies=self.cookies) as session:
-            for p in x:
-                sheet_id = p["drive_id"]
-                logging.info(f"Trying for {sheet_id=}")
-                sid = config.sheets_addon.invoke_get_params.sid
-                token = config.sheets_addon.invoke_get_params.token
-                _rest = config.sheets_addon.invoke_get_params._rest
-                url = f"https://docs.google.com/spreadsheets/u/0/d/{sheet_id}/scripts/invoke?sid={sid}&token={token}{_rest}"
-                headers = config.sheets_addon.invoke_headers
-                async with session.post(url, headers=headers) as response:
-                    if response.status == 401:
-                        logging.error("SheetsAddon: Auth is lost!")
-                    response.raise_for_status()
-                    logging.info(f"Activated for {sheet_id=}")
+            logging.info(f"SheetsAddon: Trying for {sheet_id=}")
+            sid = config.sheets_addon.invoke_get_params.sid
+            token = config.sheets_addon.invoke_get_params.token
+            _rest = config.sheets_addon.invoke_get_params._rest
+            url = (
+                f"https://docs.google.com/spreadsheets/u/0/d/{sheet_id}/scripts/invoke"
+                f"?id={sheet_id}&sid={sid}&token={token}{_rest}"
+            )
+            headers = config.sheets_addon.invoke_headers
+            async with session.post(url, headers=headers) as response:
+                if response.status == 401:
+                    logging.error("SheetsAddon: Auth is lost!")
+                response.raise_for_status()
+                text = await response.text()
+                text = "\n".join(text.split("\n")[1:]).strip()
+                logging.info(f"SheetsAddon: Activated for {sheet_id=}, response={text}")
+                if ctx:
+                    await ctx.reply(f"Activated for {sheet_id=}")
 
 
     # @commands.Cog.listener("on_message")
@@ -91,5 +96,4 @@ class SheetsAddon(commands.Cog):
 async def setup(bot):
     cog = SheetsAddon(bot)
     await bot.add_cog(cog)
-    await cog.rotate_1psidts()
-    await cog.try_update()
+    await cog.activate_all(None)
