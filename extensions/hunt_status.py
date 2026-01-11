@@ -8,7 +8,7 @@ import json
 import logging
 import re
 from common import plural, xyzloc_mention
-import datetime
+from datetime import timedelta
 import typing
 
 
@@ -26,7 +26,7 @@ class HuntStatus(commands.Cog):
         if not guild:
             return
         now = self.bot.now()
-        if now < self.bot.hunt_begins - 86400:
+        if now < self.bot.hunt_begins - timedelta(days=1):
             return
         if now > self.bot.hunt_ends:
             return
@@ -54,10 +54,10 @@ class HuntStatus(commands.Cog):
                     active_in_voice.add(user.id)
                     tables_in_use.add(table.id)
 
-        time_window_start = now - datetime.timedelta(minutes=15.0)
+        time_window_start = now - timedelta(minutes=15.0)
         last_loop_snowflake = (
             discord.utils.time_snowflake(
-                now - datetime.timedelta(seconds=60.0), high=False
+                now - timedelta(seconds=60.0), high=False
             )
             - 1
         )
