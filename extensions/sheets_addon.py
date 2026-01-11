@@ -3,6 +3,7 @@ import aiohttp
 from config import config
 from db import SQL
 from discord.ext import commands, tasks
+from discord_info import STATUS_CHANNEL
 import json
 import logging
 
@@ -82,18 +83,26 @@ class SheetsAddon(commands.Cog):
                     await ctx.reply(f"Activated for {sheet_id=}")
 
 
-    # @commands.Cog.listener("on_message")
-    # async def fix_hunt_emails(self, message):
-    #     if message.author.id != 790401743669690428:
-    #         return
-    #     if "Unsubscribe: https://" not in message.content:
-    #         return
-    #     fixed = re.sub(r"Unsubscribe: https://\S+", "", x).strip()
-    #     await message.channel.send(fixed)
-    #     await message.delete()
+    @commands.Cog.listener("on_message")
+    async def activate_on_new_puzzle(self, message):
+        if message.channel.id != STATUS_CHANNEL:
+            return
+        if message.author.id != self.bot.user.id:
+            return
+        if "🚨 New Puzzle 🚨" not in message.content:
+            return
+        embeds = message.embeds
+        if not embeds or len(embeds) != 1:
+            return
+        for field in embeds[0].to_dict()["fields"]:
+            if "https://docs.google.com/spreadsheets/d/" not in field["value"]:
+                continue
+            sheet_id = field["value"].split("https://docs.google.com/spreadsheets/d/")[1].split("/")[0]
+            await self.activate(None, sheet_id)
+            await message.add_reaction("🆕")
 
 
 async def setup(bot):
     cog = SheetsAddon(bot)
     await bot.add_cog(cog)
-    await cog.activate_all(None)
+    # await cog.activate_all(None)
