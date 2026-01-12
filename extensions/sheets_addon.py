@@ -33,6 +33,9 @@ class SheetsAddon(commands.Cog):
             async with session.post(url, headers=headers, data=data) as response:
                 if response.status == 401:
                     logging.error("SheetsAddon: Auth is lost! Requires manual fix.")
+                if response.status == 429:
+                    logging.error("SheetsAddon: 429 Too Many Requests; waiting.")
+                    return
                 response.raise_for_status()
                 new_1psidts = response.cookies.get("__Secure-1PSIDTS")
                 if not new_1psidts:
