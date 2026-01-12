@@ -5,6 +5,8 @@ from common import plural
 
 
 class Toys(commands.Cog):
+    fun_reply_cooldowns = {}
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -44,19 +46,29 @@ class Toys(commands.Cog):
         content = message.content.lower()
         channel = message.channel
         if "50/50" in content:
-            await channel.send("Roll up your sleeves!")
+            if self.in_cooldown("50/50"):
+                return
+            await channel.reply("Roll up your sleeves!")
             return
         if "thanks obama" in content:
-            await channel.send("You're welcome!")
+            if self.in_cooldown("thanks obama"):
+                return
+            await channel.reply("You're welcome!")
             return
         if "org chart" in content:
-            await channel.send("We had a plan, and we executed the plan.")
+            if self.in_cooldown("org chart"):
+                return
+            await channel.reply("We had a plan, and we executed the plan.")
             return
         if "football" in content:
-            await channel.send("Football?  Really?")
+            if self.in_cooldown("football"):
+                return
+            await channel.reply("Football?  Really?")
             return
         if content.startswith("!backsolv"):
-            message = await channel.send(
+            if self.in_cooldown("!backsolve"):
+                return
+            message = await channel.reply(
                 "It's only backsolving if it comes from the region of "
                 + "actually understanding all the meta constraints, "
                 + "otherwise it's just sparkling guessing."
@@ -64,6 +76,15 @@ class Toys(commands.Cog):
             await message.add_reaction("✨")
             await message.add_reaction("🔙")
             await message.add_reaction("🏁")
+
+    def in_cooldown(self, key):
+        last_send = self.fun_reply_cooldowns.get(key, None)
+        now = self.bot.now()
+        if last_send is not None:
+            if (now - last_send).minutes < 1:
+                return True
+        self.fun_reply_cooldowns[key] = now
+        return False
 
     @commands.command(hidden=True)
     async def hooray(self, ctx):
