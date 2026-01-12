@@ -1,6 +1,5 @@
 """Contains bot commands for relaying meta-information about puzzles (which ones need solving; where they're being solved; etc.)"""
 
-import aiohttp
 import asyncio
 from datetime import datetime, timedelta
 from db import REST, SQL
@@ -9,7 +8,6 @@ from discord.ext import commands, tasks
 from discord.ext.commands import guild_only
 import discord_info
 import logging
-import re
 import typing
 from common import build_puzzle_embed, xyzloc_mention
 from pytz import timezone

@@ -1,9 +1,12 @@
 """Contains bot commands for things that are useful for solving puzzles"""
 
+import aiohttp
 import discord
 from discord.ext import commands
 import string
 import random
+import re
+import typing
 import extensions.util.urlhandler as urlhandler
 import extensions.util.tables as tables
 
