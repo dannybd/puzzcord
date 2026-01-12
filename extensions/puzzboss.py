@@ -93,21 +93,22 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
     async def whois(
         self,
         ctx,
-        member: typing.Optional[discord.Member],
-        *,
         query: typing.Optional[str],
     ):
         """Looks up a user in Discord and Puzzleboss. (Regex supported)"""
-        response = ""
-        discord_result = ""
-        if member:
-            discord_result = self._lookup_discord_user(member)
-            response += f"{discord_result}\n\n"
-            query = member.display_name
-
         if not query:
             await ctx.reply(response)
             return
+
+        response = ""
+        discord_result = ""
+        try:
+            converter = MemberConverter()
+            member = await converter.convert(ctx, query)
+            discord_result = self._lookup_discord_user(member)
+            response += f"{discord_result}\n\n"
+        except Exception:
+            pass
 
         response += "Checking Puzzleboss accounts... "
         try:
