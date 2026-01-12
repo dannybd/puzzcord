@@ -36,7 +36,6 @@ class SheetsAddon(commands.Cog):
                 response.raise_for_status()
                 new_1psidts = response.cookies.get("__Secure-1PSIDTS")
                 if not new_1psidts:
-                    logging.info("SheetsAddon: No new __Secure-1PSIDTS found")
                     return
                 if self.cookies["__Secure-1PSIDTS"] == new_1psidts:
                     return
