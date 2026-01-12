@@ -66,6 +66,51 @@ class SolvingTools(commands.Cog):
         await ctx.reply("Run `!help tools` to see everything I support.", embed=embed)
         # TODO: Show something more useful here, like links to tools
 
+    @commands.command(name="wb", aliases=["whiteboard"], hidden=True)
+    async def wb_alias(self, ctx, new: typing.Optional[str]):
+        """Creates a new whiteboard for you to use, each time you call it"""
+        return await self.wb(ctx, new)
+
+    @tools.command(name="wb", aliases=["whiteboard"], hidden=True)
+    async def wb(self, ctx, new: typing.Optional[str]):
+        """Creates a new whiteboard for you to use, each time you call it"""
+        pending_message = await ctx.reply("Getting you a whiteboard...")
+        if new != "new":
+            pins = await ctx.channel.pins()
+            wb_message = next(
+                (
+                    pin.content
+                    for pin in pins
+                    if pin.author == self.bot.user
+                    and "https://cocreate.mehtank.com/r/" in pin.content
+                ),
+                None,
+            )
+            if wb_message:
+                wb_url = re.findall(
+                    r"https://cocreate\.mehtank\.com/r/[^*]+", wb_message
+                )[0]
+                await ctx.reply(
+                    f"🎨 Found an existing whiteboard for you: 🎨\n**{wb_url}**\n\n"
+                    f"Direct everyone here! Re-running `!wb new` will "
+                    f"generate new, distinct whiteboards."
+                )
+                await pending_message.delete()
+                return
+
+        url = "https://cocreate.mehtank.com/api/roomNew"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                result = await response.json()
+                wb_url = result["url"]
+        message = await ctx.reply(
+            f"🎨 Generated a whiteboard for you: 🎨\n**{wb_url}**\n\n"
+            f"Direct everyone here! Re-running `!wb new` will "
+            f"generate new, distinct whiteboards."
+        )
+        await pending_message.delete()
+        await message.pin()
+
     @commands.command(name="stuck", aliases=["haveyoutried"], hidden=True)
     async def stuck_alias(self, ctx):
         """Suggests some tips from the Have You Tried? list"""
