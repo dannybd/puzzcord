@@ -71,7 +71,7 @@ class SolvingTools(commands.Cog):
         """Creates a new whiteboard for you to use, each time you call it"""
         return await self.wb(ctx, new)
 
-    @tools.command(name="wb", aliases=["whiteboard"], hidden=True)
+    @tools.command(name="wb", aliases=["whiteboard"])
     async def wb(self, ctx, new: typing.Optional[str]):
         """Creates a new whiteboard for you to use, each time you call it"""
         pending_message = await ctx.reply("Getting you a whiteboard...")
