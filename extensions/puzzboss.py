@@ -96,7 +96,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         query: typing.Optional[str],
     ):
         """Looks up a user in Discord and Puzzleboss. (Regex supported)"""
-        query = query.strip()
+        query = (query or "").strip()
         if not query:
             await ctx.reply("Usage: !whois <query>")
             return
