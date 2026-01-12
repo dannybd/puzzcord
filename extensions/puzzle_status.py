@@ -450,6 +450,47 @@ class PuzzleStatus(commands.Cog):
                 + "for future solvers."
             )
 
+    @guild_only()
+    @commands.command(name="wb", aliases=["whiteboard"])
+    async def wb(self, ctx, new: typing.Optional[str]):
+        """Creates a new whiteboard for you to use, each time you call it"""
+        pending_message = await ctx.reply("Getting you a whiteboard...")
+        if new != "new":
+            pins = await ctx.channel.pins()
+            wb_message = next(
+                (
+                    pin.content
+                    for pin in pins
+                    if pin.author == self.bot.user
+                    and "https://cocreate.mehtank.com/r/" in pin.content
+                ),
+                None,
+            )
+            if wb_message:
+                wb_url = re.findall(
+                    r"https://cocreate\.mehtank\.com/r/[^*]+", wb_message
+                )[0]
+                await ctx.reply(
+                    f"🎨 Found an existing whiteboard for you: 🎨\n**{wb_url}**\n\n"
+                    f"Direct everyone here! Re-running `!wb new` will "
+                    f"generate new, distinct whiteboards."
+                )
+                await pending_message.delete()
+                return
+
+        url = "https://cocreate.mehtank.com/api/roomNew"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                result = await response.json()
+                wb_url = result["url"]
+        message = await ctx.reply(
+            f"🎨 Generated a whiteboard for you: 🎨\n**{wb_url}**\n\n"
+            f"Direct everyone here! Re-running `!wb new` will "
+            f"generate new, distinct whiteboards."
+        )
+        await pending_message.delete()
+        await message.pin()
+
     @commands.Cog.listener("on_voice_state_update")
     async def handle_vc_emptying(self, member, before, after):
         # Only run if they were previously in a channel,
