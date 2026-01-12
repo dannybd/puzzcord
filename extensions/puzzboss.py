@@ -60,7 +60,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         """
             ).format(**self.bot.hunt_config, cb=time.time())
         )
-        await ctx.send(
+        await ctx.reply(
             "Welcome aboard, {}! Check your DMs for instructions on how to set up your account to hunt with us 🙂".format(
                 member.mention
             )
@@ -69,10 +69,10 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
     @onboard.error
     async def onboard_error(self, ctx, error):
         if isinstance(error, errors.MissingRequiredArgument):
-            await ctx.send("Usage: `!onboard [Discord display name]`\n")
+            await ctx.reply("Usage: `!onboard [Discord display name]`\n")
             return
         if isinstance(error, errors.CheckFailure):
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, only folks with the @RoleVerifier role can use this command. "
                 + "Ping them and they should be able to help you."
             )
@@ -81,10 +81,10 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
             isinstance(error, errors.CommandInvokeError)
             and "Cannot send messages to this user" in error.text
         ):
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, we cannot DM this user! Please allow DMs and then retry."
             )
-        await ctx.send("Error! Something went wrong, please ping @dannybd.")
+        await ctx.reply("Error! Something went wrong, please ping @dannybd.")
         raise error
 
     @has_any_role("RoleVerifier", "Puzzleboss", "Puzztech")
@@ -106,7 +106,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
             query = member.display_name
 
         if not query:
-            await ctx.send(response)
+            await ctx.reply(response)
             return
 
         response += "Checking Puzzleboss accounts... "
@@ -144,7 +144,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
 
         if not results:
             if query in ["john galt", "johngalt"]:
-                await ctx.send(
+                await ctx.reply(
                     """
 ```
 PART I
@@ -175,14 +175,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 len(results), "\n".join(results)
             )
         try:
-            await ctx.send(response)
+            await ctx.reply(response)
         except Exception:
             response = f"{discord_result}\n\nChecking Puzzleboss accounts... Error! 😔\n"
             response += (
                 "Sorry, too many matches ({}) found to display in Discord. "
                 + "Please narrow your query."
             ).format(len(results))
-            await ctx.send(response)
+            await ctx.reply(response)
 
     def _lookup_discord_user(self, member: discord.Member):
         member_tag = "Discord user `{0}`".format(print_user(member))
@@ -222,17 +222,17 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         if not newboss:
             newboss = ctx.author
         if newboss in current_puzzbosses:
-            await ctx.send("{0.mention} is already Puzzleboss!".format(newboss))
+            await ctx.reply("{0.mention} is already Puzzleboss!".format(newboss))
             return
         betaboss_role = ctx.guild.get_role(BETABOSS_ROLE)
         puzztech_role = ctx.guild.get_role(PUZZTECH_ROLE)
         if betaboss_role not in newboss.roles and puzztech_role not in newboss.roles:
-            await ctx.send("{0.mention} should be a Beta Boss first!".format(newboss))
+            await ctx.reply("{0.mention} should be a Beta Boss first!".format(newboss))
             return
         for puzzboss in puzzboss_role.members:
             await puzzboss.remove_roles(puzzboss_role)
         await newboss.add_roles(puzzboss_role)
-        await ctx.send(
+        await ctx.reply(
             (
                 "{0.mention} has anointed {1} as the new {2.mention}! "
                 + "Use {2.mention} to get their attention."
@@ -278,7 +278,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 **this_puzzle
             )
         )
-        await ctx.send(
+        await ctx.reply(
             f"# DO NOT USE THIS CHANNEL!\nGo to {target_channel.mention} instead"
         )
         await ctx.channel.edit(name="⛔️-" + ctx.channel.name)
@@ -293,12 +293,12 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         response = await REST.post("/rounds/", {"name": "{0}".format(round_name)})
         status = response.status
         if status == 200:
-            await ctx.send("Round created!")
+            await ctx.reply("Round created!")
             return
         if status == 500:
-            await ctx.send("Error. This is likely because the round already exists.")
+            await ctx.reply("Error. This is likely because the round already exists.")
             return
-        await ctx.send("Error. Something weird happened, try the PB UI directly.")
+        await ctx.reply("Error. Something weird happened, try the PB UI directly.")
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @commands.command()
@@ -307,12 +307,12 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         if not round_name:
             puzzle = SQL.get_puzzle_for_channel(ctx.channel)
             if not puzzle:
-                await ctx.send("Incorrect usage: please specify round name")
+                await ctx.reply("Incorrect usage: please specify round name")
                 return
             round_name = puzzle["round_name"]
         round_id = SQL.get_round_id_by_name(round_name)
         if round_id is None:
-            await ctx.send(f"Error. Round ID not found for '{round_name}'")
+            await ctx.reply(f"Error. Round ID not found for '{round_name}'")
             return
         logging.info(
             "{0.command}: Marking a round as solved: {1}".format(ctx, round_name)
@@ -322,14 +322,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             status="Solved",
             round_uri="#solved",
         )
-        await ctx.send("You solved the meta(s)!! 🎉 🥳")
+        await ctx.reply("You solved the meta(s)!! 🎉 🥳")
         return
 
     @solvedround.error
     async def solvedround_error(self, ctx, error):
         puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
         if isinstance(error, errors.MissingAnyRole):
-            await ctx.send(
+            await ctx.reply(
                 (
                     "Only {0.mention} can mark a round as solved. "
                     + "I've just pinged them; they should be here soon "
@@ -338,9 +338,9 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
             return
         if isinstance(error, errors.MissingRequiredArgument):
-            await ctx.send("Usage: `!solvedround RoundName`\n")
+            await ctx.reply("Usage: `!solvedround RoundName`\n")
             return
-        await ctx.send(
+        await ctx.reply(
             (
                 "Error! Something went wrong, possibly because "
                 + "you didn't match the round name exactly. "
@@ -364,7 +364,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             channel = ctx.channel
         puzzle = SQL.get_puzzle_for_channel(channel)
         if not puzzle:
-            await ctx.send(
+            await ctx.reply(
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             await ctx.message.delete()
@@ -380,7 +380,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     async def solved_error(self, ctx, error):
         puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
         if isinstance(error, errors.MissingAnyRole):
-            await ctx.send(
+            await ctx.reply(
                 (
                     "Only {0.mention} can mark a puzzle as solved. "
                     + "I've just pinged them; they should be here soon "
@@ -389,14 +389,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
             return
         if isinstance(error, errors.MissingRequiredArgument):
-            await ctx.send(
+            await ctx.reply(
                 "Usage: `!solved ANSWER`\n"
                 + "If you're calling this from a different channel, "
                 + "add the mention in there, like "
                 + "`!solved #easypuzzle ANSWER`"
             )
             return
-        await ctx.send(
+        await ctx.reply(
             (
                 "Error! Something went wrong, please ping @dannybd. "
                 + "In the meantime {0.mention} should use the "
@@ -417,11 +417,11 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             channel = ctx.channel
         puzzle = SQL.get_puzzle_for_channel(channel)
         if not puzzle:
-            await ctx.send(
+            await ctx.reply(
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             return
-        await ctx.send("Trying to restore...")
+        await ctx.reply("Trying to restore...")
         await REST.update_puzzle(
             puzzle["id"],
             answer=None,
@@ -437,7 +437,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             existing_categories,
         )
         if not category:
-            await ctx.send("ERROR: Could not move channel automatically.")
+            await ctx.reply("ERROR: Could not move channel automatically.")
             return
 
         await channel.edit(
@@ -446,7 +446,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             reason='Puzzle "{0.name}" NOT solved, unarchiving!'.format(channel),
         )
 
-        await ctx.send("Success! Moved this back.")
+        await ctx.reply("Success! Moved this back.")
         logging.info("{0.command}: succeeded!".format(ctx))
 
     @has_any_role("RoleVerifier", "Beta Boss", "Puzzleboss", "Puzztech")
@@ -467,7 +467,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         ]
         dupe_members = sorted(dupe_members, key=lambda member: member.name)
         if not dupe_members:
-            await ctx.send("Looks like all obvious duplicates have been cleared!")
+            await ctx.reply("Looks like all obvious duplicates have been cleared!")
             return
 
         member_role = ctx.guild.get_role(HUNT_MEMBER_ROLE)
@@ -479,7 +479,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
             for member in dupe_members
         ]
-        await ctx.send(
+        await ctx.reply(
             f"Potential dupe members ({len(lines)}):\n"
             + "```\n"
             + "\n".join(lines)
@@ -505,10 +505,10 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         )
 
         if not unmatched_users:
-            await ctx.send("Looks like all PB accounts are matched, nice!")
+            await ctx.reply("Looks like all PB accounts are matched, nice!")
             return
 
-        await ctx.send(
+        await ctx.reply(
             f"Puzzleboss accounts without matching Discord accounts ({len(unmatched_users)}):\n```"
             + "\n".join(
                 [
@@ -543,7 +543,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         ]
         unverified_users = sorted(unverified_users, key=lambda member: member.joined_at)
         if not unverified_users:
-            await ctx.send(
+            await ctx.reply(
                 "Looks like all team members are verified, nice!\n\n"
                 + "(If this is unexpected, try adding the Team Member "
                 + "role to someone first.)"
@@ -624,7 +624,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         else:
             accounts_being_registered = ""
 
-        await ctx.send(
+        await ctx.reply(
             unverified_other
             + unverified_members
             + unverified_new_accounts
@@ -653,7 +653,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 pass
 
         if not isinstance(member, discord.Member):
-            await ctx.send(
+            await ctx.reply(
                 (
                     "Sorry, the Discord name has to be _exact_, "
                     + "otherwise I'll fail. `{}` isn't recognizable to me "
@@ -693,7 +693,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 (username,),
             )
             if pending_solver:
-                await ctx.send(
+                await ctx.reply(
                     (
                         "Error: {0} has started registration but has not yet "
                         + "confirmed their email! Check your spam folder as well, "
@@ -701,7 +701,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                     ).format(username)
                 )
                 return
-            await ctx.send(
+            await ctx.reply(
                 "Error: Couldn't find a {0}@{1}, please try again.".format(
                     username, self.bot.team_domain
                 )
@@ -716,7 +716,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         if member_role not in member.roles:
             logging.info("{0.command}: Adding member role!".format(ctx))
             await member.add_roles(member_role)
-        await ctx.send(
+        await ctx.reply(
             "**{0.display_name}** is now verified as **{1}**!".format(
                 member, solver["name"]
             )
@@ -725,7 +725,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
     @verify.error
     async def verify_error(self, ctx, error):
         if isinstance(error, errors.MissingRequiredArgument):
-            await ctx.send(
+            await ctx.reply(
                 "Usage: `!verify [Discord display name] [Puzzleboss username]`\n"
                 + "If the person's display name has spaces or weird symbols "
                 + "in it, try wrapping it in quotes, like\n"
@@ -733,12 +733,12 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             )
             return
         if isinstance(error, errors.CheckFailure):
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, only folks with the @RoleVerifier role can use this command. "
                 + "Ping them and they should be able to help you."
             )
             return
-        await ctx.send(
+        await ctx.reply(
             "Error! Something went wrong, please ping @dannybd. "
             + "In the meantime it should be safe to just add this person "
             + "to the server by giving them the Team Member role."
@@ -758,7 +758,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         """[puzztech only] Emergency relinking of a puzzle to an existing sheet"""
         channel = channel or ctx.channel
         puzzle = SQL.get_puzzle_for_channel(channel)
-        await ctx.send(
+        await ctx.reply(
             "Relinking sheet `{}` to `{name}`...".format(sheet_hash, **puzzle)
         )
         response = await REST.update_puzzle(
@@ -767,10 +767,10 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             drive_uri=f"https://docs.google.com/spreadsheets/d/{sheet_hash}/edit?usp=drivesdk",
         )
         if response.status != 200:
-            await ctx.send("Error setting drive_id / drive_uri!")
+            await ctx.reply("Error setting drive_id / drive_uri!")
             return
 
-        await ctx.send("Done. Please run: `!puz {name}`".format(**puzzle))
+        await ctx.reply("Done. Please run: `!puz {name}`".format(**puzzle))
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
@@ -780,11 +780,11 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         config = self.bot.hunt_config
         url = config.get("scrape_url", None)
         if not url:
-            await ctx.send("No url")
+            await ctx.reply("No url")
             return
         cookie = config.get("scrape_cookie", None)
         if not cookie:
-            await ctx.send("No cookie")
+            await ctx.reply("No cookie")
         headers = {
             "accept": "text/html",
             "cache-control": "max-age=0",
@@ -795,18 +795,18 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url) as response:
                 if response.status != 200:
-                    await ctx.send(f"Scrape error code {response.status}")
+                    await ctx.reply(f"Scrape error code {response.status}")
                     return
                 result = await response.text()
         if "window.initialAllPuzzlesState = " not in result:
-            await ctx.send("Data not found in scrape")
+            await ctx.reply("Data not found in scrape")
             return
         result = result.split("window.initialAllPuzzlesState = ", 1)[1]
         result = result.split("</script>", 1)[0]
         try:
             data = json.loads(result)
         except json.JSONDecodeError as _:
-            await ctx.send("Cannot parse JSON")
+            await ctx.reply("Cannot parse JSON")
             return
         db_puzzles = SQL.get_all_puzzles()
         discrepancies = []
@@ -888,7 +888,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
         async def send_chunks(message):
             if len(message) < 2000:
-                await ctx.send(message)
+                await ctx.reply(message)
                 return
             chunks = []
             chunk = ""
@@ -909,10 +909,10 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             if chunk:
                 chunks.append(chunk)
             for chunk in chunks:
-                await ctx.send(chunk)
+                await ctx.reply(chunk)
 
         if not discrepancies and not puzzles_to_buy:
-            await ctx.send("Hunt website and Puzzleboss appear to be in sync :)")
+            await ctx.reply("Hunt website and Puzzleboss appear to be in sync :)")
         elif not discrepancies and puzzles_to_buy:
             await send_chunks(
                 f"No discrepancies found, but we have {currency} keys "

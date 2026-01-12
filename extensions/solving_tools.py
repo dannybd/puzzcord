@@ -63,7 +63,7 @@ class SolvingTools(commands.Cog):
             value="[Link](https://www.quinapalus.com/qat.html) (also see `!tools qat`)",
             inline=True,
         )
-        await ctx.send("Run `!help tools` to see everything I support.", embed=embed)
+        await ctx.reply("Run `!help tools` to see everything I support.", embed=embed)
         # TODO: Show something more useful here, like links to tools
 
     @commands.command(name="stuck", aliases=["haveyoutried"], hidden=True)
@@ -83,7 +83,7 @@ class SolvingTools(commands.Cog):
             title="Have You Tried?",
             url=f"https://{self.bot.team_domain}/wiki/index.php/Have_You_Tried",
         )
-        await ctx.send(content=content, embed=embed)
+        await ctx.reply(content=content, embed=embed)
 
     @commands.command(name="julia", hidden=True)
     async def julia_alias(self, ctx):
@@ -93,7 +93,7 @@ class SolvingTools(commands.Cog):
     @tools.command(name="julia", hidden=True)
     async def julia(self, ctx):
         """Suggests the Julia Strategy to Puzzlesolving"""
-        await ctx.send(
+        await ctx.reply(
             "Have you tried reading the first letters of everything? "
             "Yes? Okay, try it again."
         )
@@ -120,9 +120,9 @@ class SolvingTools(commands.Cog):
             i += 1
         response += "```"
         try:
-            await ctx.send(response)
+            await ctx.reply(response)
         except Exception:
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, response was too long for Discord. Try a shorter string"
             )
 
@@ -145,9 +145,9 @@ class SolvingTools(commands.Cog):
         )
         response += "```"
         try:
-            await ctx.send(response)
+            await ctx.reply(response)
         except Exception:
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, response was too long for Discord. Try a shorter string"
             )
 
@@ -176,13 +176,13 @@ class SolvingTools(commands.Cog):
         try:
             rolls, limit = map(int, dice.split("d"))
         except Exception:
-            await ctx.send("Format has to be in NdN!")
+            await ctx.reply("Format has to be in NdN!")
             return
         if rolls > 100:
-            await ctx.send("Try 100 or fewer rolls.")
+            await ctx.reply("Try 100 or fewer rolls.")
             return
         result = ", ".join(str(random.randint(1, limit)) for r in range(rolls))
-        await ctx.send(result)
+        await ctx.reply(result)
 
     # TODO: Fix this
 
@@ -195,7 +195,7 @@ class SolvingTools(commands.Cog):
             "word": word,
         }
         text = await urlhandler.get(url, params=params)
-        await ctx.send(text)
+        await ctx.reply(text)
 
     def dictionary(self, corpus):
         corpus = corpus.lower()
@@ -247,9 +247,9 @@ class SolvingTools(commands.Cog):
         result = "\n".join([i.text for i in soup.find_all("span")][:10])
         result = f"`!nut {query}` yields:\n```\n{result}```"
         try:
-            await ctx.send(result)
+            await ctx.reply(result)
         except Exception:
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, response was too long for Discord. "
                 + "Try a shorter string or go directly to the tool online here:\n"
                 + urlhandler.build(url, params=params)
@@ -285,9 +285,9 @@ class SolvingTools(commands.Cog):
         )
         result = f"`!qat {query}` yields:\n```\n{result}\n```"
         try:
-            await ctx.send(result)
+            await ctx.reply(result)
         except Exception:
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, response was too long for Discord. "
                 + "Try a shorter string or go directly to the tool online here:\n"
                 + urlhandler.build(url, params=params)
@@ -314,7 +314,7 @@ class SolvingTools(commands.Cog):
             else:
                 return chr(int(x) + ord("a") - 1)
 
-        await ctx.send(" ".join([convert(i) for i in args]))
+        await ctx.reply(" ".join([convert(i) for i in args]))
 
     @commands.command(name="atbash", hidden=True)
     async def atbash_alias(self, ctx, *, text: str):
@@ -331,7 +331,7 @@ class SolvingTools(commands.Cog):
         lower = string.ascii_lowercase
         upper = string.ascii_uppercase
         lookup = dict(zip(upper + lower, upper[::-1] + lower[::-1]))
-        await ctx.send("".join(lookup.get(c, c) for c in text))
+        await ctx.reply("".join(lookup.get(c, c) for c in text))
 
     @commands.command(name="morse", hidden=True)
     async def morse_alias(self, ctx, *, text: str):
@@ -351,7 +351,7 @@ class SolvingTools(commands.Cog):
             text = (
                 text.replace("/", " / ").replace("…", "...").replace("—", "--").split()
             )
-            await ctx.send(
+            await ctx.reply(
                 "".join(
                     [
                         tables.morse2alpha[word] if word in tables.morse2alpha else word
@@ -361,7 +361,7 @@ class SolvingTools(commands.Cog):
             )
 
         else:
-            await ctx.send(
+            await ctx.reply(
                 "/".join(
                     [
                         tables.encode_with_table(tables.alpha2morse, word, sep=" ")
@@ -380,7 +380,7 @@ class SolvingTools(commands.Cog):
         """Print the braille alphabet"""
         braille_chars = "'⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵"
         alpha_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        await ctx.send(
+        await ctx.reply(
             "```"
             + "\n".join([" ".join(x) for x in zip(braille_chars, alpha_chars)])
             + "```"

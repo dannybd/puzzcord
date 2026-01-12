@@ -125,7 +125,7 @@ class HuntStatus(commands.Cog):
     @commands.command()
     async def help(self, ctx, category: typing.Optional[str]):
         if category == "tools":
-            await ctx.send(
+            await ctx.reply(
                 """
 ```
 !tools
@@ -147,7 +147,7 @@ Commands:
             )
             return
 
-        await ctx.send(
+        await ctx.reply(
             f"""
 ```
 Get the state of things:
@@ -200,7 +200,7 @@ Thanks, and happy hunting! 🕵️‍♀️🧩
         embed.set_thumbnail(url=config.wifi_qr)
         embed.add_field(name="Network", value=f"`{config.wifi_network}`", inline=True)
         embed.add_field(name="Password", value=f"`{config.wifi_password}`", inline=True)
-        await ctx.send(
+        await ctx.reply(
             content=f"""
 Student? Use **MIT SECURE**.
 Alumni? Use **MIT**. Generate your password at [wifi.mit.edu](https://wifi.mit.edu)
@@ -215,7 +215,7 @@ It will give you a lot of pain. Instead, use this:
     @commands.command()
     async def printer(self, ctx):
         """Get the relevant printer setup info"""
-        await ctx.send(
+        await ctx.reply(
             content="""
 If you're on campus, we have a printer in {hq_room} you can use.
 
@@ -228,7 +228,7 @@ You can [set up cloud printing]({printer_setup_link}) from your laptop/phone, bu
     @commands.command()
     async def zoom(self, ctx):
         """Get the team Zoom link"""
-        await ctx.send(
+        await ctx.reply(
             content="""
 Our Zoom hangout: **<{zoom_link}>**
 There's a live stream of {hq_room} throughout Hunt there.
@@ -242,7 +242,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
     async def wrapup(self, ctx):
         """What puzzles you worked on, with links so you can go leave feedback"""
         if self.bot.now() < self.bot.hunt_ends:
-            await ctx.send("Shhh, not yet :)")
+            await ctx.reply("Shhh, not yet :)")
             return
 
         author = ctx.author
@@ -258,7 +258,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             (str(author.id),),
         )
         if not solver:
-            await ctx.send(
+            await ctx.reply(
                 (
                     f"Sorry, {author.mention}, I couldn't find your "
                     f"{self.bot.team_domain} account! "
@@ -268,7 +268,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             return
         puzzles = (solver["puzzles"] or "").split(",")
         if not puzzles:
-            await ctx.send(
+            await ctx.reply(
                 (
                     f"Sorry, {author.mention}, I couldn't find any puzzles "
                     f"recorded to your {self.bot.team_domain} account. "
@@ -326,11 +326,11 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
         embed.set_footer(
             text="based on approximate data, assembled hastily with love by danny"
         )
-        await ctx.send(content="{0.mention}:".format(author), embed=embed)
+        await ctx.reply(content="{0.mention}:".format(author), embed=embed)
         if len(descriptions) == 1:
             return
         for description in descriptions[1:]:
-            await ctx.send(embed=discord.Embed(description=description))
+            await ctx.reply(embed=discord.Embed(description=description))
 
     @commands.command(aliases=["hunt"])
     async def status(self, ctx):
@@ -452,7 +452,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             )
 
         embed.set_footer(text=self.get_hunt_hours_clock())
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
 
     def get_hunt_hours_clock(self):
         now = self.bot.now()
@@ -501,7 +501,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
                 comments = discord.utils.escape_markdown(comments)
                 response += "\n`        Comments: {}`".format(comments)
             response += "\n"
-        await ctx.send(response)
+        await ctx.reply(response)
 
     @commands.Cog.listener("on_message")
     async def fix_hunt_emails(self, message):

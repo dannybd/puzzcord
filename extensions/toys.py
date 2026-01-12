@@ -17,9 +17,9 @@ class Toys(commands.Cog):
         timeleft = self.bot.hunt_begins - now
         if timeleft.days < 0:
             if now > self.bot.hunt_ends:
-                await ctx.send("Nope 😢 see y'all next year")
+                await ctx.reply("Nope 😢 see y'all next year")
                 return
-            await ctx.send("Yes! 🎉")
+            await ctx.reply("Yes! 🎉")
             return
 
         left = [
@@ -28,12 +28,12 @@ class Toys(commands.Cog):
             plural(timeleft.seconds // 60 % 60, "minute"),
             plural(timeleft.seconds % 60, "second"),
         ]
-        await ctx.send("No! " + ", ".join(left))
+        await ctx.reply("No! " + ", ".join(left))
 
     @commands.command()
     async def zwsp(self, ctx):
         """Helper for getting a Zero Width Space"""
-        await ctx.send(
+        await ctx.reply(
             "Here is a [zero-width space](<https://en.wikipedia.org/wiki/Zero-width_space>) "
             + "(ZWSP, U+200B): ```​``` "
             + "You can also copy one [here](<https://zerowidthspace.me/>)."
@@ -88,7 +88,7 @@ class Toys(commands.Cog):
 
     @commands.command(hidden=True)
     async def hooray(self, ctx):
-        await ctx.send("🥳🎉🎊✨")
+        await ctx.reply("🥳🎉🎊✨")
 
 
 async def setup(bot):

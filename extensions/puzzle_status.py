@@ -55,17 +55,17 @@ class PuzzleStatus(commands.Cog):
         puzzle = SQL.get_puzzle_for_channel_fuzzy(ctx, channel_or_query)
         if puzzle:
             embed = build_puzzle_embed(puzzle, ctx.guild)
-            await ctx.send(embed=embed)
+            await ctx.reply(embed=embed)
             return
         if channel_or_query:
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, I couldn't find a puzzle for that query. "
                 + "Please try again.\n"
                 + "Usage: `!puzzle [query]`"
             )
             return
         if not discord_info.is_puzzle_channel(ctx.channel):
-            await ctx.send(
+            await ctx.reply(
                 (
                     "`!puzzle` without any arguments tries to show the status "
                     + "of the puzzle channel you're currently in, "
@@ -83,7 +83,7 @@ class PuzzleStatus(commands.Cog):
         """What is happening at each table?
         Equivalent to calling `!location all` or `!whereis everything`"""
         table_channel = ctx.guild.get_channel(discord_info.TABLE_REPORT_CHANNEL)
-        await ctx.send(
+        await ctx.reply(
             "{0}\n\n_(Note: Check {1} for a live-updating version.)_".format(
                 self._tables(ctx.guild), table_channel.mention
             )
@@ -188,7 +188,7 @@ class PuzzleStatus(commands.Cog):
             )
         else:
             line = "**`{name}`** does not have a location set!".format(**puzzle)
-        await ctx.send(line)
+        await ctx.reply(line)
         return
 
     @guild_only()
@@ -205,7 +205,7 @@ class PuzzleStatus(commands.Cog):
         channel = channel or ctx.channel
         puzzle = SQL.get_puzzle_for_channel(channel)
         if not puzzle:
-            await ctx.send(
+            await ctx.reply(
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             return
@@ -247,13 +247,13 @@ class PuzzleStatus(commands.Cog):
         elif markas in ["unnecessary", "unecessary", "unnecesary"]:
             status = "Unnecessary"
         else:
-            await ctx.send("Usage: `!mark [needs eyes|critical|wtf|unnecessary]`")
+            await ctx.reply("Usage: `!mark [needs eyes|critical|wtf|unnecessary]`")
             return
 
         channel = channel or ctx.channel
         puzzle = SQL.get_puzzle_for_channel(channel)
         if not puzzle:
-            await ctx.send(
+            await ctx.reply(
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             return
@@ -325,19 +325,19 @@ class PuzzleStatus(commands.Cog):
     async def here(self, ctx):
         """Lets folks know this is the puzzle you're working on now."""
         if not discord_info.is_puzzle_channel(ctx.channel):
-            await ctx.send("Sorry, the !here command only works in puzzle channels.")
+            await ctx.reply("Sorry, the !here command only works in puzzle channels.")
             return
         puzzle = SQL.get_puzzle_for_channel(ctx.channel)
         solver = SQL.get_solver_from_member(ctx.author)
         if not solver:
-            await ctx.send(
+            await ctx.reply(
                 f"Sorry, we can't find your {self.bot.team_domain} account. "
                 + "Please talk to a @RoleVerifier, then try again."
             )
             return
         response = await REST.update_solver(solver["id"], puzz=puzzle["id"])
         if response.status != 200:
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, something went wrong. "
                 + "Please use the Puzzleboss website to select your puzzle."
             )
@@ -345,7 +345,7 @@ class PuzzleStatus(commands.Cog):
         logging.info(
             "Marked {} as working on {}".format(solver["name"], puzzle["name"])
         )
-        message = await ctx.send(
+        message = await ctx.reply(
             (
                 "Thank you, {0.mention}, for marking yourself as working on this puzzle.\n"
                 + "Everyone else: please click the 🧩 reaction "
@@ -359,14 +359,14 @@ class PuzzleStatus(commands.Cog):
         """Lets folks know you're taking a break and not working on anything."""
         solver = SQL.get_solver_from_member(ctx.author)
         if not solver:
-            await ctx.send(
+            await ctx.reply(
                 f"Sorry, we can't find your {self.bot.team_domain} account. "
                 + "Please talk to a @RoleVerifier, then try again."
             )
             return
         response = await REST.update_solver(solver["id"], puzz="")
         if response.status != 200:
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, something went wrong. "
                 + "Please use the Puzzleboss website to take a break."
             )
@@ -384,7 +384,7 @@ class PuzzleStatus(commands.Cog):
         and announce as such within the puzzle channel, so everyone can see it.
         """
         if not discord_info.is_puzzle_channel(ctx.channel):
-            await ctx.send("Sorry, the !joinus command only works in puzzle channels.")
+            await ctx.reply("Sorry, the !joinus command only works in puzzle channels.")
             return
         table = discord_info.get_table(ctx.author)
         puzzle = SQL.get_puzzle_for_channel(ctx.channel)
@@ -394,7 +394,7 @@ class PuzzleStatus(commands.Cog):
                 xyz = "\n\nFolks are already working on this puzzle in {}!".format(
                     xyzloc_mention(ctx.guild, puzzle["xyzloc"])
                 )
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, you need to join one of the table voice chats "
                 + "before you can use the !joinus command.\n\n"
                 + "If you're hunting in person, whoever at your table is using "
@@ -403,7 +403,7 @@ class PuzzleStatus(commands.Cog):
             )
             return
         if not puzzle:
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, I can't find this channel in the "
                 + "Puzzleboss database, so !joinus won't work."
             )
@@ -438,7 +438,7 @@ class PuzzleStatus(commands.Cog):
         If no channel is provided, we default to the current puzzle channel."""
         puzzle = SQL.get_puzzle_for_channel_fuzzy(ctx, channel_or_query)
         if not puzzle:
-            await ctx.send(
+            await ctx.reply(
                 "Sorry, I couldn't find a puzzle for that query. Please try again."
             )
             return
@@ -456,7 +456,7 @@ class PuzzleStatus(commands.Cog):
     @commands.command(name="wb", aliases=["whiteboard"])
     async def wb(self, ctx, new: typing.Optional[str]):
         """Creates a new whiteboard for you to use, each time you call it"""
-        pending_message = await ctx.send("Getting you a whiteboard...")
+        pending_message = await ctx.reply("Getting you a whiteboard...")
         if new != "new":
             pins = await ctx.channel.pins()
             wb_message = next(
@@ -472,7 +472,7 @@ class PuzzleStatus(commands.Cog):
                 wb_url = re.findall(
                     r"https://cocreate\.mehtank\.com/r/[^*]+", wb_message
                 )[0]
-                await ctx.send(
+                await ctx.reply(
                     f"🎨 Found an existing whiteboard for you: 🎨\n**{wb_url}**\n\n"
                     f"Direct everyone here! Re-running `!wb new` will "
                     f"generate new, distinct whiteboards."
@@ -485,7 +485,7 @@ class PuzzleStatus(commands.Cog):
             async with session.get(url) as response:
                 result = await response.json()
                 wb_url = result["url"]
-        message = await ctx.send(
+        message = await ctx.reply(
             f"🎨 Generated a whiteboard for you: 🎨\n**{wb_url}**\n\n"
             f"Direct everyone here! Re-running `!wb new` will "
             f"generate new, distinct whiteboards."
