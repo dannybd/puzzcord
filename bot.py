@@ -115,7 +115,7 @@ async def main():
                 logging.warning(
                     "Failed to load extension {}\n{}".format(extension, exc)
                 )
-        logging.info("Starting!")
+        logging.info(f"Starting! Discord Version {discord.__version__}")
         await bot.start(config.discord.botsecret)
         logging.info("Done, closing out")
 
