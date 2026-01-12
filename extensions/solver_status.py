@@ -56,7 +56,7 @@ class SolverStatus(commands.Cog):
             if role < member_role and role.unicode_emoji is not None
         }
         logging.info(f"Poll: {emoji_roles=}")
-        new_role = emoji_roles.get(emoji, None)
+        new_role = emoji_roles.get(emoji.name, None)
         if not new_role:
             logging.info(f"Poll: No new role")
             return
