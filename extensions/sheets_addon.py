@@ -81,7 +81,6 @@ class SheetsAddon(commands.Cog):
                 if ctx:
                     await ctx.reply(f"Activated for {sheet_id=}")
 
-
     @commands.Cog.listener("on_message")
     async def activate_on_new_puzzle(self, message):
         if message.channel.id != STATUS_CHANNEL:
@@ -96,7 +95,11 @@ class SheetsAddon(commands.Cog):
         for field in embeds[0].to_dict()["fields"]:
             if "https://docs.google.com/spreadsheets/d/" not in field["value"]:
                 continue
-            sheet_id = field["value"].split("https://docs.google.com/spreadsheets/d/")[1].split("/")[0]
+            sheet_id = (
+                field["value"]
+                .split("https://docs.google.com/spreadsheets/d/")[1]
+                .split("/")[0]
+            )
             await self.activate(None, sheet_id)
             await message.add_reaction("🆕")
 

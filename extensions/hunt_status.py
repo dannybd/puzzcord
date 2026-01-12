@@ -56,10 +56,7 @@ class HuntStatus(commands.Cog):
 
         time_window_start = now - timedelta(minutes=15.0)
         last_loop_snowflake = (
-            discord.utils.time_snowflake(
-                now - timedelta(seconds=60.0), high=False
-            )
-            - 1
+            discord.utils.time_snowflake(now - timedelta(seconds=60.0), high=False) - 1
         )
 
         active_in_text = set()
