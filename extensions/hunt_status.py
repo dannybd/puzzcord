@@ -1,6 +1,6 @@
 """Get an overview of the entire hunt status"""
 
-from db import SQL
+from db import REST, SQL
 import discord
 from discord.ext import commands, tasks
 import discord_info
@@ -118,6 +118,20 @@ class HuntStatus(commands.Cog):
             f"<<<METRICS_SNAPSHOT>>> {self.bot.now().strftime('%Y-%m-%dT%H:%M:%S')}: "
             f"{json.dumps(metrics_payload)}"
         )
+
+        botstats = {
+            "puzzcord_members_total": metrics_payload["members"]["total"],
+            "puzzcord_members_online": metrics_payload["members"]["online"],
+            "puzzcord_members_active_in_voice": metrics_payload["members"]["active_in_voice"],
+            "puzzcord_members_active_in_text": metrics_payload["members"]["active_in_text"],
+            "puzzcord_members_active_in_sheets": metrics_payload["members"]["active_in_sheets"],
+            "puzzcord_members_active_in_discord": metrics_payload["members"]["active_in_discord"],
+            "puzzcord_members_active_anywhere": metrics_payload["members"]["active_anywhere"],
+            "puzzcord_messages_per_minute": metrics_payload["messages_per_minute"],
+            "puzzcord_tables_in_use": metrics_payload["tables_in_use"],
+        }
+        for key, val in botstats.items():
+            await REST.post(f"/botstats/{key}", data={"val": val})
 
     @commands.command()
     async def help(self, ctx, category: typing.Optional[str]):
