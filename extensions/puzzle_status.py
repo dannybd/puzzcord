@@ -121,7 +121,11 @@ class PuzzleStatus(commands.Cog):
                 continue
             channels.sort(reverse=True)
             channels = [f"<#{channel_id}>" for channel_id in channels]
-            quiet_puzzles_str += f"* `{round_name}`: " + ", ".join(channels) + "\n"
+            quiet_puzzles_line = f"* `{round_name}`: " + ", ".join(channels) + "\n"
+            if len(quiet_puzzles_str + quiet_puzzles_line) > 1600:
+                quiet_puzzles_str += "...and more (trimmed for length)\n"
+                break
+            quiet_puzzles_str += quiet_puzzles_line
 
         if quiet_puzzles_str:
             quiet_puzzles_str = (
