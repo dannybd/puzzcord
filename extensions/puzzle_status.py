@@ -100,6 +100,8 @@ class PuzzleStatus(commands.Cog):
                 continue
             if puzzle["comments"] and puzzle["comments"].startswith("<<<REDIRECTED>>>"):
                 continue
+            if puzzle["channel_id"] == "0xtestchannelid":
+                continue
             xyzloc = puzzle["xyzloc"]
             if not xyzloc:
                 round_name = puzzle["round_name"]
