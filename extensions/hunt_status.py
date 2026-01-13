@@ -85,7 +85,7 @@ class HuntStatus(commands.Cog):
         emoji_roles = discord_info.get_emoji_roles()
         in_person_role = emoji_roles.get("🏛️", None)
         if in_person_role is not None:
-            in_person_members = set(member.id for members in in_person_role.members)
+            in_person_members = set(member.id for member in in_person_role.members)
         else:
             in_person_members = set()
         active_anywhere = set().union(active_in_text, active_in_voice, active_in_sheets)
@@ -124,15 +124,16 @@ class HuntStatus(commands.Cog):
             f"{json.dumps(metrics_payload)}"
         )
 
+        members_metrics = metrics_payload["members"]
         botstats = {
-            "puzzcord_members_total": metrics_payload["members"]["total"],
-            "puzzcord_members_online": metrics_payload["members"]["online"],
-            "puzzcord_members_active_in_voice": metrics_payload["members"]["active_in_voice"],
-            "puzzcord_members_active_in_text": metrics_payload["members"]["active_in_text"],
-            "puzzcord_members_active_in_sheets": metrics_payload["members"]["active_in_sheets"],
-            "puzzcord_members_active_in_discord": metrics_payload["members"]["active_in_discord"],
-            "puzzcord_members_active_anywhere": metrics_payload["members"]["active_anywhere"],
-            "puzzcord_members_active_in_person": metrics_payload["members"]["active_in_person"],
+            "puzzcord_members_total": members_metrics["total"],
+            "puzzcord_members_online": members_metrics["online"],
+            "puzzcord_members_active_in_voice": members_metrics["active_in_voice"],
+            "puzzcord_members_active_in_text": members_metrics["active_in_text"],
+            "puzzcord_members_active_in_sheets": members_metrics["active_in_sheets"],
+            "puzzcord_members_active_in_discord": members_metrics["active_in_discord"],
+            "puzzcord_members_active_anywhere": members_metrics["active_anywhere"],
+            "puzzcord_members_active_in_person": members_metrics["active_in_person"],
             "puzzcord_messages_per_minute": metrics_payload["messages_per_minute"],
             "puzzcord_tables_in_use": metrics_payload["tables_in_use"],
         }

@@ -38,7 +38,6 @@ class SolverStatus(commands.Cog):
         emoji = answer.emoji
         if not emoji:
             return
-        member_role = guild.get_role(HUNT_MEMBER_ROLE)
         emoji_roles = get_emoji_roles()
         new_role = emoji_roles.get(emoji.name, None)
         if not new_role:
