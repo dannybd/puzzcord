@@ -82,7 +82,7 @@ class HuntStatus(commands.Cog):
                 continue
             active_in_sheets.add(int(solver["discord_id"] or solver["solver_id"]))
 
-        emoji_roles = discord_info.get_emoji_roles()
+        emoji_roles = discord_info.get_emoji_roles(guild)
         in_person_role = emoji_roles.get("🏛️", None)
         if in_person_role is not None:
             in_person_members = set(member.id for member in in_person_role.members)

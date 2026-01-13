@@ -38,7 +38,7 @@ class SolverStatus(commands.Cog):
         emoji = answer.emoji
         if not emoji:
             return
-        emoji_roles = get_emoji_roles()
+        emoji_roles = get_emoji_roles(guild)
         new_role = emoji_roles.get(emoji.name, None)
         if not new_role:
             logging.info(f"Poll: No new role for emoji {emoji.name}")
