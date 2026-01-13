@@ -25,6 +25,16 @@ def get_team_members(guild):
     return guild.get_role(HUNT_MEMBER_ROLE).members
 
 
+def get_emoji_roles(guild):
+    """Mapping of emoji to Role"""
+    member_role = guild.get_role(HUNT_MEMBER_ROLE)
+    return {
+        role.unicode_emoji: role
+        for role in list(guild.roles)
+        if role < member_role and role.unicode_emoji is not None
+    }
+
+
 def is_puzzboss(member):
     return PUZZBOSS_ROLE in [role.id for role in member.roles]
 

@@ -82,6 +82,14 @@ class HuntStatus(commands.Cog):
                 continue
             active_in_sheets.add(int(solver["discord_id"] or solver["solver_id"]))
 
+        emoji_roles = discord_info.get_emoji_roles()
+        in_person_role = emoji_roles.get("🏛️", None)
+        if in_person_role is not None:
+            in_person_members = set(member.id for members in in_person_role.members)
+        else:
+            in_person_members = set()
+        active_anywhere = set().union(active_in_text, active_in_voice, active_in_sheets)
+
         metrics_payload = {
             "time": self.bot.now().strftime("%Y-%m-%dT%H:%M:%S"),
             "hours_in": self.get_hunt_hours_clock(),
@@ -102,12 +110,9 @@ class HuntStatus(commands.Cog):
                         active_in_voice,
                     )
                 ),
-                "active_anywhere": len(
-                    set().union(
-                        active_in_text,
-                        active_in_voice,
-                        active_in_sheets,
-                    )
+                "active_anywhere": len(active_anywhere),
+                "active_in_person": len(
+                    active_anywhere.intersection(in_person_members)
                 ),
             },
             "messages_per_minute": messages_per_minute,
@@ -127,6 +132,7 @@ class HuntStatus(commands.Cog):
             "puzzcord_members_active_in_sheets": metrics_payload["members"]["active_in_sheets"],
             "puzzcord_members_active_in_discord": metrics_payload["members"]["active_in_discord"],
             "puzzcord_members_active_anywhere": metrics_payload["members"]["active_anywhere"],
+            "puzzcord_members_active_in_person": metrics_payload["members"]["active_in_person"],
             "puzzcord_messages_per_minute": metrics_payload["messages_per_minute"],
             "puzzcord_tables_in_use": metrics_payload["tables_in_use"],
         }

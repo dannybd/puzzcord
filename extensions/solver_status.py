@@ -1,6 +1,6 @@
 """ Get an overview of the entire hunt status """
 from discord.ext import commands
-from discord_info import HUNT_MEMBER_ROLE
+from discord_info import HUNT_MEMBER_ROLE, get_emoji_roles
 import logging
 
 
@@ -39,11 +39,7 @@ class SolverStatus(commands.Cog):
         if not emoji:
             return
         member_role = guild.get_role(HUNT_MEMBER_ROLE)
-        emoji_roles = {
-            role.unicode_emoji: role
-            for role in list(guild.roles)
-            if role < member_role and role.unicode_emoji is not None
-        }
+        emoji_roles = get_emoji_roles()
         new_role = emoji_roles.get(emoji.name, None)
         if not new_role:
             logging.info(f"Poll: No new role for emoji {emoji.name}")
