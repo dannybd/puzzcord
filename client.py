@@ -515,6 +515,7 @@ def _get_puzzle_from_db(puzzle_name):
                 status,
                 answer,
                 xyzloc,
+                tags,
                 comments
             FROM puzzle_view
             WHERE name = %s

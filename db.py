@@ -135,6 +135,7 @@ class SQL:
                 status,
                 answer,
                 xyzloc,
+                tags,
                 comments
             FROM puzzle_view
             WHERE chat_channel_id IN ({})
@@ -183,6 +184,7 @@ class SQL:
                 answer,
                 xyzloc,
                 comments,
+                tags,
                 cursolvers
             FROM puzzle_view
             """,
@@ -239,6 +241,7 @@ class SQL:
                 status,
                 answer,
                 xyzloc,
+                tags,
                 comments
             FROM puzzle_view
             WHERE
@@ -259,6 +262,7 @@ class SQL:
                 chat_channel_id AS channel_id,
                 status,
                 xyzloc,
+                tags,
                 comments
             FROM puzzle_view
             WHERE
