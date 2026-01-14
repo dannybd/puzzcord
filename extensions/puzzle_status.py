@@ -252,8 +252,14 @@ class PuzzleStatus(commands.Cog):
             status = "WTF"
         elif markas in ["unnecessary", "unecessary", "unnecesary"]:
             status = "Unnecessary"
+        elif markas in ["under control", "undercontrol", "under", "control"]:
+            status = "Under control"
+        elif markas == "grind":
+            status = "Grind"
+        elif markas in ["waiting", "waiting for hq", "hq"]:
+            status = "Waiting for HQ"
         else:
-            await ctx.reply("Usage: `!mark [needs eyes|critical|wtf|unnecessary]`")
+            await ctx.reply("Usage: `!mark [needs eyes|critical|under control|grind|waiting|wtf|unnecessary]`")
             return
 
         channel = channel or ctx.channel
@@ -274,6 +280,21 @@ class PuzzleStatus(commands.Cog):
     async def critical(self, ctx, channel: typing.Optional[discord.TextChannel]):
         """Update a puzzle's state to Critical"""
         return await self.mark(ctx, channel, markas="critical")
+
+    @commands.command(hidden=True)
+    async def undercontrol(self, ctx, channel: typing.Optional[discord.TextChannel]):
+        """Update a puzzle's state to Under control"""
+        return await self.mark(ctx, channel, markas="undercontrol")
+
+    @commands.command(hidden=True)
+    async def grind(self, ctx, channel: typing.Optional[discord.TextChannel]):
+        """Update a puzzle's state to Grind"""
+        return await self.mark(ctx, channel, markas="grind")
+
+    @commands.command(hidden=True)
+    async def waiting(self, ctx, channel: typing.Optional[discord.TextChannel]):
+        """Update a puzzle's state to Waiting for HQ"""
+        return await self.mark(ctx, channel, markas="waiting")
 
     @commands.command(hidden=True)
     async def wtf(self, ctx, channel: typing.Optional[discord.TextChannel]):
