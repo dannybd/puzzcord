@@ -431,6 +431,7 @@ class PuzzleStatus(commands.Cog):
         logging.info(
             "Marked {} as working on {}".format(solver["name"], puzzle["name"])
         )
+        await self.update_table_status(table)
 
     @guild_only()
     @commands.command(aliases=["leave", "leavus"])
@@ -457,6 +458,44 @@ class PuzzleStatus(commands.Cog):
                 + "command to help note how far your got in this puzzle "
                 + "for future solvers."
             )
+        tables = discord.get_tables(ctx.guild)
+        for table in tables:
+            if table.name == puzzle["xyzloc"]:
+                await self.update_table_status(table)
+
+    @tasks.loop(seconds=300.0, reconnect=True)
+    async def update_all_table_statuses(self):
+        guild = self.bot.get_guild(discord_info.GUILD_ID)
+        if not guild:
+            return
+        tables = discord_info.get_tables(guild)
+        for table in tables:
+            await self.update_table_status(table)
+
+    async def update_table_status(self, table):
+        if not table:
+            return
+        puzzles = SQL.get_puzzles_at_table(table)
+        if not puzzles:
+            return
+
+        def puzzle_name_for_status(puzzle):
+            prefix = ""
+            if puzzle["status"] == "Solved":
+                prefix += "✅"
+            if puzzle["ismeta"]:
+                prefix += "🏅"
+            if prefix:
+                prefix += " "
+            return prefix + puzzle["name"]
+
+        status = " | ".join(puzzle_name_for_status(puzzle) for puzzle in puzzles)
+        try:
+            await table.edit(status=status)
+            logging.info(f"update_table_status ran for table {table.name}")
+        except Exception as e:
+            logging.error(f"update_table_status failed for table {table.name}: {e=}")
+            pass
 
     @guild_only()
     @commands.command(name="wb", aliases=["whiteboard"])

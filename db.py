@@ -284,9 +284,13 @@ class SQL:
                 id,
                 name,
                 status,
+                ismeta,
                 chat_channel_id AS channel_id
             FROM puzzle_view
             WHERE xyzloc LIKE %s
+            ORDER BY
+                status <> "Solved",
+                id DESC
             """,
             (table.name,),
         )
