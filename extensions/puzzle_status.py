@@ -198,6 +198,77 @@ class PuzzleStatus(commands.Cog):
         return
 
     @guild_only()
+    @commands.command()
+    async def solvers(
+        self,
+        ctx,
+        channel: typing.Optional[discord.TextChannel],
+    ):
+        """Display who has worked on a puzzle (without pinging)"""
+        channel = channel or ctx.channel
+        puzzle = SQL.get_puzzle_for_channel(channel)
+        if not puzzle:
+            await ctx.reply(
+                "Error: Could not find a puzzle for channel {0.mention}".format(channel)
+            )
+            return
+        solvers = SQL.select_all(
+            """
+            SELECT
+                a.solver_id,
+                s.chat_uid,
+                COALESCE(s.chat_name, s.fullname) AS solver_name,
+                a.num_actions
+            FROM (
+                SELECT
+                    solver_id,
+                    COUNT(*) AS num_actions,
+                    MAX(id) AS max_activity_id
+                FROM activity
+                WHERE
+                    puzzle_id = %s
+                    AND type IN ('revise', 'comment', 'interact')
+                GROUP BY
+                    solver_id
+            ) a
+            JOIN solver_view s
+                ON (a.solver_id = s.id)
+            ORDER BY
+                a.num_actions DESC,
+                a.max_activity_id DESC
+            """,
+            (puzzle["id"],),
+        )
+        if not solvers:
+            await ctx.reply(
+                f"Puzzleboss has no record of any {channel.mention} solvers, unfortunately."
+            )
+            return
+        member_count = "1 solver" if len(solvers) == 1 else f"{len(solvers)} solvers"
+        prefix = f"Found {member_count} on {channel.mention}!\n-# In descending activity order:\n"
+        suffix = (
+            "\n\n-# Did not ping these people; you have to choose to do that yourself."
+        )
+
+        def solver_mention(solver, use_tag):
+            mention = ""
+            if use_tag and solver["chat_uid"]:
+                mention = f"<@{solver['chat_uid']}>"
+            else:
+                mention = f"**{solver['solver_name'].split('#')[0]}**"
+            return f"{mention} ({solver['num_actions']}x)"
+
+        reply = await ctx.reply(
+            prefix + ", ".join(solver_mention(s, False) for s in solvers)
+        )
+        # Now edit it to use mentions so we don't ping those people
+        await reply.edit(
+            content=(
+                prefix + ", ".join(solver_mention(s, True) for s in solvers) + suffix
+            )
+        )
+
+    @guild_only()
     @commands.command(aliases=["tags"])
     async def tag(
         self,
