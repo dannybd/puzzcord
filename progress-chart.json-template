@@ -1,0 +1,102 @@
+{
+  "type": "line",
+  "options": {
+    "title": {
+      "display": true,
+      "text": "Hunt Progress (2026)"
+    },
+    "legend": {
+      "position": "right",
+      "align": "start",
+      "labels": {
+        "boxWidth": 2,
+        "fontSize": 9
+      }
+    },
+    "scales": {
+      "xAxes": [{
+        "type": "time",
+        "time": {
+          "unit": "hour",
+          "stepSize": 6,
+          "parser": "DD@HH:ii",
+          "displayFormats": {
+            "hour": "ddd hA"
+          }
+        },
+        "ticks": {
+          "min": "16@13:00",
+          "max": "19@13:00",
+          "fontSize": 9
+        }
+      }],
+      "yAxes": [{
+        "scaleLabel": {
+          "display": true,
+          "labelString": "# Solved Puzzles",
+          "fontSize": 9
+        },
+        "ticks": {
+          "min": 0,
+          "max": 300,
+          "stepSize": 20,
+          "fontSize": 9
+        }
+      }]
+    }
+  },
+  "data": {
+    "datasets": [
+      {
+        "label": "Night",
+        "backgroundColor": "rgba(0, 0, 0, 0.2)",
+        "borderWidth": 0,
+        "fill": true,
+        "spanGaps": false,
+        "data": [
+          {"x":"17@01:00","y":1000},
+          {"x":"17@07:00","y":1000},
+          {"x":"17@07:00"},
+          {"x":"18@01:00","y":1000},
+          {"x":"18@07:00","y":1000},
+          {"x":"18@07:00"},
+          {"x":"19@01:00","y":1000},
+          {"x":"19@07:00","y":1000},
+          {"x":"19@07:00"}
+        ]
+      },
+      {
+        "label": "2026",
+        "radius": 0,
+        "data": []
+      },
+      {
+        "label": "2025",
+        "borderWidth": 1,
+        "radius": 0,
+        "fill": false,
+        "data": [
+{"x":"16@13:00","y":0}
+        ]
+      },
+      {
+        "label": "2024",
+        "borderWidth": 1,
+        "radius": 0,
+        "fill": false,
+        "data": [
+{"x":"16@13:00","y":0}
+        ]
+      },
+      {
+        "label": "2023",
+        "borderWidth": 1,
+        "radius": 0,
+        "fill": false,
+        "data": [
+{"x":"16@13:00","y":0}
+        ]
+      }
+    ]
+  }
+}

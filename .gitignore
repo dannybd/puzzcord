@@ -1,4 +1,5 @@
 config.json
+progress-chart.json
 __pycache__/
 *.swp
 logs/*

@@ -6,6 +6,7 @@ from discord.ext import commands, tasks
 import discord_info
 import json
 import logging
+from quickchart import QuickChart
 import re
 from common import plural, xyzloc_mention
 from datetime import timedelta
@@ -482,6 +483,46 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             "into" if hours_in >= 0 else "until",
             " [FINAL]" if now > hunt_ends else "",
         )
+
+    @commands.command()
+    async def progress(self, ctx):
+        """Build graph of solve progress (vs. prior years)"""
+        qc = QuickChart()
+        qc.width = 1000
+        qc.height = 600
+        ordered_solve_times = SQL.select_all(
+            """
+            SELECT
+                a.solve_time
+            FROM (
+                SELECT
+                    puzzle_id,
+                    MAX(time) - INTERVAL 5 HOUR AS solve_time
+                FROM activity
+                WHERE type = 'solve'
+                GROUP BY puzzle_id
+            ) a
+            JOIN (SELECT id FROM puzzle_view WHERE status = 'Solved') p
+                ON (a.puzzle_id = p.id)
+            ORDER BY
+                a.solve_time DESC
+            """,
+        )
+        current_json = json.dumps(
+            [
+                {"x": r["solve_time"].strftime("%d@%H:%M"), "y": i + 1}
+                for (i, r) in enumerate(ordered_solve_times)
+            ]
+        )
+        with open("progress-chart.json", "r") as f:
+            chart_config_json = f.read().replace("[]", current_json)
+        qc.config = json.loads(chart_config_json)
+        await ctx.reply(qc.get_short_url())
+
+    @progress.error
+    async def progress_error(self, ctx, error):
+        await ctx.reply(f"[progress] Error! {error}")
+        raise error
 
     @commands.guild_only()
     @commands.command()
