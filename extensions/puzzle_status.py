@@ -259,7 +259,9 @@ class PuzzleStatus(commands.Cog):
         elif markas in ["waiting", "waiting for hq", "hq"]:
             status = "Waiting for HQ"
         else:
-            await ctx.reply("Usage: `!mark [needs eyes|critical|under control|grind|waiting|wtf|unnecessary]`")
+            await ctx.reply(
+                "Usage: `!mark [needs eyes|critical|under control|grind|waiting|wtf|unnecessary]`"
+            )
             return
 
         channel = channel or ctx.channel
