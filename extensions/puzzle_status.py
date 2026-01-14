@@ -198,6 +198,33 @@ class PuzzleStatus(commands.Cog):
         return
 
     @guild_only()
+    @commands.command(aliases=["tags"])
+    async def tag(
+        self,
+        ctx,
+        channel: typing.Optional[discord.TextChannel],
+    ):
+        """Display a puzzle's tags"""
+        channel = channel or ctx.channel
+        puzzle = SQL.get_puzzle_for_channel(channel)
+        if not puzzle:
+            await ctx.reply(
+                "Error: Could not find a puzzle for channel {0.mention}".format(channel)
+            )
+            return
+        tags = ", ".join(
+            f"**{tag}**" for tag in puzzle.get("tags", "").split(",") if tag
+        )
+        if tags:
+            response = f"Current tags for {channel.mention}: {tags}"
+        else:
+            response = f"No current tags for {channel.mention}!"
+        response += "\n\nUnfortunately you cannot modify tags from Discord (yet)."
+        response += f"\nInstead, click the 🏷️ icon for {puzzle['name']} "
+        response += f"[here](<https://{self.bot.team_domain}/pb/>)."
+        await ctx.reply(response)
+
+    @guild_only()
     @commands.command(aliases=["comment", "notes"])
     async def note(
         self,
