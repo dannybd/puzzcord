@@ -216,12 +216,12 @@ class PuzzleStatus(commands.Cog):
             f"**{tag}**" for tag in puzzle.get("tags", "").split(",") if tag
         )
         if tags:
-            response = f"Current tags for {channel.mention}: {tags}"
+            response = f"{channel.mention} is tagged as: {tags}"
         else:
-            response = f"No current tags for {channel.mention}!"
-        response += "\n\nUnfortunately you cannot modify tags from Discord (yet)."
-        response += f"\nInstead, click the 🏷️ icon for {puzzle['name']} "
-        response += f"[here](<https://{self.bot.team_domain}/pb/>)."
+            response = f"{channel.mention} has no tags!"
+        response += f"\n\nClick the 🏷️ icon for `{puzzle['name']}` "
+        response += f"[here](<https://{self.bot.team_domain}/pb/>) to add/remove tags."
+        response += "\n-# Unfortunately you cannot modify tags from Discord (yet)."
         await ctx.reply(response)
 
     @guild_only()
