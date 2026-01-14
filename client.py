@@ -202,6 +202,19 @@ async def gen_announce_attention(puzzle_name):
         content = "**🚨 Puzzle _`{name}`_ IS CRITICAL! ⚠️**".format(**puzzle)
         embed = build_puzzle_embed(puzzle, channel.guild)
 
+    if status == "Under control":
+        channel_name_prefix = "🕺 "
+        content = "**🕺 Puzzle _`{name}`_ is under control!** Leave it alone :)".format(
+            **puzzle
+        )
+        embed = None
+
+    if status == "Waiting for HQ":
+        pass
+
+    if status == "Grind":
+        pass
+
     if status == "Unnecessary":
         channel_name_prefix = "⚪️ "
         content = "**🤷 Puzzle _`{name}`_ is now UNNECESSARY! 🤷**".format(**puzzle)
