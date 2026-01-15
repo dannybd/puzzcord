@@ -11,6 +11,7 @@ HUNT_MEMBER_ROLE = int(config.guild.roles.hunt_member)
 PUZZTECH_ROLE = int(config.guild.roles.puzztech)
 PUZZBOSS_ROLE = int(config.guild.roles.puzzboss)
 BETABOSS_ROLE = int(config.guild.roles.betaboss)
+VOICE_OF_THE_ROOM_ROLE = int(config.guild.roles.voice_of_the_room)
 
 WELCOME_LOBBY = int(config.guild.channels.welcome_lobby)
 PUZZTECH_CHANNEL = int(config.guild.channels.puzztech)

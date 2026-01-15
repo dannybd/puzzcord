@@ -22,7 +22,8 @@
       "hunt_member": "<<<HUNT_MEMBER>>>",
       "puzztech": "<<<PUZZTECH>>>",
       "puzzboss": "<<<PUZZBOSS>>>",
-      "betaboss": "<<<BETABOSS>>>"
+      "betaboss": "<<<BETABOSS>>>",
+      "voice_of_the_room": "<<<VOICE_OF_THE_ROOM>>>"
     },
     "channels": {
       "welcome_lobby": "<<<WELCOME_LOBBY>>>",

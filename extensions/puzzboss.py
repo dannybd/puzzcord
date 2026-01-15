@@ -19,6 +19,7 @@ from discord_info import (
     PUZZBOSS_ROLE,
     PUZZTECH_ROLE,
     VISITOR_ROLE,
+    VOICE_OF_THE_ROOM_ROLE,
 )
 
 
@@ -210,38 +211,51 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
     @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
     @guild_only()
-    @commands.command()
-    async def usurp(self, ctx):
-        await self.newpuzzboss(ctx, ctx.author)
-
-    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech")
-    @guild_only()
-    @commands.command()
+    @commands.command(aliases=["usurp"])
     async def newpuzzboss(self, ctx, newboss: typing.Optional[discord.Member]):
         """[puzzboss only] Designates a new person as Puzzleboss"""
         puzzboss_role = ctx.guild.get_role(PUZZBOSS_ROLE)
-        current_puzzbosses = puzzboss_role.members
-        if not newboss:
-            newboss = ctx.author
-        if newboss in current_puzzbosses:
-            await ctx.reply("{0.mention} is already Puzzleboss!".format(newboss))
-            return
         betaboss_role = ctx.guild.get_role(BETABOSS_ROLE)
         puzztech_role = ctx.guild.get_role(PUZZTECH_ROLE)
-        if betaboss_role not in newboss.roles and puzztech_role not in newboss.roles:
-            await ctx.reply("{0.mention} should be a Beta Boss first!".format(newboss))
+        return await self._transfer_power(
+            ctx, newboss, puzzboss_role, [betaboss_role, puzztech_role]
+        )
+
+    @has_any_role("Beta Boss", "Puzzleboss", "Puzztech", "Voice of the Room")
+    @guild_only()
+    @commands.command(aliases=["newvor", "newvotr", "eat"])
+    async def newvoice(self, ctx, newvor: typing.Optional[discord.Member]):
+        """[puzzboss only] Designates a new person as Voice of the Room"""
+        vor_role = ctx.guild.get_role(VOICE_OF_THE_ROOM_ROLE)
+        return await self._transfer_power(ctx, newvor, vor_role, [])
+
+    async def _transfer_power(
+        self,
+        ctx,
+        person: typing.Optional[discord.Member],
+        role: discord.Role,
+        required_roles: typing.List[discord.Role],
+    ):
+        person = person or ctx.author
+        if person in role.members:
+            await ctx.reply(f"{person.mention} is already {role.name}!")
             return
-        for puzzboss in puzzboss_role.members:
-            await puzzboss.remove_roles(puzzboss_role)
-        await newboss.add_roles(puzzboss_role)
+        if required_roles and all(person not in r.members for r in required_roles):
+            await ctx.reply(
+                f"{person.mention} must be {' or '.join(r.mention for r in required_roles)} first!"
+            )
+            return
+        for existing in role.members:
+            await existing.remove_roles(role)
+        await person.add_roles(role)
         await ctx.reply(
             (
                 "{0.mention} has anointed {1} as the new {2.mention}! "
                 + "Use {2.mention} to get their attention."
             ).format(
                 ctx.author,
-                newboss.mention if newboss != ctx.author else "themself",
-                puzzboss_role,
+                person.mention if person != ctx.author else "themself",
+                role,
             )
         )
 
