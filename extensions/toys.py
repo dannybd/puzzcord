@@ -48,34 +48,34 @@ class Toys(commands.Cog):
         if "50/50" in content:
             if self.in_cooldown("50/50"):
                 return
-            await channel.reply("Roll up your sleeves!")
+            await channel.send("Roll up your sleeves!")
             return
         if "thanks obama" in content:
             if self.in_cooldown("thanks obama"):
                 return
-            await channel.reply("You're welcome!")
+            await channel.send("You're welcome!")
             return
         if "org chart" in content:
             if self.in_cooldown("org chart"):
                 return
-            await channel.reply("We had a plan, and we executed the plan.")
+            await channel.send("We had a plan, and we executed the plan.")
             return
         if "football" in content:
             if self.in_cooldown("football"):
                 return
-            await channel.reply("Football?  Really?")
+            await channel.send("Football?  Really?")
             return
         if content.startswith("!backsolv"):
             if self.in_cooldown("!backsolve"):
                 return
-            message = await channel.reply(
+            response = await channel.send(
                 "It's only backsolving if it comes from the region of "
                 + "actually understanding all the meta constraints, "
                 + "otherwise it's just sparkling guessing."
             )
-            await message.add_reaction("✨")
-            await message.add_reaction("🔙")
-            await message.add_reaction("🏁")
+            await response.add_reaction("✨")
+            await response.add_reaction("🔙")
+            await response.add_reaction("🏁")
 
     def in_cooldown(self, key):
         last_send = self.fun_reply_cooldowns.get(key, None)
