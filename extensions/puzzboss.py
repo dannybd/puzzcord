@@ -858,10 +858,15 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                         "https://importanthuntpoll.org/pb/addpuzzle.php?"
                         + urlencode(add_puzzle_params)
                     )
+                    zoz_link = (
+                        f": {add_puzzle_url}"
+                        if "zoz" in ctx.author.name.lower()
+                        else "."
+                    )
                     discrepancies.append(
                         f"* **New puzzle:** [{name}]({puzzle_uri}) "
                         f"in round `{round_name}` needs to be added! "
-                        f"Click [here]({add_puzzle_url}) to add."
+                        f"Click [here]({add_puzzle_url}) to add{zoz_link}"
                     )
                     continue
                 answer = puzzle.get("answer", None)
