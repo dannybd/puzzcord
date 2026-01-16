@@ -234,25 +234,22 @@ async def gen_announce_attention(puzzle_name):
     # name too recently. If it has, we'll be rate limited. So instead,
     # let's check and skip in that case.
     rate_limit_range = datetime.now() - timedelta(minutes=10)
-    recent_channel_update_by_bot = await guild.audit_logs(
+    async for entry in guild.audit_logs(
         limit=None,
         user=guild.me,
         action=discord.AuditLogAction.channel_update,
         after=rate_limit_range,
-    ).find(
-        lambda entry: entry.target == channel and entry.created_at >= rate_limit_range,
-    )
-
-    if recent_channel_update_by_bot:
-        logging.warning(
-            (
-                "Channel #{0.name} was auto-updated too recently! "
-                + "Bot will be rate-limited if we try, existing early. "
-                + "If you need to change the name, do it manually. "
-                + "(Channel last auto-updated at {1.created_at})"
-            ).format(channel, recent_channel_update_by_bot)
-        )
-        return "Warning: too recent update"
+    ):
+        if entry.target == channel and entry.created_at >= rate_limit_range:
+            logging.warning(
+                (
+                    "Channel #{0.name} was auto-updated too recently! "
+                    + "Bot will be rate-limited if we try, existing early. "
+                    + "If you need to change the name, do it manually. "
+                    + "(Channel last auto-updated at {1.created_at})"
+                ).format(channel, entry)
+            )
+            return "Warning: too recent update"
     await channel.edit(name=channel_name_prefix + puzzle["name"])
     return "Puzzle change announced"
 
