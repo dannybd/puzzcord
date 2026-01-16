@@ -923,7 +923,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             await ctx.reply("Hunt website and Puzzleboss appear to be in sync :)")
         elif not discrepancies and puzzles_to_buy:
             await send_chunks(
-                f"No discrepancies found, but we have {currency} keys "
+                f"No discrepancies found, but we have {plural(currency, 'key')} "
                 f"we can use on some puzzles:\n{puzzles_to_buy}"
             )
         elif discrepancies and not puzzles_to_buy:
