@@ -151,7 +151,7 @@ async def gen_announce_new(puzzle_name):
         category=round_category,
         position=0,
     )
-    content = "**🚨 New Puzzle 🚨 _`{name}`_ ADDED!**".format(**puzzle)
+    content = "**🚨 New Puzzle 🚨 `{name}` ADDED!**".format(**puzzle)
     embed = build_puzzle_embed(puzzle, channel.guild)
     message = await channel.send(content=content, embed=embed)
     await message.pin()
@@ -175,7 +175,7 @@ async def gen_announce_solve(puzzle_name):
             + "\nChannel is now archived."
         )
     content = (
-        f"**🎉 Puzzle _`{puzzle['name']}`_ ({channel.mention}) has been solved! 🥳**\n"
+        f"**🎉 Puzzle `{puzzle['name']}` ({channel.mention}) has been solved! 🥳**\n"
         f"(Answer: ||`{puzzle['answer']}`||)\n"
         f"Way to go team! 🎉"
     )
@@ -194,17 +194,17 @@ async def gen_announce_attention(puzzle_name):
 
     if status == "Needs eyes":
         channel_name_prefix = "🔴 "
-        content = "**❗️ Puzzle _`{name}`_ NEEDS EYES! 👀**".format(**puzzle)
+        content = "**❗️ Puzzle `{name}` NEEDS EYES! 👀**".format(**puzzle)
         embed = build_puzzle_embed(puzzle, channel.guild)
 
     if status == "Critical":
         channel_name_prefix = "🔥 "
-        content = "**🚨 Puzzle _`{name}`_ IS CRITICAL! ⚠️**".format(**puzzle)
+        content = "**🚨 Puzzle `{name}` IS CRITICAL! ⚠️**".format(**puzzle)
         embed = build_puzzle_embed(puzzle, channel.guild)
 
     if status == "Under control":
         channel_name_prefix = "🕺 "
-        content = "**🕺 Puzzle _`{name}`_ is under control!** Leave it alone :)".format(
+        content = "**🕺 Puzzle `{name}` is under control!** Leave it alone :)".format(
             **puzzle
         )
         embed = None
@@ -217,12 +217,12 @@ async def gen_announce_attention(puzzle_name):
 
     if status == "Unnecessary":
         channel_name_prefix = "⚪️ "
-        content = "**🤷 Puzzle _`{name}`_ is now UNNECESSARY! 🤷**".format(**puzzle)
+        content = "**🤷 Puzzle `{name}` is now UNNECESSARY! 🤷**".format(**puzzle)
         embed = None
 
     if status == "WTF":
         channel_name_prefix = "💣 "
-        content = "**💣Puzzle _`{name}`_ is WTF! ☣️**".format(**puzzle)
+        content = "**💣Puzzle `{name}` is WTF! ☣️**".format(**puzzle)
         embed = None
 
     if content:
@@ -259,10 +259,10 @@ async def gen_announce_attention(puzzle_name):
 
 async def gen_announce_round(round_name):
     await gen_or_create_round_category(round_name)
-    content = "🆕🔄 **New Round added! _`{0}`_**".format(round_name)
+    content = "🆕🔄 **New Round added! `{0}`**".format(round_name)
     embed = discord.Embed(
         color=get_round_embed_color(round_name),
-        title="Round: _`{0}`_".format(round_name),
+        title="Round: `{0}`".format(round_name),
     )
     await status_channel.send(content=content, embed=embed)
     return "Round announced"
