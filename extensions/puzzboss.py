@@ -816,18 +816,34 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         if "window.initialAllPuzzlesState = " not in result:
             await ctx.reply("Data not found in scrape")
             return
-        result = result.split("window.initialAllPuzzlesState = ", 1)[1]
-        result = result.split("; window.initialTeamState", 1)[0]
         try:
-            data = json.loads(result)
+            m = re.search(
+                r"(?<=window.initialAllPuzzlesState = )\{.*?\}(?=[;<])", result
+            )
+            if m is None:
+                await ctx.reply("Cannot find window.initialAllPuzzlesState JSON")
+                return
+            data = json.loads(m.group(0))
+            currency = data.get("currency", 0)
+            rounds = data.get("rounds", [])
         except json.JSONDecodeError as _:
-            await ctx.reply("Cannot parse JSON")
+            await ctx.reply("Cannot parse window.initialAllPuzzlesState JSON")
             return
         db_puzzles = SQL.get_all_puzzles()
         discrepancies = []
         puzzles_to_buy = []
-        currency = data.get("currency", 0)
-        rounds = data.get("rounds", [])
+        try:
+            m = re.search(r"(?<=window.initialNavBarState = )\{.*?\}(?=[;<])", result)
+            if m is None:
+                await ctx.reply("Cannot find window.initialNavBarState JSON")
+                return
+            data = json.loads(m.group(0))
+            num_open_puzzles = data.get("overworldPuzzlesOpen", 0)
+            max_width = data.get("maxOverworldWidth", 0)
+            num_puzzles_we_can_open = max_width - num_open_puzzles
+        except json.JSONDecodeError as _:
+            await ctx.reply("Cannot parse window.initialNavBarState JSON")
+            return
         for round in rounds:
             round_name = round.get("title", "?")
             for puzzle in round.get("puzzles", []):
@@ -925,10 +941,15 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
 
         if not discrepancies and not puzzles_to_buy:
             await ctx.reply("Hunt website and Puzzleboss appear to be in sync :)")
-        elif not discrepancies and puzzles_to_buy:
+        elif not discrepancies and puzzles_to_buy and num_puzzles_we_can_open:
             await send_chunks(
                 f"No discrepancies found, but we have {plural(currency, 'key')} "
-                f"we can use on some puzzles:\n{puzzles_to_buy}"
+                f"we can use to open up to {plural(num_puzzles_we_can_open, 'puzzle')}:\n{puzzles_to_buy}"
+            )
+        elif not discrepancies and puzzles_to_buy and not num_puzzles_we_can_open:
+            await send_chunks(
+                f"No discrepancies found, and we have {plural(currency, 'key')} "
+                f"but cannot open any puzzles until we solve something.\n{puzzles_to_buy}"
             )
         elif discrepancies and not puzzles_to_buy:
             await send_chunks(f"Discrepancies found:\n{discrepancies}")
