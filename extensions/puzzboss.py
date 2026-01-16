@@ -818,7 +818,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             await ctx.reply("Data not found in scrape")
             return
         result = result.split("window.initialAllPuzzlesState = ", 1)[1]
-        result = result.split("</script>", 1)[0]
+        result = result.split("; window.initialTeamState", 1)[0]
         try:
             data = json.loads(result)
         except json.JSONDecodeError as _:
@@ -829,12 +829,6 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         puzzles_to_buy = []
         currency = data.get("currency", 0)
         rounds = data.get("rounds", [])
-        rounds.append(
-            {
-                "title": "StrayLeads",
-                "puzzles": data.get("stray", []),
-            }
-        )
         for round in rounds:
             round_name = round.get("title", "?")
             for puzzle in round.get("puzzles", []):
@@ -848,9 +842,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                             f"* {name} in `{round_name}` (_{puzzle.get('desc', '')}_)"
                         )
                     continue
-                puzzle_uri = "https://www.two-pi-noir.agency/puzzles/" + quote_plus(
-                    slug
-                )
+                puzzle_uri = "https://puzzmon.world/puzzles/" + quote_plus(slug)
                 db_puzzle = None
                 for p in db_puzzles:
                     if p["puzzle_uri"] == puzzle_uri:
