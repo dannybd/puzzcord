@@ -611,6 +611,8 @@ class PuzzleStatus(commands.Cog):
             return prefix + puzzle["name"]
 
         status = " | ".join(puzzle_name_for_status(puzzle) for puzzle in puzzles)
+        if status:
+            status = "🧩 " + status
         try:
             await table.edit(status=status)
             logging.info(f"update_table_status ran for table {table.name}")
