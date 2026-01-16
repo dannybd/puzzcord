@@ -505,7 +505,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
             JOIN (SELECT id FROM puzzle_view WHERE status = 'Solved') p
                 ON (a.puzzle_id = p.id)
             ORDER BY
-                a.solve_time DESC
+                a.solve_time
             """,
         )
         current_json = json.dumps(
