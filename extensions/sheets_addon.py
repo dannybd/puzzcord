@@ -60,8 +60,14 @@ class SheetsAddon(commands.Cog):
               AND status <> "Solved"
             """
         )
-        for puzzle in puzzles_to_activate:
-            await self.activate(ctx, puzzle["drive_id"])
+        sheets = [puzzle["drive_id"] for puzzle in puzzles_to_activate]
+        msg = "Sheets to activate:\n\n"
+        for sheet_id in sheets:
+            msg += f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit\n"
+        await ctx.reply(msg)
+        return
+        for sheet_id in sheets:
+            await self.activate(ctx, sheet_id)
 
     async def activate(self, ctx, sheet_id):
         async with aiohttp.ClientSession(cookies=self.cookies) as session:
