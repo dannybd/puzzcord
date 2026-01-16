@@ -14,9 +14,10 @@ def build_puzzle_embed(puzzle, guild):
     if "comments" in puzzle and puzzle["comments"]:
         description += "**Comments:** {comments}\n".format(**puzzle)
 
+    name = discord.utils.escape_markdown(puzzle["name"])
     embed = discord.Embed(
         color=get_round_embed_color(puzzle["round_name"]),
-        title="Puzzle: _`{name}`_".format(**puzzle),
+        title=f"Puzzle: _`{name}`_",
         description=description,
     )
 
