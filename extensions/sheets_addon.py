@@ -13,7 +13,7 @@ class SheetsAddon(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.rotate_1psidts.start()
+        # self.rotate_1psidts.start()
         self.cookies = config.sheets_addon.cookies
         try:
             with open(".1PSIDTS", "r") as file:
@@ -64,8 +64,8 @@ class SheetsAddon(commands.Cog):
         msg = "Sheets to activate:\n\n"
         for sheet_id in sheets:
             msg += f"https://docs.google.com/spreadsheets/d/{sheet_id}/edit\n"
-        await ctx.reply(msg)
-        return
+        if ctx:
+            await ctx.reply(msg)
         for sheet_id in sheets:
             await self.activate(ctx, sheet_id)
 
