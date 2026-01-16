@@ -314,7 +314,7 @@ class PuzzleStatus(commands.Cog):
             )
             return
         await REST.update_puzzle(puzzle["id"], comments=comments or "")
-        if len(comments) > 200:
+        if len(comments) > 500:
             await ctx.message.add_reaction("📕")
             await ctx.message.add_reaction("✍️")
             await ctx.channel.send(
