@@ -513,6 +513,12 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
                 {"x": r["solve_time"].strftime("%d@%H:%M"), "y": i + 1}
                 for (i, r) in enumerate(ordered_solve_times)
             ]
+            + [
+                {
+                    "x": self.bot.now().strftime("%d@%H:%M"),
+                    "y": len(ordered_solve_times),
+                }
+            ]
         )
         with open("progress-chart.json", "r") as f:
             chart_config_json = f.read().replace("[]", current_json)
