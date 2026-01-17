@@ -2,6 +2,7 @@
 
 import discord
 from discord.ext import commands
+from db import SQL
 import string
 import random
 import extensions.util.urlhandler as urlhandler
@@ -241,6 +242,49 @@ class SolvingTools(commands.Cog):
                 yields "i can has cheezburger"
         """
         url = "https://nutrimatic.org/"
+        solved_puzzle_uris = SQL.select_all(
+            """
+              SELECT
+                  puzzle_uri
+              FROM puzzle_view
+              WHERE
+                  roundname = 'LandofNoName'
+                  AND status = 'Solved'
+              """,
+        )
+        solved_slugs = [p["puzzle_uri"].split("/")[-1] for p in solved_puzzle_uris]
+        letters = {
+            "3842": "a",
+            "9283": "b",
+            "1736": "c",
+            "6147": "d",
+            "2074": "e",
+            "4519": "f",
+            "8063": "g",
+            "1259": "h",
+            "7642": "i",
+            "3961": "j",
+            "5823": "k",
+            "9350": "l",
+            "2871": "m",
+            "6714": "n",
+            "8402": "o",
+            "4295": "p",
+            "1906": "q",
+            "3175": "r",
+            "7480": "s",
+            "6592": "t",
+            "2843": "u",
+            "9810": "v",
+            "1037": "w",
+            "5671": "x",
+            "8904": "y",
+            "2129": "z",
+        }
+        noname = (
+            "[" + "".join(letters[s] for s in letters if s not in solved_slugs) + "]"
+        )
+        query = query.replace("�", noname).replace("@", noname)
         params = {"q": query}
         response = await urlhandler.get(url, params=params)
         soup = BeautifulSoup(response, "html.parser")
