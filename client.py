@@ -193,7 +193,6 @@ async def gen_announce_attention(puzzle_name):
     embed = None
 
     if status == "Needs eyes":
-        channel_name_prefix = "🔴 "
         content = "**❗️ Puzzle `{name}` NEEDS EYES! 👀**".format(**puzzle)
         embed = build_puzzle_embed(puzzle, channel.guild)
 
