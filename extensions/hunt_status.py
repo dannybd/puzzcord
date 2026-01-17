@@ -510,12 +510,12 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
         )
         current_json = json.dumps(
             [
-                {"x": r["solve_time"].strftime("%d@%H:%M"), "y": i + 1}
+                {"x": r["solve_time"].strftime("%d@%H:%m"), "y": i + 1}
                 for (i, r) in enumerate(ordered_solve_times)
             ]
             + [
                 {
-                    "x": self.bot.now().strftime("%d@%H:%M"),
+                    "x": self.bot.now().strftime("%d@%H:%m"),
                     "y": len(ordered_solve_times),
                 }
             ]
