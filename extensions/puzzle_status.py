@@ -375,6 +375,8 @@ class PuzzleStatus(commands.Cog):
             )
             return
         await REST.update_puzzle(puzzle["id"], status=status)
+        await ctx.message.add_reaction("✍️")
+        await ctx.message.add_reaction("👁️")
 
     @commands.command(aliases=["needseyes"], hidden=True)
     async def eyes(self, ctx, channel: typing.Optional[discord.TextChannel]):
@@ -386,7 +388,7 @@ class PuzzleStatus(commands.Cog):
         """Update a puzzle's state to Critical"""
         return await self.mark(ctx, channel, markas="critical")
 
-    @commands.command(hidden=True)
+    @commands.command(aliases=["control"], hidden=True)
     async def undercontrol(self, ctx, channel: typing.Optional[discord.TextChannel]):
         """Update a puzzle's state to Under control"""
         return await self.mark(ctx, channel, markas="undercontrol")
