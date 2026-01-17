@@ -949,14 +949,20 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
         elif not discrepancies and puzzles_to_buy and not num_puzzles_we_can_open:
             await send_chunks(
                 f"No discrepancies found, and we have {plural(currency, 'key')} "
-                f"but cannot open any puzzles until we solve something.\n{puzzles_to_buy}"
+                f"but cannot open any of these puzzles until we solve something:\n{puzzles_to_buy}"
             )
         elif discrepancies and not puzzles_to_buy:
             await send_chunks(f"Discrepancies found:\n{discrepancies}")
+        elif num_puzzles_we_can_open:
+            await send_chunks(
+                f"Discrepancies found:\n{discrepancies}\n\n"
+                f"We also have {plural(currency, 'key')} we can use to open up to {plural(num_puzzles_we_can_open, 'puzzle')}:\n"
+                f"{puzzles_to_buy}"
+            )
         else:
             await send_chunks(
                 f"Discrepancies found:\n{discrepancies}\n\n"
-                f"We also have {plural(currency, 'key')} we can use on some puzzles:\n"
+                f"We also have {plural(currency, 'key')} but cannot open any of these puzzles until we solve something:\n"
                 f"{puzzles_to_buy}"
             )
 
