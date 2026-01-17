@@ -283,9 +283,10 @@ class PuzzleStatus(commands.Cog):
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             return
-        tags = ", ".join(
-            f"**{tag}**" for tag in puzzle.get("tags", "").split(",") if tag
-        )
+        if "tags" in puzzle and puzzle["tags"]:
+            tags = ", ".join(f"**{tag}**" for tag in puzzle["tags"].split(",") if tag)
+        else:
+            tags = ""
         if tags:
             response = f"{channel.mention} is tagged as: {tags}"
         else:
