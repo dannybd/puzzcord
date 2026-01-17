@@ -313,6 +313,10 @@ class PuzzleStatus(commands.Cog):
                 "Error: Could not find a puzzle for channel {0.mention}".format(channel)
             )
             return
+        comments = (comments or "").strip()
+        if not comments:
+            await ctx.reply(f"Current note: {puzzle['note']}")
+            return
         await REST.update_puzzle(puzzle["id"], comments=comments or "")
         if len(comments) > 500:
             await ctx.message.add_reaction("📕")
