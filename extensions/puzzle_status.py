@@ -586,7 +586,7 @@ class PuzzleStatus(commands.Cog):
                 + "command to help note how far your got in this puzzle "
                 + "for future solvers."
             )
-        tables = discord.get_tables(ctx.guild)
+        tables = discord_info.get_tables(ctx.guild)
         for table in tables:
             if table.name == puzzle["xyzloc"]:
                 await self.update_table_status(table)
