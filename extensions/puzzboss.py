@@ -853,11 +853,14 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                     continue
                 if puzzle.get("state", "?") != "unlocked":
                     if currency:
-                        puzzles_to_buy.append(
-                            f"* {name} in `{round_name}` (_{puzzle.get('desc', '')}_)"
-                        )
+                        bullet = f"* {name} in `{round_name}`"
+                        if puzzle.get("desc", ""):
+                            bullet += f" (_{puzzle['desc']}_)"
+                        puzzles_to_buy.append(bullet)
                     continue
-                puzzle_uri = f"{self.bot.hunt_config.hunt_domain}/puzzles/" + quote_plus(slug)
+                puzzle_uri = (
+                    f"{self.bot.hunt_config.hunt_domain}/puzzles/" + quote_plus(slug)
+                )
                 db_puzzle = None
                 for p in db_puzzles:
                     db_puzzle_uri = re.sub(
