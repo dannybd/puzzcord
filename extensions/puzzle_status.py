@@ -613,8 +613,6 @@ class PuzzleStatus(commands.Cog):
         puzzles = [
             p for p in SQL.get_puzzles_at_table(table) if p["status"] != "Solved"
         ]
-        if not puzzles:
-            return
 
         def puzzle_name_for_status(puzzle):
             prefix = "🧩"
@@ -625,9 +623,11 @@ class PuzzleStatus(commands.Cog):
             return prefix + puzzle["name"]
 
         status = " & ".join(puzzle_name_for_status(puzzle) for puzzle in puzzles)
+        status = status or "❓ Unknown: use !joinme"
+        if not table.members:
+            status = ""
         try:
             await table.edit(status=status)
-            logging.info(f"update_table_status ran for table {table.name}")
         except Exception as e:
             logging.error(f"update_table_status failed for table {table.name}: {e=}")
             pass
