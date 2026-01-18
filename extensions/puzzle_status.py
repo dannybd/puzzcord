@@ -218,12 +218,14 @@ class PuzzleStatus(commands.Cog):
                 a.solver_id,
                 s.chat_uid,
                 COALESCE(s.chat_name, s.fullname) AS solver_name,
+                s.puzz = %s AS is_current_puzzle,
+                TIMESTAMPDIFF(MINUTE, a.last_activity_time, CURRENT_TIMESTAMP) AS staleness_min,
                 a.num_actions
             FROM (
                 SELECT
                     solver_id,
                     COUNT(*) AS num_actions,
-                    MAX(id) AS max_activity_id
+                    MAX(time) AS last_activity_time
                 FROM activity
                 WHERE
                     puzzle_id = %s
@@ -235,9 +237,9 @@ class PuzzleStatus(commands.Cog):
                 ON (a.solver_id = s.id)
             ORDER BY
                 a.num_actions DESC,
-                a.max_activity_id DESC
+                a.last_activity_time DESC
             """,
-            (puzzle["id"],),
+            (puzzle["id"], puzzle["name"]),
         )
         if not solvers:
             await ctx.reply(
@@ -256,7 +258,15 @@ class PuzzleStatus(commands.Cog):
                 mention = f"<@{solver['chat_uid']}>"
             else:
                 mention = f"**{solver['solver_name'].split('#')[0]}**"
-            return f"{mention} ({solver['num_actions']}x)"
+            if solver["is_current_puzzle"]:
+                recent = "**currently solving**!"
+            else:
+                staleness_min = solver["staleness_min"]
+                if staleness_min <= 90:
+                    recent = f"{staleness_min:0f}min ago"
+                else:
+                    recent = f"{(staleness_min/60.0):0.1f}hr ago"
+            return f"{mention} ({solver['num_actions']}x, {recent})"
 
         reply = await ctx.reply(
             prefix + ", ".join(solver_mention(s, False) for s in solvers)
