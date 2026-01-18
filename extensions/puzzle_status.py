@@ -218,7 +218,7 @@ class PuzzleStatus(commands.Cog):
                 a.solver_id,
                 s.chat_uid,
                 COALESCE(s.chat_name, s.fullname) AS solver_name,
-                s.puzz = %s AS is_current_puzzle,
+                s.puzz AS current_puzzle,
                 TIMESTAMPDIFF(MINUTE, a.last_activity_time, CURRENT_TIMESTAMP) AS staleness_min,
                 a.num_actions
             FROM (
@@ -258,14 +258,14 @@ class PuzzleStatus(commands.Cog):
                 mention = f"<@{solver['chat_uid']}>"
             else:
                 mention = f"**{solver['solver_name'].split('#')[0]}**"
-            if solver["is_current_puzzle"]:
+            if solver["current_puzzle"] == puzzle["name"]:
                 recent = "**currently solving**!"
             else:
                 staleness_min = solver["staleness_min"]
                 if staleness_min <= 90:
                     recent = f"{staleness_min:0f}min ago"
                 else:
-                    recent = f"{(staleness_min/60.0):0.1f}hr ago"
+                    recent = f"{(staleness_min/60.0):0f}hr ago"
             return f"{mention} ({solver['num_actions']}x, {recent})"
 
         reply = await ctx.reply(
