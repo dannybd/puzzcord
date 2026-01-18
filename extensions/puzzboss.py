@@ -849,11 +849,15 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             for puzzle in round.get("puzzles", []):
                 slug = puzzle.get("slug", "")
                 name = puzzle.get("title", "")
+                is_meta = puzzle.get("is_meta", False)
                 if not slug or not name:
                     continue
                 if puzzle.get("state", "?") != "unlocked":
                     if currency:
-                        bullet = f"* {name} in `{round_name}`"
+                        bullet = "* "
+                        if is_meta:
+                            bullet += "**🏆META🏆** "
+                        bullet += f"{name} in `{round_name}`"
                         if puzzle.get("desc", ""):
                             bullet += f" (_{puzzle['desc']}_)"
                         puzzles_to_buy.append(bullet)
@@ -875,6 +879,8 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                         "puzzid": name,
                         "roundname": round_name.replace(" ", ""),
                     }
+                    if is_meta:
+                        add_puzzle_params["is_meta"] = 1
                     add_puzzle_url = (
                         "https://importanthuntpoll.org/pb/addpuzzle.php?"
                         + urlencode(add_puzzle_params)
@@ -884,8 +890,9 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                         if "zoz" in ctx.author.name.lower()
                         else "."
                     )
+                    meta = "🏆META🏆 " if is_meta else ""
                     discrepancies.append(
-                        f"* **New puzzle:** [{name}]({puzzle_uri}) "
+                        f"* **New {meta}puzzle:** [{name}]({puzzle_uri}) "
                         f"in round `{round_name}` needs to be added! "
                         f"Click [here]({add_puzzle_url}) to add{zoz_link}"
                     )
