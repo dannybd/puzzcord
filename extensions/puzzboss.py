@@ -979,6 +979,53 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 f"{puzzles_to_buy}"
             )
 
+    @commands.command()
+    async def hints(self, ctx):
+        config = self.bot.hunt_config
+        url = config.hunt_domain + "/activity_log"
+        cookie = config.get("scrape_cookie", None)
+        if not cookie:
+            await ctx.reply("No cookie")
+        headers = {
+            "accept": "text/html",
+            "cache-control": "max-age=0",
+            "cookie": cookie,
+            "user-agent": "Puzzleboss v0.1 HuntTeam:"
+            + config.get("team_name", "Unknown"),
+        }
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url) as response:
+                if response.status != 200:
+                    await ctx.reply(f"Scrape error code {response.status}")
+                    return
+                result = await response.text()
+        if "window.initialActivityLog = " not in result:
+            await ctx.reply("Data not found in scrape")
+            return
+        try:
+            m = re.search(
+                r"(?<=window.initialActivityLog = )[\[{].*?[\]}](?=[;<])", result
+            )
+            if m is None:
+                await ctx.reply("Cannot find window.initialActivityLog JSON")
+                return
+            logs = json.loads(m.group(0))
+        except json.JSONDecodeError as _:
+            await ctx.reply("Cannot parse window.initialActivityLog JSON")
+            return
+        for log in logs[::-1]:
+            if log["type"] == "hint_responded":
+                await ctx.reply(
+                    f"**Hint available!** (Came back for **{log['resource_title']}**)"
+                )
+                return
+            if log["type"] == "hint_requested":
+                await ctx.reply(
+                    f"Hint currently pending for **{log['resource_title']}**, need to wait"
+                )
+                return
+        await ctx.reply("No hint info I can find so far! (Check Activity Log)")
+
 
 async def setup(bot):
     cog = Puzzboss(bot)
