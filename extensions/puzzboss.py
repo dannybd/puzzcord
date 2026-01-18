@@ -853,7 +853,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                 if not slug or not name:
                     continue
                 if puzzle.get("state", "?") != "unlocked":
-                    if currency:
+                    if currency and not puzzle.get("hide_unlockable", False):
                         bullet = "* "
                         if is_meta:
                             bullet += "**🏆META🏆** "
