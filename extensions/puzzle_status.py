@@ -239,7 +239,7 @@ class PuzzleStatus(commands.Cog):
                 a.num_actions DESC,
                 a.last_activity_time DESC
             """,
-            (puzzle["id"], puzzle["name"]),
+            (puzzle["id"],),
         )
         if not solvers:
             await ctx.reply(
