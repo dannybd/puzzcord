@@ -225,7 +225,6 @@ class PuzzleStatus(commands.Cog):
                 SELECT
                     solver_id,
                     COUNT(*) AS num_actions,
-                    MAX(id) AS max_activity_id,
                     MAX(time) AS last_activity_time
                 FROM activity
                 WHERE
@@ -237,8 +236,8 @@ class PuzzleStatus(commands.Cog):
             JOIN solver_view s
                 ON (a.solver_id = s.id)
             ORDER BY
-                a.num_actions DESC,
-                a.max_activity_id DESC
+                a.last_activity_time DESC,
+                a.num_actions DESC
             """,
             (puzzle["id"],),
         )
@@ -267,7 +266,10 @@ class PuzzleStatus(commands.Cog):
                     recent = f"{staleness_min:0.0f}min ago"
                 else:
                     recent = f"{(staleness_min/60.0):0.0f}hr ago"
-            return f"{mention} ({solver['num_actions']}x, {recent})"
+            multiplier = (
+                f"{solver['num_actions']}x," if solver["num_actions"] > 1 else ""
+            )
+            return f"{mention} ({multiplier}{recent})"
 
         reply = await ctx.reply(
             prefix + ", ".join(solver_mention(s, False) for s in solvers)
