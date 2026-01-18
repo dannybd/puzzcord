@@ -236,8 +236,8 @@ class PuzzleStatus(commands.Cog):
             JOIN solver_view s
                 ON (a.solver_id = s.id)
             ORDER BY
-                a.last_activity_time DESC,
-                a.num_actions DESC
+                a.num_actions DESC,
+                a.last_activity_time DESC
             """,
             (puzzle["id"],),
         )
@@ -259,7 +259,7 @@ class PuzzleStatus(commands.Cog):
             else:
                 mention = f"**{solver['solver_name'].split('#')[0]}**"
             if solver["current_puzzle"] == puzzle["name"]:
-                recent = "**currently solving**!"
+                recent = "**currently solving!**"
             else:
                 staleness_min = solver["staleness_min"]
                 if staleness_min <= 90:
@@ -267,7 +267,7 @@ class PuzzleStatus(commands.Cog):
                 else:
                     recent = f"{(staleness_min/60.0):0.0f}hr ago"
             multiplier = (
-                f"{solver['num_actions']}x," if solver["num_actions"] > 1 else ""
+                f"{solver['num_actions']}x, " if solver["num_actions"] > 1 else ""
             )
             return f"{mention} ({multiplier}{recent})"
 
