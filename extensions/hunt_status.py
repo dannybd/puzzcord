@@ -455,7 +455,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
                 value += "🏁 Solved: **{Solved}**\n".format(**round)
             if round["approx_solvers"]:
                 value += "👩‍💻 **`≈{approx_solvers}`** solvers".format(**round)
-            embed.add_field(name=name.title(), value=value, inline=True)
+            embed.add_field(name=name, value=value, inline=True)
 
         solved_rounds = []
         for name in solved_round_names:
