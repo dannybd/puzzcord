@@ -857,10 +857,13 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
                             f"* {name} in `{round_name}` (_{puzzle.get('desc', '')}_)"
                         )
                     continue
-                puzzle_uri = "https://puzzmon.world/puzzles/" + quote_plus(slug)
+                puzzle_uri = f"{self.bot.hunt_config.hunt_domain}/puzzles/" + quote_plus(slug)
                 db_puzzle = None
                 for p in db_puzzles:
-                    if p["puzzle_uri"] == puzzle_uri:
+                    db_puzzle_uri = re.sub(
+                        r"/rounds/\w+\?puzzle=", "/puzzles/", p["puzzle_uri"]
+                    )
+                    if db_puzzle_uri == puzzle_uri:
                         db_puzzle = p
                         break
                 if not db_puzzle:
