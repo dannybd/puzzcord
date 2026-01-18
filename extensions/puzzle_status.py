@@ -42,6 +42,9 @@ class PuzzleStatus(commands.Cog):
         content = self._tables(guild)
         content += "\n\nThis info auto-updates every 15 seconds."
         await message.edit(content=content, suppress=True)
+        tables = discord_info.get_tables(guild)
+        for table in tables:
+            await self.update_table_status(table)
 
     @commands.command(aliases=["puz"])
     async def puzzle(
@@ -604,35 +607,24 @@ class PuzzleStatus(commands.Cog):
             if table.name == puzzle["xyzloc"]:
                 await self.update_table_status(table)
 
-    @tasks.loop(seconds=300.0, reconnect=True)
-    async def update_all_table_statuses(self):
-        guild = self.bot.get_guild(discord_info.GUILD_ID)
-        if not guild:
-            return
-        tables = discord_info.get_tables(guild)
-        for table in tables:
-            await self.update_table_status(table)
-
     async def update_table_status(self, table):
         if not table:
             return
-        puzzles = SQL.get_puzzles_at_table(table)
+        puzzles = [
+            p for p in SQL.get_puzzles_at_table(table) if p["status"] != "Solved"
+        ]
         if not puzzles:
             return
 
         def puzzle_name_for_status(puzzle):
-            prefix = ""
-            if puzzle["status"] == "Solved":
-                prefix += "✅"
+            prefix = "🧩"
             if puzzle["ismeta"]:
                 prefix += "🏅"
             if prefix:
                 prefix += " "
             return prefix + puzzle["name"]
 
-        status = " | ".join(puzzle_name_for_status(puzzle) for puzzle in puzzles)
-        if status:
-            status = "🧩 " + status
+        status = " & ".join(puzzle_name_for_status(puzzle) for puzzle in puzzles)
         try:
             await table.edit(status=status)
             logging.info(f"update_table_status ran for table {table.name}")
