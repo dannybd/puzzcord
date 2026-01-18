@@ -593,7 +593,7 @@ class PuzzleStatus(commands.Cog):
         await REST.update_puzzle(puzzle["id"], xyzloc="")
         await ctx.message.add_reaction("👋")
         await ctx.message.add_reaction("🔚")
-        if not channel_or_query:
+        if not channel_or_query and puzzle["status"] != "Solved":
             await ctx.message.reply(
                 "See you later! Please consider using the `!note [message]` "
                 + "command to help note how far your got in this puzzle "
