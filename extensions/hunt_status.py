@@ -330,7 +330,7 @@ We'll use it for team meetings & HQ interactions, but it's also fun to stay conn
                 description += "\n(continued...)"
                 descriptions.append(description)
                 description = ""
-            description += "**{}:** {}\n".format(round_name.title(), ", ".join(puzzles))
+            description += "**{}:** {}\n".format(round_name, ", ".join(puzzles))
         description += (
             "\nThanks for a great Hunt; it's been a lot of fun "
             + "making this happen. Now go write some feedback! 💌"

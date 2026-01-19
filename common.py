@@ -73,7 +73,7 @@ def build_puzzle_embed(puzzle, guild):
     embed.add_field(
         name="Discord Channel", value="<#{channel_id}>".format(**puzzle), inline=True
     )
-    embed.add_field(name="Round", value=puzzle["round_name"].title(), inline=True)
+    embed.add_field(name="Round", value=puzzle["round_name"], inline=True)
     # spacer field to make it 2x2
     embed.add_field(name="\u200b", value="\u200b", inline=True)
     if "tags" in puzzle and puzzle["tags"]:
