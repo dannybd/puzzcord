@@ -633,7 +633,7 @@ class PuzzleStatus(commands.Cog):
             pass
 
     @guild_only()
-    @commands.command(name="wb", aliases=["whiteboard"])
+    @commands.command(name="wb", aliases=["whiteboard", "cocreate"])
     async def wb(self, ctx, new: typing.Optional[str]):
         """Creates a new whiteboard for you to use, each time you call it"""
         pending_message = await ctx.reply("Getting you a whiteboard...")
@@ -643,8 +643,7 @@ class PuzzleStatus(commands.Cog):
                 (
                     pin.content
                     for pin in pins
-                    if pin.author == self.bot.user
-                    and "https://cocreate.mehtank.com/r/" in pin.content
+                    if "https://cocreate.mehtank.com/r/" in pin.content
                 ),
                 None,
             )
