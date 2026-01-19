@@ -672,6 +672,39 @@ class PuzzleStatus(commands.Cog):
         await pending_message.delete()
         await message.pin()
 
+    @commands.Cog.listener("on_message")
+    async def pin_wbs_in_puzzle_channels(self, message):
+        if message.author.id == self.bot.user.id:
+            return
+        if "https://cocreate.mehtank.com/r/" not in message.content:
+            return
+        this_cocreate = re.findall(
+            r"https://cocreate\.mehtank\.com/r/[^*]+", message.content
+        )[0]
+        channel = message.channel
+        if not discord_info.is_puzzle_channel(channel):
+            return
+        pins = await channel.pins()
+        wb_message = next(
+            (
+                pin.content
+                for pin in pins
+                if "https://cocreate.mehtank.com/r/" in pin.content
+            ),
+            None,
+        )
+        if wb_message:
+            wb_url = re.findall(r"https://cocreate\.mehtank\.com/r/[^*]+", wb_message)[
+                0
+            ]
+            if wb_url == this_cocreate:
+                return
+            message.reply(
+                f"Heads up: There's a pre-existing whiteboard in this channel: {wb_url}"
+            )
+            return
+        await message.pin()
+
     @commands.Cog.listener("on_voice_state_update")
     async def handle_vc_emptying(self, member, before, after):
         # Only run if they were previously in a channel,
