@@ -81,7 +81,7 @@ class Toys(commands.Cog):
         last_send = self.fun_reply_cooldowns.get(key, None)
         now = self.bot.now()
         if last_send is not None:
-            if (now - last_send).minutes < 1:
+            if (now - last_send).seconds < 60:
                 return True
         self.fun_reply_cooldowns[key] = now
         return False
