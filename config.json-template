@@ -37,6 +37,7 @@
     }
   },
   "hunt_config": {
+    "feedback_doc": "",
     "hq_room": "26-100",
     "hunt_begins": "2024-01-12T13:00:00",
     "hunt_domain": "https://puzzles.mit.edu",

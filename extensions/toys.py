@@ -39,6 +39,14 @@ class Toys(commands.Cog):
             + "You can also copy one [here](<https://zerowidthspace.me/>)."
         )
 
+    @commands.command()
+    async def thedoc(self, ctx):
+        """Feedback is a Gift(tm)"""
+        feedback_doc = self.bot.hunt_config.feedback_doc
+        if not feedback_doc:
+            return
+        await ctx.reply(f"[Our post-Hunt feedback doc](<{feedback_doc}>)")
+
     @commands.Cog.listener("on_message")
     async def fun_replies(self, message):
         if message.author == self.bot.user:
