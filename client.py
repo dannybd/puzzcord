@@ -60,6 +60,13 @@ async def on_ready():
 
 
 async def gen_handle_server_request(reader, writer):
+    if client.is_closed():
+        # The discord.py session is gone but the socket server would keep
+        # accepting connections forever, silently failing every command
+        # (and fooling TCP health probes). Exit nonzero so the supervisor
+        # (systemd Restart=on-failure) brings us back with a fresh session.
+        logging.critical("Discord session is closed; exiting so supervisor restarts us")
+        os._exit(1)
     response = None
     try:
         data = await reader.read()
@@ -82,6 +89,12 @@ async def gen_run(command, args):
     global guild, status_channel
     guild = client.get_guild(GUILD_ID)
     status_channel = client.get_channel(STATUS_CHANNEL)
+
+    if command == "health":
+        # Liveness check for external monitoring (e.g. blackbox_exporter
+        # with a query/response TCP module). Reaching here means the
+        # socket server is up AND the Discord session is alive.
+        return "ok"
 
     if command == "create_json":
         name, *topic = args
