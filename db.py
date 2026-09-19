@@ -109,6 +109,19 @@ class SQL:
 
     @staticmethod
     def get_hunt_config():
+        """Hunt settings, in two tiers.
+
+        config.json's hunt_config supplies defaults; the puzzleboss config
+        table overrides any key it defines, and is the tier operators edit
+        (admin UI, backed up with the database, survives a server rebuild).
+        Both tiers use the same key names, so this is a plain override
+        rather than a translation.
+
+        A database failure here is deliberately fatal: every useful command
+        reads the same database, so a bot that started without it would look
+        healthy while failing every request. Better to exit and let the
+        supervisor retry until the database is back.
+        """
         hunt_config = munchify(config.get("hunt_config", dict()))
         rows = SQL.select_all("SELECT `key`, val FROM config")
         hunt_config.update(**dict(row.values() for row in rows))

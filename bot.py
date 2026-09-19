@@ -43,7 +43,7 @@ class PuzzcordBot(commands.Bot):
         self.tz = timezone(self.hunt_config.timezone)
         self.hunt_begins = self.from_iso(self.hunt_config.hunt_begins)
         self.hunt_ends = self.from_iso(self.hunt_config.hunt_ends)
-        self.team_domain = self.hunt_config.team_domain
+        self.team_domain = self.hunt_config.DOMAINNAME
 
     def now(self):
         return datetime.now(self.tz)

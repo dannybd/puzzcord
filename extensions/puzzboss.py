@@ -59,7 +59,17 @@ Learn more here: https://{team_domain}/wiki/index.php/Hunting_in_Discord:_A_Guid
 
 Thanks, and happy hunting! 🕵️‍♀️🧩
         """
-            ).format(**self.bot.hunt_config, cb=time.time())
+            ).format(
+                # Named explicitly rather than splatting the whole config: the
+                # message placeholders stay readable, and only these four values
+                # are exposed to format() instead of every config row (which
+                # includes secrets).
+                team_name=self.bot.hunt_config.TEAMNAME,
+                team_domain=self.bot.team_domain,
+                registration_username=self.bot.hunt_config.ACCT_USERNAME,
+                registration_password=self.bot.hunt_config.ACCT_PASSWORD,
+                cb=time.time(),
+            )
         )
         await ctx.reply(
             "Welcome aboard, {}! Check your DMs for instructions on how to set up your account to hunt with us 🙂".format(
@@ -805,7 +815,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             "cache-control": "max-age=0",
             "cookie": cookie,
             "user-agent": "Puzzleboss v0.1 HuntTeam:"
-            + config.get("team_name", "Unknown"),
+            + config.get("TEAMNAME", "Unknown"),
         }
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url) as response:
@@ -991,7 +1001,7 @@ He reached hastily into his pocket. The bum had stopped him and asked for a dime
             "cache-control": "max-age=0",
             "cookie": cookie,
             "user-agent": "Puzzleboss v0.1 HuntTeam:"
-            + config.get("team_name", "Unknown"),
+            + config.get("TEAMNAME", "Unknown"),
         }
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url) as response:
